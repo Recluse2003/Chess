@@ -3,4 +3,5 @@
   <Project Path="src/Chess.Domain/Chess.Domain.csproj" Id="0bfcdbe0-3a9e-40e6-b999-9b1224c20697" />
   <Project Path="src/Chess.Infrastructure/Chess.Infrastructure.csproj" Id="68fd4c45-6046-4d8e-ba43-db4868136f3e" />
   <Project Path="src/Chess.Web/Chess.Web.csproj" Id="95fd0915-12f3-46c5-afb0-fc2b9d5f58e3" />
+  <Project Path="tests/ChessGame.Domain.UnitTests/Chess.Domain.UnitTests.csproj" Id="9e1df1d2-9b0e-49e7-bc1a-f92312e8fd9e" />
 </Solution>

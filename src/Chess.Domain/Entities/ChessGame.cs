@@ -13,7 +13,6 @@ namespace Chess.Domain.Entities
         public GameStatus Status { get; private set; } = GameStatus.Active;
         public bool IsWhiteTurn => Board.FullmoveNumber % 2 != 0;
         public List<Move> MoveHistory { get; private set; } = null!;
-        
 
         public ChessGame(Guid id, string whitePlayerId, string blackPlayerId, string fen, GameStatus gameStatus) 
         { 
@@ -44,10 +43,10 @@ namespace Chess.Domain.Entities
             this.Board = Board.ApplyMove(move);
 
             // Records new move
-            MoveHistory.Add(move);
+            this.MoveHistory.Add(move);
 
             if (rules.IsCheckmate(Board)) 
-                Status = GameStatus.Finished;
+                this.Status = GameStatus.Finished;
         }
     }
 }
