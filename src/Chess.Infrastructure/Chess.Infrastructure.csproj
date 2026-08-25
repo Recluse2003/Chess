@@ -7,11 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Persistence\Entities\" />
+    <Folder Include="Persistence\Models\" />
     <Folder Include="Persistence\Configurations\" />
     <Folder Include="Persistence\Migrations\" />
     <Folder Include="Persistence\Repositories\" />
-    <Folder Include="Services\" />
+    <Folder Include="ExternalServices\" />
   </ItemGroup>
 
   <ItemGroup>
