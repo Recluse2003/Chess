@@ -11,7 +11,6 @@ namespace Chess.Domain.Entities
         public string BlackPlayerId { get; private set; } = null!;
         public Board Board { get; private set; } = null!;
         public GameStatus Status { get; private set; } = GameStatus.Active;
-        public bool IsWhiteTurn => Board.FullmoveNumber % 2 != 0;
         public List<Move> MoveHistory { get; private set; } = null!;
 
         public ChessGame(Guid id, string whitePlayerId, string blackPlayerId, string fen, GameStatus gameStatus) 
@@ -32,7 +31,7 @@ namespace Chess.Domain.Entities
 
             // Get the piece moving to check turn validity
             var piece = Board.GetPiece(move.From);
-            if (char.IsUpper(piece) != IsWhiteTurn)
+            if (char.IsUpper(piece) != Board.IsWhiteTurn)
                 throw new InvalidOperationException("It is not this player's turn.");
 
             // Verify move is legal

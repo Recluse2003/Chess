@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ChessGame.Domain.UnitTests.Services
+namespace Chess.Domain.UnitTests.Services
 {
     public class ChessRulesServiceTests
     {

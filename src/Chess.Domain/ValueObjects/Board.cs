@@ -18,7 +18,7 @@
     public class Board
     {
         private readonly char[,] _squares = new char[8, 8];
-
+        public bool IsWhiteTurn { get; }
         public string CastlingRights { get; }      // "KQkq"
         public string EnPassantTarget { get; }     // "e3" or "-"
         public int HalfmoveClock { get; }
@@ -26,9 +26,10 @@
 
         public const char Empty = '.';
 
-        public Board(char[,] squares, string castlingRights, string enPassantTarget, int halfmoveClock, int fullmoveNumber)
+        public Board(char[,] squares, bool isWhiteTurn, string castlingRights, string enPassantTarget, int halfmoveClock, int fullmoveNumber)
         {
             _squares = squares;
+            IsWhiteTurn = isWhiteTurn;
             CastlingRights = castlingRights;
             EnPassantTarget = enPassantTarget;
             HalfmoveClock = halfmoveClock;
@@ -43,6 +44,21 @@
             SetPiece(Move.To, piece);
 
             throw new NotImplementedException();
+        }
+
+        public static char[,] EmptyBoard()
+        {
+            char[,] emptyBoard = new char[8, 8];
+
+            for (int row = 0; row < 8; row++)
+            {
+                for (int col = 0; col < 8; col++)
+                {
+                    emptyBoard[row, col] = Empty;
+                }
+            }
+
+            return emptyBoard;
         }
 
         public char GetPiece(Position position)

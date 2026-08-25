@@ -2,7 +2,7 @@
 using Chess.Domain.ValueObjects;
 using FluentAssertions;
 
-namespace ChessGame.Domain.UnitTests.Services
+namespace Chess.Domain.UnitTests.Services
 {
     public class FenConverterServiceTests
     {

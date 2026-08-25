@@ -1,4 +1,4 @@
-﻿namespace ChessGame.Domain.UnitTests
+﻿namespace Chess.Domain.UnitTests
 {
     public class UnitTest1
     {
