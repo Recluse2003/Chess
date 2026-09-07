@@ -15,8 +15,6 @@ namespace Chess.Domain.Services
             var candidateMoves = GetCanidiateMoves(chessGame, piecePosition);
 
             return RemoveKingCheckMoves(chessGame, piecePosition, candidateMoves);
-
-            throw new NotImplementedException();
         }
 
         public List<Position> GetCanidiateMoves(ChessGame chessGame, Position piecePosition)
