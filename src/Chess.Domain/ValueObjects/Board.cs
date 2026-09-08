@@ -20,13 +20,13 @@
         private readonly char[,] _squares = new char[8, 8];
         public bool IsWhiteTurn { get; }
         public string CastlingRights { get; }      // "KQkq"
-        public string EnPassantTarget { get; }     // "e3" or "-"
+        public Position? EnPassantTarget { get; }     
         public int HalfmoveClock { get; }
         public int FullmoveNumber { get; }
 
         public const char Empty = '.';
 
-        public Board(char[,] squares, bool isWhiteTurn, string castlingRights, string enPassantTarget, int halfmoveClock, int fullmoveNumber)
+        public Board(char[,] squares, bool isWhiteTurn, string castlingRights, Position? enPassantTarget, int halfmoveClock, int fullmoveNumber)
         {
             _squares = squares;
             IsWhiteTurn = isWhiteTurn;

@@ -41,12 +41,14 @@ namespace Chess.Domain.Services
                     fen.Append('/');
             }
 
-            if (board.FullmoveNumber % 2 != 0)
+            if (board.IsWhiteTurn)
                 fen.Append(" w");
             else
                 fen.Append(" b");
 
-            fen.Append($" {board.CastlingRights} {board.EnPassantTarget} {board.HalfmoveClock} {board.FullmoveNumber}");
+            string enPassantTarget = board.EnPassantTarget?.ToChessNotation() ?? "-";
+
+            fen.Append($" {board.CastlingRights} {enPassantTarget} {board.HalfmoveClock} {board.FullmoveNumber}");
 
             return fen.ToString();
         }
@@ -86,8 +88,12 @@ namespace Chess.Domain.Services
             bool IsWhiteTurn = gameState[1] == "w";
             int halfmoveClock = int.Parse(gameState[4]);
 
-            return new Board(squares, gameState[1] == "w", gameState[2], gameState[3], int.Parse(gameState[4]), int.Parse(gameState[5]));
+            Position? enPassantTarget = null;
 
+            if (gameState[3] != "-")
+                enPassantTarget = Position.FromChessNotation(gameState[3]);
+
+            return new Board(squares, gameState[1] == "w", gameState[2], enPassantTarget, int.Parse(gameState[4]), int.Parse(gameState[5]));
         }
     }
 }

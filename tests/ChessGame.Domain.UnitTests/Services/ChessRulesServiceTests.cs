@@ -60,16 +60,16 @@ namespace Chess.Tests.Domain.Services
         public void GetCandidateMoves_Pawn_ShouldCaptureDiagonally()
         {
             // Arrange: White pawn e4, black pieces on d5 and f5
-            string fen = "4k3/8/3r1r2/4P3/8/8/8/4K3 w - - 0 1";
+            string fen = "4k3/8/8/3r1r2/4P3/8/8/4K3 w - - 0 1";
             var game = CreateGame(fen);
 
             // Act
             var moves = _rulesService.GetCanidiateMoves(game, new Position(4, 3));
 
             // Assert
-            moves.Should().Contain(new Position(3, 4)); // d5
-            moves.Should().Contain(new Position(5, 4)); // f5
-            moves.Should().Contain(new Position(4, 4)); // e5
+            moves.Should().Contain(new Position(3, 4)); // d6
+            moves.Should().Contain(new Position(5, 4)); // f6
+            moves.Should().Contain(new Position(4, 4)); // e6
         }
 
         [Fact]
@@ -84,6 +84,41 @@ namespace Chess.Tests.Domain.Services
 
             // Assert
             moves.Should().NotContain(new Position(4, 3));
+        }
+
+        [Fact]
+        public void GetCandidateMoves_WhitePawn_ShouldCaptureEnPassant()
+        {
+            // Arrange:
+            // White pawn on e5
+            // Black pawn on d5 has just moved two squares from d7
+            // En passant target is d6
+            string fen = "4k3/8/8/3pP3/8/8/8/4K3 w - d6 0 1";
+            var game = CreateGame(fen);
+
+            // Act
+            var moves = _rulesService.GetCanidiateMoves(game, new Position(4, 4)); // e5
+
+            // Assert
+            moves.Should().Contain(new Position(3, 5)); // d6
+        }
+
+
+        [Fact]
+        public void GetCandidateMoves_BlackPawn_ShouldCaptureEnPassant()
+        {
+            // Arrange:
+            // Black pawn on e4
+            // White pawn on d4 has just moved two squares from d2
+            // En passant target is d3
+            string fen = "4k3/8/8/8/3Pp3/8/8/4K3 b - d3 0 1";
+            var game = CreateGame(fen);
+
+            // Act
+            var moves = _rulesService.GetCanidiateMoves(game, new Position(4, 3)); // e4
+
+            // Assert
+            moves.Should().Contain(new Position(3, 2)); // d3
         }
 
         // Rook tests
@@ -108,24 +143,8 @@ namespace Chess.Tests.Domain.Services
         [Fact]
         public void GetCandidateMoves_Rook_ShouldStopAtFriendlyPiece()
         {
-            // Arrange: White rook d4, white pawn d6
+            // Arrange: White rook d4, white pawn d7
             string fen = "4k3/3P4/8/8/3R4/8/8/4K3 w - - 0 1";
-            var game = CreateGame(fen);
-
-            // Act
-            var moves = _rulesService.GetCanidiateMoves(game, new Position(3, 3));
-
-            // Assert
-            moves.Should().Contain(new Position(3, 4));
-            moves.Should().NotContain(new Position(3, 5));
-            moves.Should().NotContain(new Position(3, 6));
-        }
-
-        [Fact]
-        public void GetCandidateMoves_Rook_ShouldCaptureEnemyPiece()
-        {
-            // Arrange: White rook d4, black rook d6
-            string fen = "4k3/3r4/8/8/3R4/8/8/4K3 w - - 0 1";
             var game = CreateGame(fen);
 
             // Act
@@ -134,6 +153,22 @@ namespace Chess.Tests.Domain.Services
             // Assert
             moves.Should().Contain(new Position(3, 5));
             moves.Should().NotContain(new Position(3, 6));
+            moves.Should().NotContain(new Position(3, 7));
+        }
+
+        [Fact]
+        public void GetCandidateMoves_Rook_ShouldCaptureEnemyPiece()
+        {
+            // Arrange: White rook d4, black rook d7
+            string fen = "4k3/3r4/8/8/3R4/8/8/4K3 w - - 0 1";
+            var game = CreateGame(fen);
+
+            // Act
+            var moves = _rulesService.GetCanidiateMoves(game, new Position(3, 3));
+
+            // Assert
+            moves.Should().Contain(new Position(3, 6));
+            moves.Should().NotContain(new Position(3, 7));
         }
 
 
@@ -160,7 +195,7 @@ namespace Chess.Tests.Domain.Services
         public void GetCandidateMoves_Bishop_ShouldStopAtFriendlyPiece()
         {
             // Arrange: Bishop d4, white pawn f6
-            string fen = "4k3/5P2/8/8/3B4/8/8/4K3 w - - 0 1";
+            string fen = "4k3/8/5P2/8/3B4/8/8/4K3 b - - 0 1";
             var game = CreateGame(fen);
 
             // Act
@@ -175,7 +210,7 @@ namespace Chess.Tests.Domain.Services
         public void GetCandidateMoves_Bishop_ShouldCaptureEnemyPiece()
         {
             // Arrange: Bishop d4, black pawn f6
-            string fen = "4k3/5p2/8/8/3B4/8/8/4K3 w - - 0 1";
+            string fen = "4k3/8/5p2/8/3B4/8/8/4K3 w - - 0 1";
             var game = CreateGame(fen);
 
             // Act
@@ -218,7 +253,7 @@ namespace Chess.Tests.Domain.Services
         public void GetCandidateMoves_Knight_ShouldNotMoveToFriendlyPiece()
         {
             // Arrange: Knight d4, white pawn e6
-            string fen = "4k3/4P3/8/8/3N4/8/8/4K3 w - - 0 1";
+            string fen = "4k3/8/4P3/8/3N4/8/8/4K3 b - - 0 1";
             var game = CreateGame(fen);
 
             // Act
