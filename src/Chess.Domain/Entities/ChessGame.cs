@@ -35,7 +35,7 @@ namespace Chess.Domain.Entities
                 throw new InvalidOperationException("It is not this player's turn.");
 
             // Verify move is legal
-            if (!rules.IsMoveLegal(this, move))
+            if (!rules.IsMoveLegal(this.Board, move))
                 return;
 
             // Delegate the mutation to the board

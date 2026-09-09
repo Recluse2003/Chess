@@ -6,39 +6,43 @@ namespace Chess.Domain.Services
 {
     public class ChessRulesService
     {
-        public bool IsMoveLegal(ChessGame chessGame, Move move)
+        public bool IsMoveLegal(Board board, Move move)
         {
-            throw new NotImplementedException();
+            if (board.GetPiece(move.From) == '.')
+                return false;
+
+            var legalMoves = GetLegalMoves(board, move.From);
+
+            return legalMoves.Contains(move.To);
         }
 
-        public List<Position> GetLegalMoves(ChessGame chessGame, Position piecePosition)
+        public List<Position> GetLegalMoves(Board board, Position piecePosition)
         {
-            var candidateMoves = GetCanidiateMoves(chessGame, piecePosition);
+            var candidateMoves = GetCanidiateMoves(board, piecePosition);
 
-            return RemoveKingCheckMoves(chessGame, piecePosition, candidateMoves);
+            return RemoveKingCheckMoves(board, piecePosition, candidateMoves);
         }
 
-        public List<Position> GetCanidiateMoves(ChessGame chessGame, Position piecePosition)
+        public List<Position> GetCanidiateMoves(Board board, Position piecePosition)
         {
-            var piece = chessGame.Board.GetPiece(piecePosition);
+            var piece = board.GetPiece(piecePosition);
 
             var candidateMoves = piece switch
             {
-                'p' or 'P' => GetPawnMoves(chessGame, piecePosition),
-                'n' or 'N' => GetKnightMoves(chessGame, piecePosition),
-                'r' or 'R' => GetRookMoves(chessGame, piecePosition),
-                'b' or 'B' => GetBishopMoves(chessGame, piecePosition),
-                'q' or 'Q' => GetQueenMoves(chessGame, piecePosition),
-                'k' or 'K' => GetKingMoves(chessGame, piecePosition),
+                'p' or 'P' => GetPawnMoves(board, piecePosition),
+                'n' or 'N' => GetKnightMoves(board, piecePosition),
+                'r' or 'R' => GetRookMoves(board, piecePosition),
+                'b' or 'B' => GetBishopMoves(board, piecePosition),
+                'q' or 'Q' => GetQueenMoves(board, piecePosition),
+                'k' or 'K' => GetKingMoves(board, piecePosition),
                 _ => []
             };
 
             return candidateMoves;
         }
 
-        private List<Position> GetPawnMoves(ChessGame chessGame, Position piecePosition)
+        private List<Position> GetPawnMoves(Board board, Position piecePosition)
         {
-            Board board = chessGame.Board;
             char piece = board.GetPiece(piecePosition);
 
             bool isWhitePiece = char.IsUpper(piece);
@@ -98,9 +102,8 @@ namespace Chess.Domain.Services
             return candidatePositions;
         }
 
-        private List<Position> GetKnightMoves(ChessGame chessGame, Position piecePosition)
+        private List<Position> GetKnightMoves(Board board, Position piecePosition)
         {
-            var board = chessGame.Board;
             var piece = board.GetPiece(piecePosition);
 
             var offsets = new List<(int File, int Rank)> { (-2, -1), (-2, +1), (-1, -2), (-1, +2), (+1, -2), (+1, +2), (+2, -1), (+2, +1) };
@@ -125,24 +128,23 @@ namespace Chess.Domain.Services
             return candidatePositions;
         }
 
-        private List<Position> GetRookMoves(ChessGame chessGame, Position piecePosition)
+        private List<Position> GetRookMoves(Board board, Position piecePosition)
         {
-            return GetSlidingMoves(chessGame, piecePosition, new() { (1, 0), (0, 1), (-1, 0), (0, -1) });
+            return GetSlidingMoves(board, piecePosition, new() { (1, 0), (0, 1), (-1, 0), (0, -1) });
         }
 
-        private List<Position> GetBishopMoves(ChessGame chessGame, Position piecePosition)
+        private List<Position> GetBishopMoves(Board board, Position piecePosition)
         {
-            return GetSlidingMoves(chessGame, piecePosition, new() { (1, -1), (1, 1), (-1, 1), (-1, -1) });
+            return GetSlidingMoves(board, piecePosition, new() { (1, -1), (1, 1), (-1, 1), (-1, -1) });
         }
 
-        private List<Position> GetQueenMoves(ChessGame chessGame, Position piecePosition)
+        private List<Position> GetQueenMoves(Board board, Position piecePosition)
         {
-            return GetSlidingMoves(chessGame, piecePosition, new() { (1, 0), (0, 1), (-1, 0), (0, -1), (1, -1), (1, 1), (-1, 1), (-1, -1) });
+            return GetSlidingMoves(board, piecePosition, new() { (1, 0), (0, 1), (-1, 0), (0, -1), (1, -1), (1, 1), (-1, 1), (-1, -1) });
         }
 
-        private List<Position> GetSlidingMoves(ChessGame chessGame, Position piecePosition, List<(int File, int Rank)> offsets)
+        private List<Position> GetSlidingMoves(Board board, Position piecePosition, List<(int File, int Rank)> offsets)
         {
-            var board = chessGame.Board;
             var piece = board.GetPiece(piecePosition);
 
             var candidatePositions = new List<Position>();
@@ -176,9 +178,8 @@ namespace Chess.Domain.Services
             return candidatePositions;
         }
 
-        private List<Position> GetKingMoves(ChessGame chessGame, Position piecePosition)
+        private List<Position> GetKingMoves(Board board, Position piecePosition)
         {
-            var board = chessGame.Board;
             var piece = board.GetPiece(piecePosition);
 
             var offsets = new List<(int File, int Rank)> { (1, 0), (0, 1), (-1, 0), (0, -1), (1, -1), (1, 1), (-1, 1), (-1, -1) };
@@ -205,7 +206,8 @@ namespace Chess.Domain.Services
             return candidatePositions;
         }
 
-        private Position? FindKing(Board board, bool isWhitePiece)
+
+        private Position FindKing(Board board, bool isWhitePiece)
         {
             for (int rank = 7; rank >= 0; rank--)
             {
@@ -218,17 +220,110 @@ namespace Chess.Domain.Services
                 }
             }
 
-            return null;
+            throw new InvalidOperationException("King not found on board.");
         }
 
-        private List<Position> RemoveKingCheckMoves(ChessGame chessGame, Position piecePosition, List<Position> candidateMoves)
+        private List<Position> RemoveKingCheckMoves(Board board, Position piecePosition, List<Position> candidateMoves)
         {
-            throw new NotImplementedException();
+            char piece = board.GetPiece(piecePosition);
+            bool isWhitePiece = char.IsUpper(piece);
+
+            var isKing = false;
+            Position kingPosition;
+
+            if (piece == 'k' || piece == 'K')
+            {
+                kingPosition = piecePosition;
+                isKing = true;
+            }
+            else
+            {
+                kingPosition = FindKing(board, isWhitePiece);
+            }
+
+            var legalMoves = new List<Position>();
+
+            foreach (var destination in candidateMoves)
+            {
+                Board boardWithSimulatedMove = board.ApplyMove(new Move(piecePosition, destination));
+
+                if (isKing)
+                    kingPosition = destination;
+
+                if (!IsSquareAttacked(boardWithSimulatedMove, kingPosition, !isWhitePiece))
+                    legalMoves.Add(destination);
+
+            }
+
+            return legalMoves;
+        }
+
+        private bool IsSquareAttacked(Board board, Position position, bool byWhite)
+        {
+            for (int rank = 0; rank < 8; rank++)
+            {
+                for (int file = 0; file < 8; file++)
+                {
+                    var piecePosition = new Position(file, rank);
+                    var piece = board.GetPiece(piecePosition);
+
+                    if (piece == '.')
+                        continue;
+
+                    if (char.IsUpper(piece) != byWhite)
+                        continue;
+
+                    List<Position> attacks;
+
+                    if (piece == 'P' || piece == 'p')
+                    {
+                        attacks = GetPawnAttacks(board, piecePosition);
+                    }
+                    else
+                    {
+                        attacks = GetCanidiateMoves(board, piecePosition);
+                    }
+
+                    if (attacks.Contains(position))
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
+        private List<Position> GetPawnAttacks(Board board, Position piecePosition)
+        {
+            char piece = board.GetPiece(piecePosition);
+
+            bool isWhitePiece = char.IsUpper(piece);
+            int direction = isWhitePiece ? 1 : -1;
+
+            var attacks = new List<Position>();
+
+            int attackRank = piecePosition.Rank + direction;
+
+            if (attackRank < 0 || attackRank > 7)
+                return attacks;
+
+            if (piecePosition.File > 0)
+            { 
+                attacks.Add(new Position(piecePosition.File - 1, attackRank));
+            }
+
+            if (piecePosition.File < 7)
+            {
+                attacks.Add(new Position(piecePosition.File + 1, attackRank));
+            }
+
+            return attacks;
         }
 
         public bool IsCheckmate(Board board)
         {
-            throw new NotImplementedException();
+            Position kingPosition = FindKing(board, board.IsWhiteTurn);
+
+            return IsSquareAttacked(board, kingPosition, !board.IsWhiteTurn);
         }
     }
 }

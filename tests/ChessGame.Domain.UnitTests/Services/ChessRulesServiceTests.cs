@@ -20,7 +20,7 @@ namespace Chess.Tests.Domain.Services
             var game = CreateGame(fen);
 
             // Act
-            var moves = _rulesService.GetCanidiateMoves(game, new Position(4, 1));
+            var moves = _rulesService.GetCanidiateMoves(game.Board, new Position(4, 1));
 
             // Assert
             moves.Should().Contain(new Position(4, 2));
@@ -34,7 +34,7 @@ namespace Chess.Tests.Domain.Services
             var game = CreateGame(fen);
 
             // Act
-            var moves = _rulesService.GetCanidiateMoves(game, new Position(4, 1));
+            var moves = _rulesService.GetCanidiateMoves(game.Board, new Position(4, 1));
 
             // Assert
             moves.Should().Contain(new Position(4, 2));
@@ -49,7 +49,7 @@ namespace Chess.Tests.Domain.Services
             var game = CreateGame(fen);
 
             // Act
-            var moves = _rulesService.GetCanidiateMoves(game, new Position(4, 6));
+            var moves = _rulesService.GetCanidiateMoves(game.Board, new Position(4, 6));
 
             // Assert
             moves.Should().Contain(new Position(4, 5));
@@ -64,7 +64,7 @@ namespace Chess.Tests.Domain.Services
             var game = CreateGame(fen);
 
             // Act
-            var moves = _rulesService.GetCanidiateMoves(game, new Position(4, 3));
+            var moves = _rulesService.GetCanidiateMoves(game.Board, new Position(4, 3));
 
             // Assert
             moves.Should().Contain(new Position(3, 4)); // d6
@@ -80,7 +80,7 @@ namespace Chess.Tests.Domain.Services
             var game = CreateGame(fen);
 
             // Act
-            var moves = _rulesService.GetCanidiateMoves(game, new Position(4, 2));
+            var moves = _rulesService.GetCanidiateMoves(game.Board, new Position(4, 2));
 
             // Assert
             moves.Should().NotContain(new Position(4, 3));
@@ -97,7 +97,7 @@ namespace Chess.Tests.Domain.Services
             var game = CreateGame(fen);
 
             // Act
-            var moves = _rulesService.GetCanidiateMoves(game, new Position(4, 4)); // e5
+            var moves = _rulesService.GetCanidiateMoves(game.Board, new Position(4, 4)); // e5
 
             // Assert
             moves.Should().Contain(new Position(3, 5)); // d6
@@ -115,7 +115,7 @@ namespace Chess.Tests.Domain.Services
             var game = CreateGame(fen);
 
             // Act
-            var moves = _rulesService.GetCanidiateMoves(game, new Position(4, 3)); // e4
+            var moves = _rulesService.GetCanidiateMoves(game.Board, new Position(4, 3)); // e4
 
             // Assert
             moves.Should().Contain(new Position(3, 2)); // d3
@@ -131,7 +131,7 @@ namespace Chess.Tests.Domain.Services
             var game = CreateGame(fen);
 
             // Act
-            var moves = _rulesService.GetCanidiateMoves(game, new Position(3, 3));
+            var moves = _rulesService.GetCanidiateMoves(game.Board, new Position(3, 3));
 
             // Assert
             moves.Should().Contain(new Position(3, 0));
@@ -148,7 +148,7 @@ namespace Chess.Tests.Domain.Services
             var game = CreateGame(fen);
 
             // Act
-            var moves = _rulesService.GetCanidiateMoves(game, new Position(3, 3));
+            var moves = _rulesService.GetCanidiateMoves(game.Board, new Position(3, 3));
 
             // Assert
             moves.Should().Contain(new Position(3, 5));
@@ -164,7 +164,7 @@ namespace Chess.Tests.Domain.Services
             var game = CreateGame(fen);
 
             // Act
-            var moves = _rulesService.GetCanidiateMoves(game, new Position(3, 3));
+            var moves = _rulesService.GetCanidiateMoves(game.Board, new Position(3, 3));
 
             // Assert
             moves.Should().Contain(new Position(3, 6));
@@ -182,7 +182,7 @@ namespace Chess.Tests.Domain.Services
             var game = CreateGame(fen);
 
             // Act
-            var moves = _rulesService.GetCanidiateMoves(game, new Position(3, 3));
+            var moves = _rulesService.GetCanidiateMoves(game.Board, new Position(3, 3));
 
             // Assert
             moves.Should().Contain(new Position(0, 0));
@@ -199,7 +199,7 @@ namespace Chess.Tests.Domain.Services
             var game = CreateGame(fen);
 
             // Act
-            var moves = _rulesService.GetCanidiateMoves(game, new Position(3, 3));
+            var moves = _rulesService.GetCanidiateMoves(game.Board, new Position(3, 3));
 
             // Assert
             moves.Should().Contain(new Position(4, 4));
@@ -214,7 +214,7 @@ namespace Chess.Tests.Domain.Services
             var game = CreateGame(fen);
 
             // Act
-            var moves = _rulesService.GetCanidiateMoves(game, new Position(3, 3));
+            var moves = _rulesService.GetCanidiateMoves(game.Board, new Position(3, 3));
 
             // Assert
             moves.Should().Contain(new Position(5, 5));
@@ -231,7 +231,7 @@ namespace Chess.Tests.Domain.Services
             var game = CreateGame(fen);
 
             // Act
-            var moves = _rulesService.GetCanidiateMoves(game, new Position(3, 3));
+            var moves = _rulesService.GetCanidiateMoves(game.Board, new Position(3, 3));
 
             // Assert
             var expected = new[]
@@ -257,7 +257,7 @@ namespace Chess.Tests.Domain.Services
             var game = CreateGame(fen);
 
             // Act
-            var moves = _rulesService.GetCanidiateMoves(game, new Position(3, 3));
+            var moves = _rulesService.GetCanidiateMoves(game.Board, new Position(3, 3));
 
             // Assert
             moves.Should().NotContain(new Position(4, 5));
@@ -271,7 +271,7 @@ namespace Chess.Tests.Domain.Services
             var game = CreateGame(fen);
 
             // Act
-            var moves = _rulesService.GetCanidiateMoves(game, new Position(3, 3));
+            var moves = _rulesService.GetCanidiateMoves(game.Board, new Position(3, 3));
 
             // Assert
             moves.Should().NotBeNull();
@@ -287,9 +287,7 @@ namespace Chess.Tests.Domain.Services
             var game = CreateGame(fen);
 
             // Act
-            var moves = _rulesService.GetCanidiateMoves(
-                game,
-                new Position(3, 3));
+            var moves = _rulesService.GetCanidiateMoves(game.Board, new Position(3, 3));
 
             // Assert
 
@@ -312,7 +310,7 @@ namespace Chess.Tests.Domain.Services
             var game = CreateGame(fen);
 
             // Act
-            var moves = _rulesService.GetCanidiateMoves(game, new Position(4, 3));
+            var moves = _rulesService.GetCanidiateMoves(game.Board, new Position(4, 3));
 
             // Assert
             var expected = new[]
@@ -338,7 +336,7 @@ namespace Chess.Tests.Domain.Services
             var game = CreateGame(fen);
 
             // Act
-            var moves = _rulesService.GetLegalMoves(game, new Position(4, 0));
+            var moves = _rulesService.GetLegalMoves(game.Board, new Position(4, 0));
 
             // Assert
             moves.Should().NotContain(new Position(4, 1));
@@ -351,13 +349,13 @@ namespace Chess.Tests.Domain.Services
         {
             // Arrange: White King e1, White Bishop e2, Black Rook e8.
             // Moving bishop exposes the king to the rook.
-            string fen = "4r3/8/8/8/8/8/4B3/4K3 w - - 0 1";
+            string fen = "k3r3/8/8/8/8/8/4B3/4K3 w - - 0 1";
             var game = CreateGame(fen);
 
             var pinnedBishopPosition = new Position(4, 1);
 
             // Act
-            var legalMoves = _rulesService.GetLegalMoves(game, pinnedBishopPosition);
+            var legalMoves = _rulesService.GetLegalMoves(game.Board, pinnedBishopPosition);
 
             // Assert
             legalMoves.Should().BeEmpty();
@@ -367,11 +365,11 @@ namespace Chess.Tests.Domain.Services
         public void GetLegalMoves_ForPinnedRook_ShouldOnlyAllowMovesThatStayOnPinLine()
         {
             // Arrange: White king e1, rook e2, black rook e8.
-            string fen = "4r3/8/8/8/8/8/4R3/4K3 w - - 0 1";
+            string fen = "k3r3/8/8/8/8/8/4R3/4K3 w - - 0 1";
             var game = CreateGame(fen);
 
             // Act
-            var legalMoves = _rulesService.GetLegalMoves(game, new Position(4, 1));
+            var legalMoves = _rulesService.GetLegalMoves(game.Board, new Position(4, 1));
 
             // Assert
             // Rook may move along the e-file without exposing the king.
@@ -393,7 +391,7 @@ namespace Chess.Tests.Domain.Services
             var game = CreateGame(fen);
 
             // Act
-            var legalMoves = _rulesService.GetLegalMoves(game, new Position(4, 1));
+            var legalMoves = _rulesService.GetLegalMoves(game.Board, new Position(4, 1));
 
             // Assert
             legalMoves.Should().BeEmpty();
@@ -409,7 +407,7 @@ namespace Chess.Tests.Domain.Services
             var game = CreateGame(fen);
 
             // Act
-            var moves = _rulesService.GetLegalMoves(game, new Position(4, 1));
+            var moves = _rulesService.GetLegalMoves(game.Board, new Position(4, 1));
 
             // Assert
             moves.Should().BeEmpty();
@@ -425,7 +423,7 @@ namespace Chess.Tests.Domain.Services
             var game = CreateGame(fen);
 
             // Act
-            var moves = _rulesService.GetLegalMoves(game, new Position(4, 1));
+            var moves = _rulesService.GetLegalMoves(game.Board, new Position(4, 1));
 
             // Assert
             moves.Should().BeEmpty();
@@ -508,7 +506,7 @@ namespace Chess.Tests.Domain.Services
             var game = CreateGame(fen);
 
             // Act
-            var moves = _rulesService.GetCanidiateMoves(game, new Position(4, 3));
+            var moves = _rulesService.GetCanidiateMoves(game.Board, new Position(4, 3));
 
             // Assert
             moves.Should().BeEmpty();

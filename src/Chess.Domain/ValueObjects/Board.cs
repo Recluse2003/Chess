@@ -36,14 +36,28 @@
             FullmoveNumber = fullmoveNumber;
         }
 
-        public Board ApplyMove(Move Move)
+        // Returns a new board to ensure value object is immutable. 
+        public Board ApplyMove(Move move)
         {
-            char piece = GetPiece(Move.From);
+            char piece = GetPiece(move.From);
 
-            SetPiece(Move.From, Empty);
-            SetPiece(Move.To, piece);
+            char[,] clonedSquares = new char[8, 8];
 
-            throw new NotImplementedException();
+            Array.Copy(_squares, clonedSquares, _squares.Length);
+
+            clonedSquares[move.From.File, move.From.Rank] = Empty;
+            clonedSquares[move.To.File, move.To.Rank] = piece;
+
+          
+
+            return new Board(
+                clonedSquares,
+                !IsWhiteTurn,
+                CastlingRights,
+                EnPassantTarget,
+                HalfmoveClock,
+                FullmoveNumber
+            );
         }
 
         public static char[,] EmptyBoard()
