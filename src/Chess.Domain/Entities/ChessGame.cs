@@ -15,10 +15,10 @@ namespace Chess.Domain.Entities
 
         public ChessGame(Guid id, string whitePlayerId, string blackPlayerId, string fen, GameStatus gameStatus) 
         { 
-            this.Id = id;
-            this.WhitePlayerId = whitePlayerId;
-            this.BlackPlayerId = blackPlayerId;
-            this.Status = gameStatus;
+            Id = id;
+            WhitePlayerId = whitePlayerId;
+            BlackPlayerId = blackPlayerId;
+            Status = gameStatus;
 
             Board = FenConverterService.FromFen(fen);
         }
@@ -34,18 +34,18 @@ namespace Chess.Domain.Entities
             if (char.IsUpper(piece) != Board.IsWhiteTurn)
                 throw new InvalidOperationException("It is not this player's turn.");
 
-            // Verify move is legal
-            if (!rules.IsMoveLegal(this.Board, move))
-                return;
+            // Verify move is legal. this should be moved to application. 
+            if (!rules.IsMoveLegal(Board, move))
+                throw new InvalidOperationException("Move is not legal.");
 
             // Delegate the mutation to the board
-            this.Board = Board.ApplyMove(move);
+            Board = Board.ApplyMove(move);
 
             // Records new move
-            this.MoveHistory.Add(move);
+            MoveHistory.Add(move);
 
             if (rules.IsCheckmate(Board)) 
-                this.Status = GameStatus.Finished;
+                Status = GameStatus.Finished;
         }
     }
 }
