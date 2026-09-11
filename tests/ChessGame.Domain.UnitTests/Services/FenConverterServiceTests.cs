@@ -169,10 +169,7 @@ namespace Chess.Domain.UnitTests.Services
         [InlineData("e4", 4, 3)]
         [InlineData("h8", 7, 7)]
         [InlineData("d6", 3, 5)]
-        public void FromFen_EnPassantTarget_ShouldConvertToPosition(
-            string notation,
-            int expectedFile,
-            int expectedRank)
+        public void FromFen_EnPassantTarget_ShouldConvertToPosition(string notation, int expectedFile, int expectedRank)
         {
             // arrange
             string fen = $"8/8/8/8/4k3/8/8/R3K3 w - {notation} 0 1";

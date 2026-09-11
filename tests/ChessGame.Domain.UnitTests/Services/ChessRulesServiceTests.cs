@@ -494,9 +494,6 @@ namespace Chess.Tests.Domain.Services
             result.Should().BeFalse();
         }
 
-        // ---------------------------------------------------------
-        // EMPTY / INVALID POSITIONS
-        // ---------------------------------------------------------
 
         [Fact]
         public void GetCandidateMoves_EmptySquare_ShouldReturnEmpty()

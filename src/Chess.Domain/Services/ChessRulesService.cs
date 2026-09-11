@@ -203,6 +203,40 @@ namespace Chess.Domain.Services
                 candidatePositions.Add(newPosition);
             }
 
+            // White queenside castling.
+            if (board.IsWhiteTurn && board.CastlingRights.Contains('Q')
+                && board.GetPiece(new Position(3, 0)) == '.'
+                && board.GetPiece(new Position(2, 0)) == '.'
+                && board.GetPiece(new Position(1, 0)) == '.')
+            {
+                candidatePositions.Add(new Position(2, 0));
+            }
+
+            // White kingside castling.
+            if (board.IsWhiteTurn && board.CastlingRights.Contains('K')
+                && board.GetPiece(new Position(5, 0)) == '.'
+                && board.GetPiece(new Position(6, 0)) == '.')
+            {
+                candidatePositions.Add(new Position(6, 0));
+            }
+
+            // Black queenside castling.
+            if (!board.IsWhiteTurn && board.CastlingRights.Contains('q')
+                && board.GetPiece(new Position(3, 7)) == '.'
+                && board.GetPiece(new Position(2, 7)) == '.'
+                && board.GetPiece(new Position(1, 7)) == '.')
+            {
+                candidatePositions.Add(new Position(2, 7));
+            }
+
+            // Black kingside castling.
+            if (!board.IsWhiteTurn && board.CastlingRights.Contains('k') 
+                && board.GetPiece(new Position(5, 7)) == '.' 
+                && board.GetPiece(new Position(6, 7)) == '.')
+            {
+                candidatePositions.Add(new Position(6, 7));
+            }
+
             return candidatePositions;
         }
 
@@ -292,6 +326,9 @@ namespace Chess.Domain.Services
             return false;
         }
 
+
+        // Helper function to check if a pawn attacks a specific position, as they can not move forward to a
+        // sqaure occupied by another piece. 
         private List<Position> GetPawnAttacks(Board board, Position piecePosition)
         {
             char piece = board.GetPiece(piecePosition);
