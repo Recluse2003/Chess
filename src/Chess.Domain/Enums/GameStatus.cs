@@ -7,6 +7,8 @@ namespace Chess.Domain.Enums
     public enum GameStatus
     {
         Active,
-        Finished
+        WhiteWin,
+        BlackWin,
+        Draw
     }
 }

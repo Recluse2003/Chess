@@ -326,7 +326,6 @@ namespace Chess.Domain.Services
             return false;
         }
 
-
         // Helper function to check if a pawn attacks a specific position, as they can not move forward to a
         // sqaure occupied by another piece. 
         private List<Position> GetPawnAttacks(Board board, Position piecePosition)
@@ -361,6 +360,100 @@ namespace Chess.Domain.Services
             Position kingPosition = FindKing(board, board.IsWhiteTurn);
 
             return IsSquareAttacked(board, kingPosition, !board.IsWhiteTurn);
+        }
+
+        public bool IsStalemate(Board board)
+        {
+            for (int rank = 0; rank < 8; rank++)
+            {
+                for (int file = 0; file < 8; file++)
+                {
+                    var piecePosition = new Position(file, rank);
+                    var piece = board.GetPiece(piecePosition);
+
+                    if (piece == '.')
+                        continue;
+
+                    if (char.IsUpper(piece) != board.IsWhiteTurn)
+                        continue;
+
+                    if (GetLegalMoves(board, piecePosition).Count != 0)
+                        return false;
+                }
+            }
+
+            return !IsKingInCheck(board);
+        }
+
+        private bool IsKingInCheck(Board board)
+        {
+            Position? kingPosition = FindKing(board, board.IsWhiteTurn);
+
+            if (kingPosition is null)
+                throw new InvalidOperationException("King not found on board.");
+
+            return IsSquareAttacked(board, kingPosition.Value, !board.IsWhiteTurn);
+        }
+
+
+        public bool IsInsufficientMaterial(Board board)
+        {
+            var pieces = new List<(char Piece, Position Position)>();
+
+            for (int rank = 0; rank < 8; rank++)
+            {
+                for (int file = 0; file < 8; file++)
+                {
+                    var position = new Position(file, rank);
+                    char piece = board.GetPiece(position);
+
+                    if (piece != Board.Empty)
+                        pieces.Add((piece, position));
+                }
+            }
+
+            // Kings only.
+            if (pieces.Count == 2)
+                return true;
+
+            // Any pawn, rook or queen means there is mating material.
+            if (pieces.Any(p => char.ToLowerInvariant(p.Piece) is 'p' or 'r' or 'q'))
+            {
+                return false;
+            }
+
+            // King and one minor piece versus king.
+            if (pieces.Count == 3)
+            {
+                return pieces.Count(p => char.ToLowerInvariant(p.Piece) is 'b' or 'n') == 1;
+            }
+
+            // King and bishop versus king and bishop.
+            if (pieces.Count == 4)
+            {
+                var bishops = pieces
+                    .Where(p => char.ToLowerInvariant(p.Piece) == 'b')
+                    .ToList();
+
+                if (bishops.Count == 2)
+                {
+                    bool firstBishopIsWhite = char.IsUpper(bishops[0].Piece);
+
+                    bool secondBishopIsWhite = char.IsUpper(bishops[1].Piece);
+
+                    // Bishops must belong to opposite players.
+                    if (firstBishopIsWhite != secondBishopIsWhite)
+                    {
+                        bool firstSquareIsDark = (bishops[0].Position.File + bishops[0].Position.Rank) % 2 == 1;
+
+                        bool secondSquareIsDark = (bishops[1].Position.File + bishops[1].Position.Rank) % 2 == 1;
+
+                        return firstSquareIsDark == secondSquareIsDark;
+                    }
+                }
+            }
+
+            return false;
         }
     }
 }

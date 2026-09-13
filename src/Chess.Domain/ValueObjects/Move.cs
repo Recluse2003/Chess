@@ -9,12 +9,14 @@ namespace Chess.Domain.ValueObjects
         public Position From { get; }
         public Position To { get; }
         public char? PromotionPiece { get; }
+        public string? Fen { get; }
 
-        public Move(Position from, Position to, char? promotionPiece = null)
+        public Move(Position from, Position to, char? promotionPiece = null, string? fen = null)
         {
             From = from;
             To = to;
             PromotionPiece = promotionPiece;
+            Fen = fen;
         }
     }
 }
