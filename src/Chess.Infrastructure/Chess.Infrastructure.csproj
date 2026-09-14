@@ -7,11 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Persistence\Models\" />
     <Folder Include="Persistence\Configurations\" />
     <Folder Include="Persistence\Migrations\" />
-    <Folder Include="Persistence\Repositories\" />
     <Folder Include="ExternalServices\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.11" />
   </ItemGroup>
 
   <ItemGroup>

@@ -7,8 +7,9 @@ namespace Chess.Domain.Entities
     public class ChessGame
     {
         public Guid Id { get; private set; }
-        public string WhitePlayerId { get; private set; } = null!;
-        public string BlackPlayerId { get; private set; } = null!;
+        public string? WhitePlayerId { get; private set; } = null!;
+        public string? BlackPlayerId { get; private set; } = null!;
+        public string InitialFen { get; private set; }
         public Board Board { get; private set; } = null!;
         public GameStatus Status { get; private set; } = GameStatus.Active;
         public GameEndReason? EndReason { get; private set; } = null!;
@@ -21,10 +22,11 @@ namespace Chess.Domain.Entities
             BlackPlayerId = blackPlayerId;
             Status = gameStatus;
 
+            InitialFen = fen;
             Board = FenConverterService.FromFen(fen);
         }
 
-        public void MakeMove(Move move, ChessRulesService rules)
+        public void MakeMove(Move move)
         {
             // Checks if the game is even active
             if (Status != GameStatus.Active)
@@ -35,18 +37,9 @@ namespace Chess.Domain.Entities
             if (char.IsUpper(piece) != Board.IsWhiteTurn)
                 throw new InvalidOperationException("It is not this player's turn.");
 
-            // Verify move is legal. this should be moved to application. 
-            if (!rules.IsMoveLegal(Board, move))
-                throw new InvalidOperationException("Move is not legal.");
-
-            // Delegate the mutation to the board
             Board newBoard = Board.ApplyMove(move);
 
-            Move completedMove = new Move(
-                move.From,
-                move.To,
-                move.PromotionPiece,
-                FenConverterService.ToFen(newBoard));
+            Move completedMove = new Move(move.Id, move.From, move.To, move.PromotionPiece, FenConverterService.ToFen(newBoard));
 
             Board = newBoard;
             MoveHistory.Add(completedMove);
@@ -77,7 +70,7 @@ namespace Chess.Domain.Entities
             else
             {
                 bool isThreefold = MoveHistory
-                    .Select(m => GetRepetitionKey(m.Fen))
+                    .Select(m => GetRepetitionKey(m.FenAfterMove))
                     .GroupBy(fen => fen)
                     .Any(group => group.Count() >= 3);
 
@@ -92,6 +85,30 @@ namespace Chess.Domain.Entities
         public static string GetRepetitionKey(string fen)
         {
             return string.Join(' ', fen.Split(' ').Take(4));
+        }
+
+        public static ChessGame Rehydrate(
+            Guid id,
+            string? whitePlayerId,
+            string? blackPlayerId,
+            string initialFen,
+            string currentFen,
+            GameStatus status,
+            GameEndReason? endReason,
+            IEnumerable<Move> moveHistory)
+        {
+            var game = new ChessGame(
+                id,
+                whitePlayerId,
+                blackPlayerId,
+                currentFen,
+                status);
+
+            game.InitialFen = initialFen;
+            game.EndReason = endReason;
+            game.MoveHistory.AddRange(moveHistory);
+
+            return game;
         }
     }
 }

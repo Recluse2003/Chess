@@ -7,12 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="DTOs\" />
-    <Folder Include="UseCases\" />
+    <ProjectReference Include="..\Chess.Domain\Chess.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Chess.Domain\Chess.Domain.csproj" />
+    <Folder Include="Games\CreateGame\" />
+    <Folder Include="Games\JoinGame\" />
+    <Folder Include="Games\ViewGame\" />
   </ItemGroup>
 
 </Project>

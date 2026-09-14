@@ -14,7 +14,7 @@ namespace Chess.Domain.UnitTests.ValueObjects
             Board board = FenConverterService.FromFen(fen);
 
             // Act
-            var result = board.ApplyMove(new Move(new Position(4, 1), new Position(4, 3)));
+            var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(4, 1), new Position(4, 3)));
 
             // Assert
             result.GetPiece(new Position(4, 1)).Should().Be('.');
@@ -29,7 +29,7 @@ namespace Chess.Domain.UnitTests.ValueObjects
             Board board = FenConverterService.FromFen(fen);
 
             // Act
-            var result = board.ApplyMove(new Move(new Position(4, 1), new Position(4, 3)));
+            var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(4, 1), new Position(4, 3)));
 
             // Assert
             board.GetPiece(new Position(4, 1)).Should().Be('P');
@@ -47,7 +47,7 @@ namespace Chess.Domain.UnitTests.ValueObjects
             Board board = FenConverterService.FromFen(fen);
 
             // Act
-            var result = board.ApplyMove(new Move(new Position(3, 2), new Position(4, 3)));
+            var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(3, 2), new Position(4, 3)));
 
             // Assert
             result.GetPiece(new Position(3, 2)).Should().Be('.');
@@ -62,7 +62,7 @@ namespace Chess.Domain.UnitTests.ValueObjects
             Board board = FenConverterService.FromFen(fen);
 
             // Act
-            var result = board.ApplyMove(new Move(new Position(4, 1), new Position(4, 2)));
+            var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(4, 1), new Position(4, 2)));
 
             // Assert
             result.IsWhiteTurn.Should().BeFalse();
@@ -76,7 +76,7 @@ namespace Chess.Domain.UnitTests.ValueObjects
             Board board = FenConverterService.FromFen(fen);
 
             // Act
-            var result = board.ApplyMove(new Move(new Position(4, 1), new Position(4, 3)));
+            var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(4, 1), new Position(4, 3)));
 
             // Assert
             result.EnPassantTarget.Should().Be(new Position(4, 2));
@@ -90,7 +90,7 @@ namespace Chess.Domain.UnitTests.ValueObjects
             Board board = FenConverterService.FromFen(fen);
 
             // Act
-            var result = board.ApplyMove(new Move(new Position(4, 6), new Position(4, 4)));
+            var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(4, 6), new Position(4, 4)));
 
             // Assert
             result.EnPassantTarget.Should().Be(new Position(4, 5));
@@ -104,7 +104,7 @@ namespace Chess.Domain.UnitTests.ValueObjects
             Board board = FenConverterService.FromFen(fen);
 
             // Act
-            var result = board.ApplyMove(new Move(new Position(4, 3), new Position(4, 4)));
+            var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(4, 3), new Position(4, 4)));
 
             // Assert
             result.EnPassantTarget.Should().BeNull();
@@ -118,7 +118,7 @@ namespace Chess.Domain.UnitTests.ValueObjects
             Board board = FenConverterService.FromFen(fen);
 
             // Act
-            var result = board.ApplyMove(new Move(new Position(4, 4), new Position(3, 5)));
+            var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(4, 4), new Position(3, 5)));
 
             // Assert
             result.GetPiece(new Position(4, 4)).Should().Be('.');
@@ -134,7 +134,7 @@ namespace Chess.Domain.UnitTests.ValueObjects
             Board board = FenConverterService.FromFen(fen);
 
             // Act
-            var result = board.ApplyMove(new Move(new Position(4, 6), new Position(4, 7), 'N'));
+            var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(4, 6), new Position(4, 7), 'N'));
 
             // Assert
             result.GetPiece(new Position(4, 7)).Should().Be('N');
@@ -148,7 +148,7 @@ namespace Chess.Domain.UnitTests.ValueObjects
             Board board = FenConverterService.FromFen(fen);
 
             // Act
-            var result = board.ApplyMove(new Move(new Position(4, 1), new Position(4, 0), 'R'));
+            var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(4, 1), new Position(4, 0), 'R'));
 
             // Assert
             result.GetPiece(new Position(4, 0)).Should().Be('R');
@@ -162,7 +162,7 @@ namespace Chess.Domain.UnitTests.ValueObjects
             Board board = FenConverterService.FromFen(fen);
 
             // Act
-            var result = board.ApplyMove(new Move(new Position(4, 6), new Position(4, 7)));
+            var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(4, 6), new Position(4, 7)));
 
             // Assert
             result.GetPiece(new Position(4, 7)).Should().Be('Q');
@@ -176,7 +176,7 @@ namespace Chess.Domain.UnitTests.ValueObjects
             Board board = FenConverterService.FromFen(fen);
 
             // Act
-            var result = board.ApplyMove(new Move(new Position(4, 0), new Position(6, 0)));
+            var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(4, 0), new Position(6, 0)));
 
             // Assert
             result.GetPiece(new Position(4, 0)).Should().Be('.');
@@ -194,7 +194,7 @@ namespace Chess.Domain.UnitTests.ValueObjects
             Board board = FenConverterService.FromFen(fen);
 
             // Act
-            var result = board.ApplyMove(new Move(new Position(4, 0), new Position(2, 0)));
+            var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(4, 0), new Position(2, 0)));
 
             // Assert
             result.GetPiece(new Position(4, 0)).Should().Be('.');
@@ -212,7 +212,7 @@ namespace Chess.Domain.UnitTests.ValueObjects
             Board board = FenConverterService.FromFen(fen);
 
             // Act
-            var result = board.ApplyMove(new Move(new Position(4, 0), new Position(4, 1)));
+            var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(4, 0), new Position(4, 1)));
 
             // Assert
             result.CastlingRights.Should().Be("");
@@ -226,7 +226,7 @@ namespace Chess.Domain.UnitTests.ValueObjects
             Board board = FenConverterService.FromFen(fen);
 
             // Act
-            var result = board.ApplyMove(new Move(new Position(0, 0), new Position(0, 1)));
+            var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(0, 0), new Position(0, 1)));
 
             // Assert
             result.CastlingRights.Should().Be("K");
@@ -240,7 +240,7 @@ namespace Chess.Domain.UnitTests.ValueObjects
             Board board = FenConverterService.FromFen(fen);
 
             // Act
-            var result = board.ApplyMove(new Move(new Position(7, 0), new Position(7, 1)));
+            var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(7, 0), new Position(7, 1)));
 
             // Assert
             result.CastlingRights.Should().Be("Q");
@@ -254,7 +254,7 @@ namespace Chess.Domain.UnitTests.ValueObjects
             Board board = FenConverterService.FromFen(fen);
 
             // Act
-            var result = board.ApplyMove(new Move(new Position(1, 1), new Position(0, 0)));
+            var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(1, 1), new Position(0, 0)));
 
             // Assert
             result.CastlingRights.Should().Be("K");
@@ -268,7 +268,7 @@ namespace Chess.Domain.UnitTests.ValueObjects
             Board board = FenConverterService.FromFen(fen);
 
             // Act
-            var result = board.ApplyMove(new Move(new Position(4, 0), new Position(4, 1)));
+            var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(4, 0), new Position(4, 1)));
 
             // Assert
             result.HalfmoveClock.Should().Be(8);
@@ -282,7 +282,7 @@ namespace Chess.Domain.UnitTests.ValueObjects
             Board board = FenConverterService.FromFen(fen);
 
             // Act
-            var result = board.ApplyMove(new Move(new Position(4, 1), new Position(4, 2)));
+            var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(4, 1), new Position(4, 2)));
 
             // Assert
             result.HalfmoveClock.Should().Be(0);
@@ -296,7 +296,7 @@ namespace Chess.Domain.UnitTests.ValueObjects
             Board board = FenConverterService.FromFen(fen);
 
             // Act
-            var result = board.ApplyMove(new Move(new Position(4, 0), new Position(4, 1)));
+            var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(4, 0), new Position(4, 1)));
 
             // Assert
             result.HalfmoveClock.Should().Be(0);
@@ -310,7 +310,7 @@ namespace Chess.Domain.UnitTests.ValueObjects
             Board board = FenConverterService.FromFen(fen);
 
             // Act
-            var result = board.ApplyMove(new Move(new Position(4, 1), new Position(4, 2)));
+            var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(4, 1), new Position(4, 2)));
 
             // Assert
             result.FullmoveNumber.Should().Be(1);
@@ -324,7 +324,7 @@ namespace Chess.Domain.UnitTests.ValueObjects
             Board board = FenConverterService.FromFen(fen);
 
             // Act
-            var result = board.ApplyMove(new Move(new Position(4, 6), new Position(4, 5)));
+            var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(4, 6), new Position(4, 5)));
 
             // Assert
             result.FullmoveNumber.Should().Be(2);

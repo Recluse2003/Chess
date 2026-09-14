@@ -5,6 +5,8 @@ namespace Chess.Domain.Services
 {
     public static class FenConverterService
     {
+        public static string StartingPositionFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+
         public static string ToFen(Board board)
         {
             StringBuilder fen = new StringBuilder();

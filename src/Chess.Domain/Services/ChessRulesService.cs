@@ -279,7 +279,7 @@ namespace Chess.Domain.Services
 
             foreach (var destination in candidateMoves)
             {
-                Board boardWithSimulatedMove = board.ApplyMove(new Move(piecePosition, destination));
+                Board boardWithSimulatedMove = board.ApplyMove(new Move(Guid.NewGuid(), piecePosition, destination));
 
                 if (isKing)
                     kingPosition = destination;

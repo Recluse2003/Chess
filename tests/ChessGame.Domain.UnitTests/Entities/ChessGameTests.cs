@@ -26,6 +26,7 @@ namespace Chess.Domain.UnitTests.Entities
         private static Move CreateHistoricalMove(string fen)
         {
             return new Move(
+                Guid.NewGuid(),
                 new Position(0, 0),
                 new Position(0, 1),
                 null,
