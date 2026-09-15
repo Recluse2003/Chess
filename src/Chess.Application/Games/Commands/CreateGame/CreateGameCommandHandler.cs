@@ -3,7 +3,7 @@ using Chess.Domain.Interfaces;
 using Chess.Domain.Enums;
 using Chess.Domain.Services;
 
-namespace Chess.Application.Games.CreateGame
+namespace Chess.Application.Games.Commands.CreateGame
 {
     public class CreateGameCommandHandler
     {

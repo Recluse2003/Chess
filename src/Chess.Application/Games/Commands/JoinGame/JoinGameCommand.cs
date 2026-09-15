@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Chess.Application.Games.JoinGame
+namespace Chess.Application.Games.Commands.JoinGame
 {
     public record JoinGameCommand(Guid GameId, string BlackPlayerId);
 }

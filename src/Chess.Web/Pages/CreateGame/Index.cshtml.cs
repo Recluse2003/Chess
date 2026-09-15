@@ -1,4 +1,4 @@
-using Chess.Application.Games.CreateGame;
+using Chess.Application.Games.Commands.CreateGame;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Security.Claims;

@@ -1,13 +1,8 @@
-﻿using Chess.Application.Games.MakeMove;
-using Chess.Domain.Entities;
+﻿using Chess.Domain.Entities;
 using Chess.Domain.Interfaces;
-using Chess.Domain.Services;
 using Chess.Domain.ValueObjects;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Chess.Application.Games.ViewGame
+namespace Chess.Application.Games.Queries.ViewGame
 {
     public class ViewGameQueryHandler
     {

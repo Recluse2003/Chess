@@ -1,9 +1,7 @@
-﻿using Chess.Application.Games.CreateGame;
-using Chess.Domain.Entities;
+﻿using Chess.Domain.Entities;
 using Chess.Domain.Interfaces;
-using Chess.Domain.Services;
 
-namespace Chess.Application.Games.JoinGame
+namespace Chess.Application.Games.Commands.JoinGame
 {
     public class JoinGameCommandHandler
     {

@@ -1,5 +1,5 @@
-using Chess.Application.Games.CreateGame;
-using Chess.Application.Games.MakeMove;
+using Chess.Application.Games.Commands.CreateGame;
+using Chess.Application.Games.Commands.MakeMove;
 using Chess.Domain.Interfaces;
 using Chess.Domain.Services;
 using Chess.Infrastructure.Persistence;

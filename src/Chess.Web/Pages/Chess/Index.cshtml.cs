@@ -1,4 +1,4 @@
-using Chess.Application.Games.ViewGame;
+using Chess.Application.Games.Queries.ViewGame;
 using Chess.Domain.Entities;
 using Chess.Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;

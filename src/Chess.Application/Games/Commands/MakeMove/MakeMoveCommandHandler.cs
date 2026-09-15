@@ -3,7 +3,7 @@ using Chess.Domain.Interfaces;
 using Chess.Domain.Services;
 using Chess.Domain.ValueObjects;
 
-namespace Chess.Application.Games.MakeMove;
+namespace Chess.Application.Games.Commands.MakeMove;
 
 public class MakeMoveCommandHandler
 {
