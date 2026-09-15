@@ -7,23 +7,38 @@ namespace Chess.Domain.Entities
     public class ChessGame
     {
         public Guid Id { get; private set; }
-        public string? WhitePlayerId { get; private set; } = null!;
-        public string? BlackPlayerId { get; private set; } = null!;
+        public string WhitePlayerId { get; private set; }
+        public string? BlackPlayerId { get; private set; } 
         public string InitialFen { get; private set; }
         public Board Board { get; private set; } = null!;
         public GameStatus Status { get; private set; } = GameStatus.Active;
         public GameEndReason? EndReason { get; private set; } = null!;
         public List<Move> MoveHistory { get; private set; } = new();
 
-        public ChessGame(Guid id, string whitePlayerId, string blackPlayerId, string fen, GameStatus gameStatus) 
+        public ChessGame(Guid id, string whitePlayerId, string fen) 
         { 
             Id = id;
             WhitePlayerId = whitePlayerId;
-            BlackPlayerId = blackPlayerId;
-            Status = gameStatus;
 
             InitialFen = fen;
             Board = FenConverterService.FromFen(fen);
+
+            Status = GameStatus.WaitingForOpponent;
+        }
+
+        public void Join(string playerId)
+        {
+            if (Status != GameStatus.WaitingForOpponent)
+                throw new InvalidOperationException("Game is not accepting players.");
+
+            if (BlackPlayerId != null)
+                throw new InvalidOperationException("Game already has an opponent.");
+
+            if (WhitePlayerId == playerId)
+                throw new InvalidOperationException("You cannot join your own game.");
+
+            BlackPlayerId = playerId;
+            Status = GameStatus.Active;
         }
 
         public void MakeMove(Move move)
@@ -70,7 +85,7 @@ namespace Chess.Domain.Entities
             else
             {
                 bool isThreefold = MoveHistory
-                    .Select(m => GetRepetitionKey(m.FenAfterMove))
+                    .Select(m => GetRepetitionKey(m.FenAfterMove!))
                     .GroupBy(fen => fen)
                     .Any(group => group.Count() >= 3);
 
@@ -89,7 +104,7 @@ namespace Chess.Domain.Entities
 
         public static ChessGame Rehydrate(
             Guid id,
-            string? whitePlayerId,
+            string whitePlayerId,
             string? blackPlayerId,
             string initialFen,
             string currentFen,
@@ -100,15 +115,17 @@ namespace Chess.Domain.Entities
             var game = new ChessGame(
                 id,
                 whitePlayerId,
-                blackPlayerId,
-                currentFen,
-                status);
+                currentFen);
 
+            game.BlackPlayerId = blackPlayerId;
             game.InitialFen = initialFen;
+            game.Status = status;
             game.EndReason = endReason;
             game.MoveHistory.AddRange(moveHistory);
 
             return game;
         }
+
+
     }
 }

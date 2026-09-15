@@ -5,6 +5,8 @@ namespace Chess.Web.Pages
 {
     public class IndexModel : PageModel
     {
+        private readonly 
+
         public void OnGet()
         {
 

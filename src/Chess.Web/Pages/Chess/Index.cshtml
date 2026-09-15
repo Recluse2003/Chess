@@ -1,0 +1,81 @@
+﻿@page "{id:guid}"
+@model Pages.Chess.IndexModel
+
+@{
+    ViewData["Title"] = "Chess Game";
+}
+
+<h1>Chess Game</h1>
+
+<p><strong>Game ID:</strong> @Model.Game!.GameId</p>
+
+<p>
+    <strong>Status:</strong>
+    @Model.Game.Status
+</p>
+
+<p>
+    <strong>Turn:</strong>
+    @Model.Game.CurrentTurn
+</p>
+
+<p>
+    <strong>White:</strong>
+    @Model.Game.WhitePlayerId
+</p>
+
+<p>
+    <strong>Black:</strong>
+    @(Model.Game.BlackPlayerId ?? "Waiting for opponent")
+</p>
+
+<div class="chess-board">
+    @if (Model.Game.IsWhitePlayer)
+    {
+        for (int rank = 7; rank >= 0; rank--)
+        {
+            for (int file = 0; file < 8; file++)
+            {
+                <div class="chess-square @((file + rank) % 2 == 1 ? "light-square" : "dark-square")">
+                    data-file="@file"
+                    data-rank="@rank">
+                    @{
+                        var piece = Model.Game.Pieces.FirstOrDefault(p => p.File == file && p.Rank == rank);
+                    }
+                    
+                    @if (piece != null)
+                    {
+                        <span class="chess-piece">
+                            @Model.GetPieceSymbol(piece.Piece)
+                        </span>
+                    }
+                </div>
+
+            }
+        }
+    }
+    else
+    {
+        for (int rank = 0; rank < 8; rank++)
+        {
+            for (int file = 7; file >= 0; file--)
+            {
+                <div class="chess-square @((file + rank) % 2 == 0 ? "light-square" : "dark-square")"
+                     data-file="@file"
+                     data-rank="@rank">
+                    @{
+                        var piece = Model.Game.Pieces.FirstOrDefault(p => p.File == file && p.Rank == rank);
+                    }
+
+                    @if (piece != null)
+                    {
+                        <span class="chess-piece">
+                            @Model.GetPieceSymbol(piece.Piece)
+                        </span>
+                    }
+                </div>
+
+            }
+        }
+    }
+</div>

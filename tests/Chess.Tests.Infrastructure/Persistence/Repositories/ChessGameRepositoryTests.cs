@@ -46,9 +46,9 @@ namespace Chess.Tests.Infrastructure.Persistence.Repositories
             var game = new ChessGame(
                 Guid.NewGuid(),
                 "white-player",
-                "black-player",
-                FenConverterService.StartingPositionFen,
-                GameStatus.Active);
+                FenConverterService.StartingPositionFen);
+
+            game.Join("black-player");
 
             await _repository.AddAsync(game);
             await _repository.SaveChangesAsync();
@@ -84,9 +84,9 @@ namespace Chess.Tests.Infrastructure.Persistence.Repositories
             var game = new ChessGame(
                 Guid.NewGuid(),
                 "white-player",
-                "black-player",
-                FenConverterService.StartingPositionFen,
-                GameStatus.Active);
+                FenConverterService.StartingPositionFen);
+
+            game.Join("black-player");
 
             // Act
             await _repository.AddAsync(game);
@@ -108,9 +108,9 @@ namespace Chess.Tests.Infrastructure.Persistence.Repositories
             var game = new ChessGame(
                 Guid.NewGuid(),
                 "white-player",
-                "black-player",
-                FenConverterService.StartingPositionFen,
-                GameStatus.Active);
+                FenConverterService.StartingPositionFen);
+
+            game.Join("black-player");
 
             await _repository.AddAsync(game);
             await _repository.SaveChangesAsync();
@@ -135,9 +135,9 @@ namespace Chess.Tests.Infrastructure.Persistence.Repositories
             var game = new ChessGame(
                 Guid.NewGuid(),
                 "white-player",
-                "black-player",
-                FenConverterService.StartingPositionFen,
-                GameStatus.Active);
+                FenConverterService.StartingPositionFen);
+
+            game.Join("black-player");
 
             game.MakeMove(new Move(Guid.NewGuid(), new Position(4, 1), new Position(4, 3)));
 

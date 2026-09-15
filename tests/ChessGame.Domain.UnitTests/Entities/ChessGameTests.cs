@@ -13,14 +13,16 @@ namespace Chess.Domain.UnitTests.Entities
     {
         private readonly ChessRulesService _rulesService = new();
 
-        private static ChessGame CreateGame(string fen, GameStatus status = GameStatus.Active)
+        private static ChessGame CreateGame(string fen)
         {
-            return new ChessGame(
+            var game = new ChessGame(
                 Guid.NewGuid(),
                 "white-player",
-                "black-player",
-                fen,
-                status);
+                fen);
+
+            game.Join("black-player");
+
+            return game;
         }
 
         private static Move CreateHistoricalMove(string fen)

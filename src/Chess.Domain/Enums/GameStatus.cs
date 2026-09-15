@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Chess.Domain.Enums
+﻿namespace Chess.Domain.Enums
 {
     public enum GameStatus
     {
+        WaitingForOpponent,
         Active,
         WhiteWin,
         BlackWin,

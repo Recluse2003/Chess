@@ -1,9 +1,9 @@
+using Chess.Application.Games.CreateGame;
 using Chess.Application.Games.MakeMove;
 using Chess.Domain.Interfaces;
 using Chess.Domain.Services;
 using Chess.Infrastructure.Persistence;
 using Chess.Infrastructure.Persistence.Repositories;
-using Chess.Web.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,6 +19,7 @@ builder.Services.AddRazorPages();
 
 
 builder.Services.AddScoped<ChessRulesService>();
+builder.Services.AddScoped<CreateGameCommandHandler>();
 builder.Services.AddScoped<MakeMoveCommandHandler>();
 builder.Services.AddScoped<IChessGameRepository, ChessGameRepository>();
 

@@ -11,9 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Games\CreateGame\" />
-    <Folder Include="Games\JoinGame\" />
-    <Folder Include="Games\ViewGame\" />
+    <Folder Include="Games\StartGame\" />
   </ItemGroup>
 
 </Project>

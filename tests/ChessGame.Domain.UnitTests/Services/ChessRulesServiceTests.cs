@@ -514,12 +514,14 @@ namespace Chess.Tests.Domain.Services
 
         private static ChessGame CreateGame(string fen)
         {
-            return new ChessGame(
+            var game = new ChessGame(
                 Guid.NewGuid(),
-                "white",
-                "black",
-                fen,
-                GameStatus.Active);
+                "white-player",
+                fen);
+
+            game.Join("black-player");
+
+            return game;
         }
     }
 }
