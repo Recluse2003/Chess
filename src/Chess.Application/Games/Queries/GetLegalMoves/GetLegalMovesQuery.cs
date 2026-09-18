@@ -2,5 +2,5 @@
 
 namespace Chess.Application.Games.Queries.GetLegalMoves
 {
-    public record GetLegalMovesQuery(Guid GameId, string CurrentUserId, Position PiecePosition);
+    public record GetLegalMovesQuery(Guid GameId, string PlayerId, Position PiecePosition);
 }

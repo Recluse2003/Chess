@@ -23,7 +23,7 @@ namespace Chess.Application.Games.Queries.ViewGame
             bool isPlayer = game.WhitePlayerId == query.CurrentUserId || game.BlackPlayerId == query.CurrentUserId;
 
             if (!isPlayer)
-                return null;
+                throw new InvalidOperationException("This user is not a player of this game.");
 
             ViewGameDto result = new ViewGameDto
             {

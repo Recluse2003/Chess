@@ -12,7 +12,7 @@ namespace Chess.Domain.Entities
         public string InitialFen { get; private set; }
         public Board Board { get; private set; } = null!;
         public GameStatus Status { get; private set; } = GameStatus.Active;
-        public GameEndReason? EndReason { get; private set; } = null!;
+        public GameEndReason? EndReason { get; private set; }
         public List<Move> MoveHistory { get; private set; } = new();
 
         public ChessGame(Guid id, string whitePlayerId, string fen) 
@@ -34,14 +34,28 @@ namespace Chess.Domain.Entities
             if (BlackPlayerId != null)
                 throw new InvalidOperationException("Game already has an opponent.");
 
-            if (WhitePlayerId == playerId)
-                throw new InvalidOperationException("You cannot join your own game.");
+            // if (WhitePlayerId == playerId)
+            //    throw new InvalidOperationException("You cannot join your own game.");
 
             BlackPlayerId = playerId;
+            Status = GameStatus.NotStarted;
+        }
+
+        public void Start(string playerId)
+        {
+            if (Status != GameStatus.NotStarted)
+                throw new InvalidOperationException("Game has already started");
+
+            if (BlackPlayerId == null)
+                throw new InvalidOperationException("Game does not have an opponent.");
+
+            if (WhitePlayerId != playerId)
+                throw new InvalidOperationException("You cannot start a game your not host of.");
+
             Status = GameStatus.Active;
         }
 
-        public void MakeMove(Move move)
+        public IReadOnlyList<BoardChange> MakeMove(Move move)
         {
             // Checks if the game is even active
             if (Status != GameStatus.Active)
@@ -52,16 +66,21 @@ namespace Chess.Domain.Entities
             if (char.IsUpper(piece) != Board.IsWhiteTurn)
                 throw new InvalidOperationException("It is not this player's turn.");
 
-            Board newBoard = Board.ApplyMove(move);
+            BoardMoveResult moveResult = Board.ApplyMove(move);
 
-            Move completedMove = new Move(move.Id, move.From, move.To, move.PromotionPiece, FenConverterService.ToFen(newBoard));
+            Move completedMove = new Move(move.Id, move.From, move.To, move.PromotionPiece, FenConverterService.ToFen(moveResult.Board));
 
-            Board = newBoard;
+            Board = moveResult.Board;
             MoveHistory.Add(completedMove);
+
+            return moveResult.BoardChanges;
         }
 
         public void CheckGameState(ChessRulesService rules)
         {
+            if (Status != GameStatus.Active)
+                return;
+
             if (rules.IsCheckmate(Board))
             {
                 Status = Board.IsWhiteTurn ? GameStatus.BlackWin : GameStatus.WhiteWin;
@@ -95,6 +114,21 @@ namespace Chess.Domain.Entities
                     EndReason = GameEndReason.ThreefoldRepetition;
                 }
             }
+        }
+
+        public bool CanPlayerMove(string playerId)
+        {
+            if (Status != GameStatus.Active)
+                return false;
+
+            bool isWhitePlayer = playerId == WhitePlayerId;
+
+            bool isBlackPlayer = playerId == BlackPlayerId;
+
+            if (!isWhitePlayer && !isBlackPlayer)
+                return false;
+
+            return isWhitePlayer == Board.IsWhiteTurn;
         }
 
         public static string GetRepetitionKey(string fen)

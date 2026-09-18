@@ -1,11 +1,16 @@
 using Chess.Application.Games.Commands.CreateGame;
+using Chess.Application.Games.Commands.JoinGame;
 using Chess.Application.Games.Commands.MakeMove;
+using Chess.Application.Games.Commands.StartGame;
+using Chess.Application.Games.Queries.GetLegalMoves;
+using Chess.Application.Games.Queries.ViewGame;
 using Chess.Domain.Interfaces;
 using Chess.Domain.Services;
 using Chess.Infrastructure.Persistence;
 using Chess.Infrastructure.Persistence.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,13 +20,27 @@ builder.Services.AddDbContext<ChessDbContext>(options => options.UseSqlServer(co
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ChessDbContext>();
-builder.Services.AddRazorPages();
 
+builder.Services.AddRazorPages()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(
+            new JsonStringEnumConverter());
+    });
+
+builder.Services.AddSignalR();
 
 builder.Services.AddScoped<ChessRulesService>();
+
+builder.Services.AddScoped<IChessGameRepository, ChessGameRepository>();
+
 builder.Services.AddScoped<CreateGameCommandHandler>();
 builder.Services.AddScoped<MakeMoveCommandHandler>();
-builder.Services.AddScoped<IChessGameRepository, ChessGameRepository>();
+builder.Services.AddScoped<JoinGameCommandHandler>();
+builder.Services.AddScoped<StartGameCommandHandler>();
+
+builder.Services.AddScoped<ViewGameQueryHandler>();
+builder.Services.AddScoped<GetLegalMovesQueryHandler>();
 
 var app = builder.Build();
 
@@ -44,6 +63,9 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.MapStaticAssets();
+
+app.MapGet("/", () => Results.Redirect("/Game/Create"));
+
 app.MapRazorPages()
    .WithStaticAssets();
 

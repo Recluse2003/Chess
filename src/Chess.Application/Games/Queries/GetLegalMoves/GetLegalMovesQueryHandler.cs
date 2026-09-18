@@ -16,23 +16,20 @@ namespace Chess.Application.Games.Queries.GetLegalMoves
             _rules = rules;
         }
 
-        public async Task<List<LegalMoveDto>?> ExecuteAsync(GetLegalMovesQuery query)
+        public async Task<List<LegalMoveDto>> ExecuteAsync(GetLegalMovesQuery query)
         {
             ChessGame? game = await _gameRepository.GetByIdAsync(query.GameId);
 
             if (game == null)
-                return null;
+                throw new InvalidOperationException("Game not found.");
 
-            bool isPlayerTurn = (game.WhitePlayerId == query.CurrentUserId && game.Board.IsWhiteTurn) 
-                                || (game.BlackPlayerId == query.CurrentUserId && !game.Board.IsWhiteTurn);
-
-            if (!isPlayerTurn)
-                return null;
+            // if (!game.CanPlayerMove(query.PlayerId))
+               // return [];
 
             char piece = game.Board.GetPiece(query.PiecePosition);
 
             if (piece == '.' || game.Board.IsWhiteTurn != char.IsUpper(piece))
-                return null;
+                return [];
 
             List<Position> legalMoves = _rules.GetLegalMoves(game.Board, query.PiecePosition);
 

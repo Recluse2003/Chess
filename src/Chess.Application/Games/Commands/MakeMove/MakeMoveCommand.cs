@@ -1,4 +1,6 @@
-﻿namespace Chess.Application.Games.Commands.MakeMove
+﻿using Chess.Domain.ValueObjects;
+
+namespace Chess.Application.Games.Commands.MakeMove
 {
-    public record MakeMoveCommand(Guid GameId, string PlayerId, string From, string To, char? PromotionPiece);
+    public record MakeMoveCommand(Guid GameId, string PlayerId, Position From, Position To, char? PromotionPiece);
 }

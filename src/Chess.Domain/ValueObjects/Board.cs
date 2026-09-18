@@ -1,4 +1,6 @@
-﻿namespace Chess.Domain.ValueObjects
+﻿using Chess.Domain.Enums;
+
+namespace Chess.Domain.ValueObjects
 {
     /// <summary>
     /// Represents the current state of the chess board.
@@ -37,8 +39,10 @@
         }
 
         // Returns a new board to ensure value object is immutable. 
-        public Board ApplyMove(Move move)
+        public BoardMoveResult ApplyMove(Move move)
         {
+            List<BoardChange> changes = new();
+
             char piece = GetPiece(move.From);
             char target = GetPiece(move.To);
 
@@ -48,6 +52,9 @@
 
             clonedSquares[move.From.File, move.From.Rank] = Empty;
             clonedSquares[move.To.File, move.To.Rank] = piece;
+
+            changes.Add(new BoardChange(move.From.File, move.From.Rank, null));
+            
 
             Position? enPassantTarget = null;
 
@@ -67,16 +74,31 @@
                         : move.To.Rank + 1;
 
                     clonedSquares[move.To.File, capturedPawnRank] = Empty;
+
+                    changes.Add(new BoardChange(move.To.File, capturedPawnRank, null));
                 }
             }
 
+            char? pieceToAdd = piece;
+
             // Promotes black pawn to specified piece if pawn reaches opposite side of board. 
             if (piece == 'p' && move.To.Rank == 0)
-                clonedSquares[move.To.File, move.To.Rank] = move.PromotionPiece ?? 'q';
+            {
+                char promotionPiece = char.ToLower(move.PromotionPiece ?? 'Q');
+
+                clonedSquares[move.To.File, move.To.Rank] = promotionPiece;
+
+                pieceToAdd = promotionPiece;
+            }
 
             // Promotes white pawn to specified piece if pawn reaches opposite side of board. 
             if (piece == 'P' && move.To.Rank == 7)
+            {
                 clonedSquares[move.To.File, move.To.Rank] = move.PromotionPiece ?? 'Q';
+                pieceToAdd = move.PromotionPiece;
+            }
+
+            changes.Add(new BoardChange(move.To.File, move.To.Rank, pieceToAdd));
 
             string castlingRights = CastlingRights;
 
@@ -87,19 +109,35 @@
 
                 if (move.To.File == 2 && Math.Abs(move.From.File - move.To.File) == 2)
                 {
+                    char rook = IsWhiteTurn ? 'R' : 'r';
+
                     clonedSquares[4, rank] = Empty;
                     clonedSquares[2, rank] = piece;
 
+                    changes.Add(new BoardChange(4, rank, null));
+                    changes.Add(new BoardChange(2, rank, piece));
+
                     clonedSquares[0, rank] = Empty;
-                    clonedSquares[3, rank] = IsWhiteTurn ? 'R' : 'r';
+                    clonedSquares[3, rank] = rook;
+
+                    changes.Add(new BoardChange(0, rank, null));
+                    changes.Add(new BoardChange(3, rank, rook));
                 }
                 else if (move.To.File == 6 && Math.Abs(move.From.File - move.To.File) == 2)
                 {
+                    char rook = IsWhiteTurn ? 'R' : 'r';
+
                     clonedSquares[4, rank] = Empty;
                     clonedSquares[6, rank] = piece;
 
+                    changes.Add(new BoardChange(4, rank, null));
+                    changes.Add(new BoardChange(6, rank, piece));
+
                     clonedSquares[7, rank] = Empty;
-                    clonedSquares[5, rank] = IsWhiteTurn ? 'R' : 'r';
+                    clonedSquares[5, rank] = rook;
+
+                    changes.Add(new BoardChange(7, rank, null));
+                    changes.Add(new BoardChange(5, rank, rook));
                 }
 
                 // Removes castling rights if king moves
@@ -143,13 +181,18 @@
             if (!IsWhiteTurn)
                 fullmoveNumber++;
 
-            return new Board(
+            Board newBoard = new Board(
                 clonedSquares,
                 !IsWhiteTurn,
                 castlingRights,
                 enPassantTarget,
                 halfmoveClock,
                 fullmoveNumber
+            );
+
+            return new BoardMoveResult(
+                newBoard,
+                changes
             );
         }
 

@@ -3,13 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Security.Claims;
 
-namespace Chess.Web.Pages.CreateGame
+namespace Chess.Web.Pages.Game
 {
-    public class Index : PageModel
+    public class CreateModel : PageModel
     {
         private readonly CreateGameCommandHandler _createGameHandler;
 
-        public Index(CreateGameCommandHandler createGameHandler)
+        public CreateModel(CreateGameCommandHandler createGameHandler)
         {
             _createGameHandler = createGameHandler;
         }
@@ -21,16 +21,16 @@ namespace Chess.Web.Pages.CreateGame
 
         public async Task<IActionResult> OnPostAsync()
         {
-            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            // string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (userId is null)
-                return Unauthorized();
+            // if (userId is null)
+            //    return Unauthorized();
 
-            var command = new CreateGameCommand(userId);
+            var command = new CreateGameCommand("whitePlayer");
 
             Guid gameId = await _createGameHandler.ExecuteAsync(command);
 
-            return RedirectToPage("/Chess/Index", new { id = gameId });
+            return RedirectToPage("/Chess/Index", new { gameId });
         }
     }
 }

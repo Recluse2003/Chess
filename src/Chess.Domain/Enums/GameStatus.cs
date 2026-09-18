@@ -3,6 +3,7 @@
     public enum GameStatus
     {
         WaitingForOpponent,
+        NotStarted,
         Active,
         WhiteWin,
         BlackWin,

@@ -10,8 +10,4 @@
     <ProjectReference Include="..\Chess.Domain\Chess.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Games\Commands\StartGame\" />
-  </ItemGroup>
-
 </Project>

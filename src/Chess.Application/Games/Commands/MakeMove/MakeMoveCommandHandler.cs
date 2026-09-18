@@ -1,4 +1,5 @@
 ﻿using Chess.Domain.Entities;
+using Chess.Domain.Enums;
 using Chess.Domain.Interfaces;
 using Chess.Domain.Services;
 using Chess.Domain.ValueObjects;
@@ -16,25 +17,36 @@ public class MakeMoveCommandHandler
         _rules = rules;
     }
 
-    public async Task<ChessGame> ExecuteAsync(MakeMoveCommand command)
+    public async Task<MoveResultDto> ExecuteAsync(MakeMoveCommand command)
     {
         ChessGame? game = await _gameRepository.GetByIdAsync(command.GameId);
 
         if (game == null)
             throw new InvalidOperationException("Game not found.");
 
-        Move move = new Move(Guid.NewGuid(), Position.FromChessNotation(command.From), Position.FromChessNotation(command.To), command.PromotionPiece);
+        if (game.Status != GameStatus.Active)
+            throw new InvalidOperationException("Game not currently active.");
+
+        // if (!game.CanPlayerMove(command.PlayerId))
+        //    throw new InvalidOperationException("Currently not this player's turn.");
+
+        Move move = new Move(
+            Guid.NewGuid(),
+            command.From,
+            command.To,
+            command.PromotionPiece
+        );
 
         if (!_rules.IsMoveLegal(game.Board, move))
-            throw new InvalidOperationException("Move is not legal.");
+            throw new InvalidOperationException("Provided move is not legal.");
 
-        game.MakeMove(move);
+        IReadOnlyList<BoardChange> boardChanges = game.MakeMove(move);
 
         game.CheckGameState(_rules);
 
         await _gameRepository.UpdateAsync(game);
         await _gameRepository.SaveChangesAsync();
 
-        return game;
+        return new MoveResultDto(true, boardChanges, game.Status, game.EndReason);
     }
 }

@@ -17,8 +17,8 @@ namespace Chess.Domain.UnitTests.ValueObjects
             var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(4, 1), new Position(4, 3)));
 
             // Assert
-            result.GetPiece(new Position(4, 1)).Should().Be('.');
-            result.GetPiece(new Position(4, 3)).Should().Be('P');
+            result.Board.GetPiece(new Position(4, 1)).Should().Be('.');
+            result.Board.GetPiece(new Position(4, 3)).Should().Be('P');
         }
 
         [Fact]
@@ -35,8 +35,8 @@ namespace Chess.Domain.UnitTests.ValueObjects
             board.GetPiece(new Position(4, 1)).Should().Be('P');
             board.GetPiece(new Position(4, 3)).Should().Be('.');
 
-            result.GetPiece(new Position(4, 1)).Should().Be('.');
-            result.GetPiece(new Position(4, 3)).Should().Be('P');
+            result.Board.GetPiece(new Position(4, 1)).Should().Be('.');
+            result.Board.GetPiece(new Position(4, 3)).Should().Be('P');
         }
 
         [Fact]
@@ -50,8 +50,8 @@ namespace Chess.Domain.UnitTests.ValueObjects
             var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(3, 2), new Position(4, 3)));
 
             // Assert
-            result.GetPiece(new Position(3, 2)).Should().Be('.');
-            result.GetPiece(new Position(4, 3)).Should().Be('B');
+            result.Board.GetPiece(new Position(3, 2)).Should().Be('.');
+            result.Board.GetPiece(new Position(4, 3)).Should().Be('B');
         }
 
         [Fact]
@@ -65,7 +65,7 @@ namespace Chess.Domain.UnitTests.ValueObjects
             var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(4, 1), new Position(4, 2)));
 
             // Assert
-            result.IsWhiteTurn.Should().BeFalse();
+            result.Board.IsWhiteTurn.Should().BeFalse();
         }
 
         [Fact]
@@ -79,7 +79,7 @@ namespace Chess.Domain.UnitTests.ValueObjects
             var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(4, 1), new Position(4, 3)));
 
             // Assert
-            result.EnPassantTarget.Should().Be(new Position(4, 2));
+            result.Board.EnPassantTarget.Should().Be(new Position(4, 2));
         }
 
         [Fact]
@@ -93,7 +93,7 @@ namespace Chess.Domain.UnitTests.ValueObjects
             var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(4, 6), new Position(4, 4)));
 
             // Assert
-            result.EnPassantTarget.Should().Be(new Position(4, 5));
+            result.Board.EnPassantTarget.Should().Be(new Position(4, 5));
         }
 
         [Fact]
@@ -107,7 +107,7 @@ namespace Chess.Domain.UnitTests.ValueObjects
             var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(4, 3), new Position(4, 4)));
 
             // Assert
-            result.EnPassantTarget.Should().BeNull();
+            result.Board.EnPassantTarget.Should().BeNull();
         }
 
         [Fact]
@@ -121,9 +121,9 @@ namespace Chess.Domain.UnitTests.ValueObjects
             var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(4, 4), new Position(3, 5)));
 
             // Assert
-            result.GetPiece(new Position(4, 4)).Should().Be('.');
-            result.GetPiece(new Position(3, 5)).Should().Be('P');
-            result.GetPiece(new Position(3, 4)).Should().Be('.');
+            result.Board.GetPiece(new Position(4, 4)).Should().Be('.');
+            result.Board.GetPiece(new Position(3, 5)).Should().Be('P');
+            result.Board.GetPiece(new Position(3, 4)).Should().Be('.');
         }
 
         [Fact]
@@ -137,7 +137,7 @@ namespace Chess.Domain.UnitTests.ValueObjects
             var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(4, 6), new Position(4, 7), 'N'));
 
             // Assert
-            result.GetPiece(new Position(4, 7)).Should().Be('N');
+            result.Board.GetPiece(new Position(4, 7)).Should().Be('N');
         }
 
         [Fact]
@@ -148,10 +148,10 @@ namespace Chess.Domain.UnitTests.ValueObjects
             Board board = FenConverterService.FromFen(fen);
 
             // Act
-            var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(4, 1), new Position(4, 0), 'R'));
+            var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(4, 1), new Position(4, 0), 'r'));
 
             // Assert
-            result.GetPiece(new Position(4, 0)).Should().Be('R');
+            result.Board.GetPiece(new Position(4, 0)).Should().Be('r');
         }
 
         [Fact]
@@ -165,7 +165,7 @@ namespace Chess.Domain.UnitTests.ValueObjects
             var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(4, 6), new Position(4, 7)));
 
             // Assert
-            result.GetPiece(new Position(4, 7)).Should().Be('Q');
+            result.Board.GetPiece(new Position(4, 7)).Should().Be('Q');
         }
 
         [Fact]
@@ -179,11 +179,11 @@ namespace Chess.Domain.UnitTests.ValueObjects
             var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(4, 0), new Position(6, 0)));
 
             // Assert
-            result.GetPiece(new Position(4, 0)).Should().Be('.');
-            result.GetPiece(new Position(6, 0)).Should().Be('K');
+            result.Board.GetPiece(new Position(4, 0)).Should().Be('.');
+            result.Board.GetPiece(new Position(6, 0)).Should().Be('K');
 
-            result.GetPiece(new Position(7, 0)).Should().Be('.');
-            result.GetPiece(new Position(5, 0)).Should().Be('R');
+            result.Board.GetPiece(new Position(7, 0)).Should().Be('.');
+            result.Board.GetPiece(new Position(5, 0)).Should().Be('R');
         }
 
         [Fact]
@@ -197,11 +197,11 @@ namespace Chess.Domain.UnitTests.ValueObjects
             var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(4, 0), new Position(2, 0)));
 
             // Assert
-            result.GetPiece(new Position(4, 0)).Should().Be('.');
-            result.GetPiece(new Position(2, 0)).Should().Be('K');
+            result.Board.GetPiece(new Position(4, 0)).Should().Be('.');
+            result.Board.GetPiece(new Position(2, 0)).Should().Be('K');
 
-            result.GetPiece(new Position(0, 0)).Should().Be('.');
-            result.GetPiece(new Position(3, 0)).Should().Be('R');
+            result.Board.GetPiece(new Position(0, 0)).Should().Be('.');
+            result.Board.GetPiece(new Position(3, 0)).Should().Be('R');
         }
 
         [Fact]
@@ -215,7 +215,7 @@ namespace Chess.Domain.UnitTests.ValueObjects
             var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(4, 0), new Position(4, 1)));
 
             // Assert
-            result.CastlingRights.Should().Be("");
+            result.Board.CastlingRights.Should().Be("");
         }
 
         [Fact]
@@ -229,7 +229,7 @@ namespace Chess.Domain.UnitTests.ValueObjects
             var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(0, 0), new Position(0, 1)));
 
             // Assert
-            result.CastlingRights.Should().Be("K");
+            result.Board.CastlingRights.Should().Be("K");
         }
 
         [Fact]
@@ -243,7 +243,7 @@ namespace Chess.Domain.UnitTests.ValueObjects
             var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(7, 0), new Position(7, 1)));
 
             // Assert
-            result.CastlingRights.Should().Be("Q");
+            result.Board.CastlingRights.Should().Be("Q");
         }
 
         [Fact]
@@ -257,7 +257,7 @@ namespace Chess.Domain.UnitTests.ValueObjects
             var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(1, 1), new Position(0, 0)));
 
             // Assert
-            result.CastlingRights.Should().Be("K");
+            result.Board.CastlingRights.Should().Be("K");
         }
 
         [Fact]
@@ -271,7 +271,7 @@ namespace Chess.Domain.UnitTests.ValueObjects
             var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(4, 0), new Position(4, 1)));
 
             // Assert
-            result.HalfmoveClock.Should().Be(8);
+            result.Board.HalfmoveClock.Should().Be(8);
         }
 
         [Fact]
@@ -285,7 +285,7 @@ namespace Chess.Domain.UnitTests.ValueObjects
             var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(4, 1), new Position(4, 2)));
 
             // Assert
-            result.HalfmoveClock.Should().Be(0);
+            result.Board.HalfmoveClock.Should().Be(0);
         }
 
         [Fact]
@@ -299,7 +299,7 @@ namespace Chess.Domain.UnitTests.ValueObjects
             var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(4, 0), new Position(4, 1)));
 
             // Assert
-            result.HalfmoveClock.Should().Be(0);
+            result.Board.HalfmoveClock.Should().Be(0);
         }
 
         [Fact]
@@ -313,7 +313,7 @@ namespace Chess.Domain.UnitTests.ValueObjects
             var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(4, 1), new Position(4, 2)));
 
             // Assert
-            result.FullmoveNumber.Should().Be(1);
+            result.Board.FullmoveNumber.Should().Be(1);
         }
 
         [Fact]
@@ -327,7 +327,7 @@ namespace Chess.Domain.UnitTests.ValueObjects
             var result = board.ApplyMove(new Move(Guid.NewGuid(), new Position(4, 6), new Position(4, 5)));
 
             // Assert
-            result.FullmoveNumber.Should().Be(2);
+            result.Board.FullmoveNumber.Should().Be(2);
         }
     }
 }

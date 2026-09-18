@@ -1,9 +1,15 @@
-﻿@page "{id:guid}"
-@model Pages.Chess.IndexModel
+﻿@page "{gameId:guid}"
+@model IndexModel
 
 @{
     ViewData["Title"] = "Chess Game";
 }
+
+@Html.AntiForgeryToken()
+
+<head>
+    <link rel="stylesheet" href="~/css/chess.css" asp-append-version="true" />
+</head>
 
 <h1>Chess Game</h1>
 
@@ -29,14 +35,19 @@
     @(Model.Game.BlackPlayerId ?? "Waiting for opponent")
 </p>
 
-<div class="chess-board">
+<div class="chess-board"
+     data-game-id="@Model.Game.GameId"
+     data-status="@Model.Game.Status"
+     data-current-turn="@Model.Game.CurrentTurn"
+     data-is-white-player="@Model.Game.IsWhitePlayer">
+
     @if (Model.Game.IsWhitePlayer)
     {
         for (int rank = 7; rank >= 0; rank--)
         {
             for (int file = 0; file < 8; file++)
             {
-                <div class="chess-square @((file + rank) % 2 == 1 ? "light-square" : "dark-square")">
+                <div class="chess-square @((file + rank) % 2 == 1 ? "light-square" : "dark-square")"
                     data-file="@file"
                     data-rank="@rank">
                     @{
@@ -45,7 +56,7 @@
                     
                     @if (piece != null)
                     {
-                        <span class="chess-piece">
+                        <span class="chess-piece" data-piece="@piece.Piece">
                             @Model.GetPieceSymbol(piece.Piece)
                         </span>
                     }
@@ -69,7 +80,7 @@
 
                     @if (piece != null)
                     {
-                        <span class="chess-piece">
+                        <span class="chess-piece" data-piece="@piece.Piece">
                             @Model.GetPieceSymbol(piece.Piece)
                         </span>
                     }
@@ -79,3 +90,24 @@
         }
     }
 </div>
+
+<div id="promotion-modal" class="promotion-modal-overlay hidden">
+    <div class="promotion-options">
+        <button data-piece="Q">♕</button>
+        <button data-piece="R">♖</button>
+        <button data-piece="B">♗</button>
+        <button data-piece="N">♘</button>
+    </div>
+</div>
+
+
+<div id="game-end-modal" class="game-end-modal-overlay hidden">
+    <div class="game-end-modal-box">
+        <button id="closeBtn" class="game-end-modal-close">×</button>
+
+        <h3 id="game-end-title"></h3>
+        <p id="game-end-message"></p>
+    </div>
+</div>
+
+<script src="~/js/chess.js" asp-append-version="true"></script>

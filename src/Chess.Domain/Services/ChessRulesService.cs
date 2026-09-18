@@ -1,6 +1,4 @@
-﻿using Chess.Domain.Entities;
-using Chess.Domain.ValueObjects;
-using System.ComponentModel;
+﻿using Chess.Domain.ValueObjects;
 
 namespace Chess.Domain.Services
 {
@@ -197,7 +195,7 @@ namespace Chess.Domain.Services
                 var newPosition = new Position(file, rank);
                 var destination = board.GetPiece(newPosition);
 
-                if (char.IsUpper(piece) == char.IsUpper(destination))
+                if (destination != Board.Empty && char.IsUpper(piece) == char.IsUpper(destination))
                     continue;
 
                 candidatePositions.Add(newPosition);
@@ -262,31 +260,29 @@ namespace Chess.Domain.Services
             char piece = board.GetPiece(piecePosition);
             bool isWhitePiece = char.IsUpper(piece);
 
-            var isKing = false;
-            Position kingPosition;
+            Position originalKingPosition;
+            bool isKing = false;
 
             if (piece == 'k' || piece == 'K')
             {
-                kingPosition = piecePosition;
+                originalKingPosition = piecePosition;
                 isKing = true;
             }
             else
             {
-                kingPosition = FindKing(board, isWhitePiece);
+                originalKingPosition = FindKing(board, isWhitePiece);
             }
 
             var legalMoves = new List<Position>();
 
             foreach (var destination in candidateMoves)
             {
-                Board boardWithSimulatedMove = board.ApplyMove(new Move(Guid.NewGuid(), piecePosition, destination));
+                BoardMoveResult simulatedBoardResult = board.ApplyMove(new Move(Guid.NewGuid(), piecePosition, destination));
 
-                if (isKing)
-                    kingPosition = destination;
+                Position kingPosition = isKing ? destination : originalKingPosition;
 
-                if (!IsSquareAttacked(boardWithSimulatedMove, kingPosition, !isWhitePiece))
+                if (!IsSquareAttacked(simulatedBoardResult.Board, kingPosition, !isWhitePiece))
                     legalMoves.Add(destination);
-
             }
 
             return legalMoves;
@@ -301,22 +297,28 @@ namespace Chess.Domain.Services
                     var piecePosition = new Position(file, rank);
                     var piece = board.GetPiece(piecePosition);
 
-                    if (piece == '.')
+                    if (piece == Board.Empty)
                         continue;
 
                     if (char.IsUpper(piece) != byWhite)
                         continue;
 
-                    List<Position> attacks;
+                    List<Position> attacks = piece switch
+                    {
+                        'P' or 'p' => GetPawnAttacks(board, piecePosition),
 
-                    if (piece == 'P' || piece == 'p')
-                    {
-                        attacks = GetPawnAttacks(board, piecePosition);
-                    }
-                    else
-                    {
-                        attacks = GetCanidiateMoves(board, piecePosition);
-                    }
+                        'N' or 'n' => GetKnightMoves(board, piecePosition),
+
+                        'B' or 'b' => GetBishopMoves(board, piecePosition),
+
+                        'R' or 'r' => GetRookMoves(board, piecePosition),
+
+                        'Q' or 'q' => GetQueenMoves(board, piecePosition),
+
+                        'K' or 'k' => GetKingAttackSquares(board, piecePosition),
+
+                        _ => []
+                    };
 
                     if (attacks.Contains(position))
                         return true;
@@ -355,34 +357,44 @@ namespace Chess.Domain.Services
             return attacks;
         }
 
+        private List<Position> GetKingAttackSquares(Board board, Position piecePosition)
+        {
+            var offsets = new List<(int File, int Rank)>
+            {
+                (1, 0),
+                (0, 1),
+                (-1, 0),
+                (0, -1),
+                (1, -1),
+                (1, 1),
+                (-1, 1),
+                (-1, -1)
+            };
+
+            var attacks = new List<Position>();
+
+            foreach (var offset in offsets)
+            {
+                int file = piecePosition.File + offset.File;
+                int rank = piecePosition.Rank + offset.Rank;
+
+                if (file < 0 || file > 7 || rank < 0 || rank > 7)
+                    continue;
+
+                attacks.Add(new Position(file, rank));
+            }
+
+            return attacks;
+        }
+
         public bool IsCheckmate(Board board)
         {
-            Position kingPosition = FindKing(board, board.IsWhiteTurn);
-
-            return IsSquareAttacked(board, kingPosition, !board.IsWhiteTurn);
+            return IsKingInCheck(board) && !HasAnyLegalMove(board);
         }
 
         public bool IsStalemate(Board board)
         {
-            for (int rank = 0; rank < 8; rank++)
-            {
-                for (int file = 0; file < 8; file++)
-                {
-                    var piecePosition = new Position(file, rank);
-                    var piece = board.GetPiece(piecePosition);
-
-                    if (piece == '.')
-                        continue;
-
-                    if (char.IsUpper(piece) != board.IsWhiteTurn)
-                        continue;
-
-                    if (GetLegalMoves(board, piecePosition).Count != 0)
-                        return false;
-                }
-            }
-
-            return !IsKingInCheck(board);
+            return !IsKingInCheck(board) && !HasAnyLegalMove(board);
         }
 
         private bool IsKingInCheck(Board board)
@@ -395,6 +407,28 @@ namespace Chess.Domain.Services
             return IsSquareAttacked(board, kingPosition.Value, !board.IsWhiteTurn);
         }
 
+        private bool HasAnyLegalMove(Board board)
+        {
+            for (int rank = 0; rank < 8; rank++)
+            {
+                for (int file = 0; file < 8; file++)
+                {
+                    var piecePosition = new Position(file, rank);
+                    var piece = board.GetPiece(piecePosition);
+
+                    if (piece == Board.Empty)
+                        continue;
+
+                    if (char.IsUpper(piece) != board.IsWhiteTurn)
+                        continue;
+
+                    if (GetLegalMoves(board, piecePosition).Count > 0)
+                        return true;
+                }
+            }
+
+            return false;
+        }
 
         public bool IsInsufficientMaterial(Board board)
         {

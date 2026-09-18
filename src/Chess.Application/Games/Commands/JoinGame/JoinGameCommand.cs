@@ -4,5 +4,5 @@ using System.Text;
 
 namespace Chess.Application.Games.Commands.JoinGame
 {
-    public record JoinGameCommand(Guid GameId, string BlackPlayerId);
+    public record JoinGameCommand(Guid GameId, string PlayerId);
 }

@@ -1,6 +1,5 @@
 ﻿using Chess.Domain.Entities;
 using Chess.Domain.Interfaces;
-using Chess.Domain.Enums;
 using Chess.Domain.Services;
 
 namespace Chess.Application.Games.Commands.CreateGame
@@ -20,6 +19,9 @@ namespace Chess.Application.Games.Commands.CreateGame
                 Guid.NewGuid(), 
                 command.WhitePlayerId,
                 FenConverterService.StartingPositionFen);
+
+            chessGame.Join("whitePlayer"); // Temp addition to allow me to play chess from a single view for testing. 
+            chessGame.Start("whitePlayer");
 
             await _gameRepository.AddAsync(chessGame);
             await _gameRepository.SaveChangesAsync();

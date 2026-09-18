@@ -11,12 +11,6 @@ namespace Chess.Domain.ValueObjects
 
         public Position(int file, int rank)
         {
-            if (file < 0 || file > 7)
-                throw new ArgumentOutOfRangeException(nameof(file));
-
-            if (rank < 0 || rank > 7)
-                throw new ArgumentOutOfRangeException(nameof(rank));
-
             File = file;
             Rank = rank;
         }
