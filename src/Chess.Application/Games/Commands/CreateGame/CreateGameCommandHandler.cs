@@ -24,7 +24,7 @@ namespace Chess.Application.Games.Commands.CreateGame
 
             try
             {
-                var chessGame = new ChessGame(Guid.NewGuid(), command.WhitePlayerId, FenConverterService.StartingPositionFen);
+                ChessGame chessGame = new(Guid.NewGuid(), command.WhitePlayerId, FenConverterService.StartingPositionFen);
 
                 await _gameRepository.AddAsync(chessGame);
                 await _gameRepository.SaveChangesAsync();

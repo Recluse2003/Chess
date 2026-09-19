@@ -1,4 +1,5 @@
 using Chess.Application.Games.Commands.JoinGame;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -6,11 +7,11 @@ namespace Chess.Web.Pages.Game
 {
     public class JoinModel : PageModel
     {
-        private readonly JoinGameCommandHandler _joinGameHandler;
+        private readonly IMediator _mediator;
 
-        public JoinModel(JoinGameCommandHandler joinGameHandler)
+        public JoinModel(IMediator mediator)
         {
-            _joinGameHandler = joinGameHandler;
+            _mediator = mediator;
         }
 
         public IActionResult OnGet()
