@@ -41,7 +41,7 @@ namespace Chess.Domain.Services
         /// </returns>
         public List<Position> GetLegalMoves(Board board, Position piecePosition)
         {
-            var candidateMoves = GetCanidiateMoves(board, piecePosition);
+            var candidateMoves = GetCandidateMoves(board, piecePosition);
 
             return RemoveKingCheckMoves(board, piecePosition, candidateMoves);
         }
@@ -55,7 +55,7 @@ namespace Chess.Domain.Services
         /// <returns>
         /// A list containing candidate destination positions.
         /// </returns>
-        public List<Position> GetCanidiateMoves(Board board, Position piecePosition)
+        public List<Position> GetCandidateMoves(Board board, Position piecePosition)
         {
             var piece = board.GetPiece(piecePosition);
 

@@ -20,7 +20,7 @@ namespace Chess.Tests.Domain.Services
             var game = CreateGame(fen);
 
             // Act
-            var moves = _rulesService.GetCanidiateMoves(game.Board, new Position(4, 1));
+            var moves = _rulesService.GetCandidateMoves(game.Board, new Position(4, 1));
 
             // Assert
             moves.Should().Contain(new Position(4, 2));
@@ -34,7 +34,7 @@ namespace Chess.Tests.Domain.Services
             var game = CreateGame(fen);
 
             // Act
-            var moves = _rulesService.GetCanidiateMoves(game.Board, new Position(4, 1));
+            var moves = _rulesService.GetCandidateMoves(game.Board, new Position(4, 1));
 
             // Assert
             moves.Should().Contain(new Position(4, 2));
@@ -49,7 +49,7 @@ namespace Chess.Tests.Domain.Services
             var game = CreateGame(fen);
 
             // Act
-            var moves = _rulesService.GetCanidiateMoves(game.Board, new Position(4, 6));
+            var moves = _rulesService.GetCandidateMoves(game.Board, new Position(4, 6));
 
             // Assert
             moves.Should().Contain(new Position(4, 5));
@@ -64,7 +64,7 @@ namespace Chess.Tests.Domain.Services
             var game = CreateGame(fen);
 
             // Act
-            var moves = _rulesService.GetCanidiateMoves(game.Board, new Position(4, 3));
+            var moves = _rulesService.GetCandidateMoves(game.Board, new Position(4, 3));
 
             // Assert
             moves.Should().Contain(new Position(3, 4)); // d6
@@ -80,7 +80,7 @@ namespace Chess.Tests.Domain.Services
             var game = CreateGame(fen);
 
             // Act
-            var moves = _rulesService.GetCanidiateMoves(game.Board, new Position(4, 2));
+            var moves = _rulesService.GetCandidateMoves(game.Board, new Position(4, 2));
 
             // Assert
             moves.Should().NotContain(new Position(4, 3));
@@ -97,7 +97,7 @@ namespace Chess.Tests.Domain.Services
             var game = CreateGame(fen);
 
             // Act
-            var moves = _rulesService.GetCanidiateMoves(game.Board, new Position(4, 4)); // e5
+            var moves = _rulesService.GetCandidateMoves(game.Board, new Position(4, 4)); // e5
 
             // Assert
             moves.Should().Contain(new Position(3, 5)); // d6
@@ -115,7 +115,7 @@ namespace Chess.Tests.Domain.Services
             var game = CreateGame(fen);
 
             // Act
-            var moves = _rulesService.GetCanidiateMoves(game.Board, new Position(4, 3)); // e4
+            var moves = _rulesService.GetCandidateMoves(game.Board, new Position(4, 3)); // e4
 
             // Assert
             moves.Should().Contain(new Position(3, 2)); // d3
@@ -131,7 +131,7 @@ namespace Chess.Tests.Domain.Services
             var game = CreateGame(fen);
 
             // Act
-            var moves = _rulesService.GetCanidiateMoves(game.Board, new Position(3, 3));
+            var moves = _rulesService.GetCandidateMoves(game.Board, new Position(3, 3));
 
             // Assert
             moves.Should().Contain(new Position(3, 0));
@@ -148,7 +148,7 @@ namespace Chess.Tests.Domain.Services
             var game = CreateGame(fen);
 
             // Act
-            var moves = _rulesService.GetCanidiateMoves(game.Board, new Position(3, 3));
+            var moves = _rulesService.GetCandidateMoves(game.Board, new Position(3, 3));
 
             // Assert
             moves.Should().Contain(new Position(3, 5));
@@ -164,7 +164,7 @@ namespace Chess.Tests.Domain.Services
             var game = CreateGame(fen);
 
             // Act
-            var moves = _rulesService.GetCanidiateMoves(game.Board, new Position(3, 3));
+            var moves = _rulesService.GetCandidateMoves(game.Board, new Position(3, 3));
 
             // Assert
             moves.Should().Contain(new Position(3, 6));
@@ -182,7 +182,7 @@ namespace Chess.Tests.Domain.Services
             var game = CreateGame(fen);
 
             // Act
-            var moves = _rulesService.GetCanidiateMoves(game.Board, new Position(3, 3));
+            var moves = _rulesService.GetCandidateMoves(game.Board, new Position(3, 3));
 
             // Assert
             moves.Should().Contain(new Position(0, 0));
@@ -199,7 +199,7 @@ namespace Chess.Tests.Domain.Services
             var game = CreateGame(fen);
 
             // Act
-            var moves = _rulesService.GetCanidiateMoves(game.Board, new Position(3, 3));
+            var moves = _rulesService.GetCandidateMoves(game.Board, new Position(3, 3));
 
             // Assert
             moves.Should().Contain(new Position(4, 4));
@@ -214,7 +214,7 @@ namespace Chess.Tests.Domain.Services
             var game = CreateGame(fen);
 
             // Act
-            var moves = _rulesService.GetCanidiateMoves(game.Board, new Position(3, 3));
+            var moves = _rulesService.GetCandidateMoves(game.Board, new Position(3, 3));
 
             // Assert
             moves.Should().Contain(new Position(5, 5));
@@ -231,7 +231,7 @@ namespace Chess.Tests.Domain.Services
             var game = CreateGame(fen);
 
             // Act
-            var moves = _rulesService.GetCanidiateMoves(game.Board, new Position(3, 3));
+            var moves = _rulesService.GetCandidateMoves(game.Board, new Position(3, 3));
 
             // Assert
             var expected = new[]
@@ -257,7 +257,7 @@ namespace Chess.Tests.Domain.Services
             var game = CreateGame(fen);
 
             // Act
-            var moves = _rulesService.GetCanidiateMoves(game.Board, new Position(3, 3));
+            var moves = _rulesService.GetCandidateMoves(game.Board, new Position(3, 3));
 
             // Assert
             moves.Should().NotContain(new Position(4, 5));
@@ -271,7 +271,7 @@ namespace Chess.Tests.Domain.Services
             var game = CreateGame(fen);
 
             // Act
-            var moves = _rulesService.GetCanidiateMoves(game.Board, new Position(3, 3));
+            var moves = _rulesService.GetCandidateMoves(game.Board, new Position(3, 3));
 
             // Assert
             moves.Should().NotBeNull();
@@ -287,7 +287,7 @@ namespace Chess.Tests.Domain.Services
             var game = CreateGame(fen);
 
             // Act
-            var moves = _rulesService.GetCanidiateMoves(game.Board, new Position(3, 3));
+            var moves = _rulesService.GetCandidateMoves(game.Board, new Position(3, 3));
 
             // Assert
 
@@ -310,7 +310,7 @@ namespace Chess.Tests.Domain.Services
             var game = CreateGame(fen);
 
             // Act
-            var moves = _rulesService.GetCanidiateMoves(game.Board, new Position(4, 3));
+            var moves = _rulesService.GetCandidateMoves(game.Board, new Position(4, 3));
 
             // Assert
             var expected = new[]
@@ -503,7 +503,7 @@ namespace Chess.Tests.Domain.Services
             var game = CreateGame(fen);
 
             // Act
-            var moves = _rulesService.GetCanidiateMoves(game.Board, new Position(4, 3));
+            var moves = _rulesService.GetCandidateMoves(game.Board, new Position(4, 3));
 
             // Assert
             moves.Should().BeEmpty();

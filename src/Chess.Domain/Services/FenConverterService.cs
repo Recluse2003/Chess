@@ -3,10 +3,27 @@ using System.Text;
 
 namespace Chess.Domain.Services
 {
+    /// <summary>
+    /// Provides functionality for converting chess board states to and from Forsyth-Edwards Notation (FEN).
+    /// </summary>
+    /// <remarks> 
+    /// FEN is a notation used to describe a single state of a chess game. It stores the placement of pieces, the 
+    /// active player, castling rights, en passant target square, halfmove clock, and fullmove number.  
+    /// </remarks>
     public static class FenConverterService
     {
+        /// <summary>
+        /// Represents the standard starting position of a chess game in FEN.
+        /// </summary> 
         public static string StartingPositionFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
+        /// <summary>
+        /// Converts a <see cref="Board"/> into its FEN representation. 
+        /// </summary>
+        /// <param name="board">The chess board and associated game-state information to convert.</param>
+        /// <returns>
+        /// A string containing the complete FEN representation of the board.
+        /// </returns>
         public static string ToFen(Board board)
         {
             StringBuilder fen = new StringBuilder();
@@ -55,6 +72,17 @@ namespace Chess.Domain.Services
             return fen.ToString();
         }
 
+
+        /// <summary>
+        /// Creates a <see cref="Board"/> from a FEN string.
+        /// </summary>
+        /// <param name="fen">The FEN string representing the chess position to parse.</param>
+        /// <returns>
+        /// A <see cref="Board"/> containing the position and game-state information represented by the supplied FEN.
+        /// </returns>
+        /// <exception cref="ArgumentException">
+        /// Thrown when a FEN rank does not contain exactly eight squares after expanding its piece and empty-square representations.
+        /// </exception>
         public static Board FromFen(string fen)
         {
             string[] gameState = fen.Split(' ');
