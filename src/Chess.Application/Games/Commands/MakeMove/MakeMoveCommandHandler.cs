@@ -2,6 +2,7 @@
 using Chess.Application.Games.Commands.MakeMove;
 using Chess.Domain.Entities;
 using Chess.Domain.Enums;
+using Chess.Domain.Exceptions;
 using Chess.Domain.Interfaces;
 using Chess.Domain.Services;
 using Chess.Domain.ValueObjects;
@@ -67,9 +68,13 @@ public class MakeMoveCommandHandler : IRequestHandler<MakeMoveCommand, Result<Mo
 
             return new MoveResultDto(true, boardChanges, game.Status, game.EndReason);
         }
-        catch (InvalidOperationException ex)
+        catch (GameNotActiveException ex)
         {
-            return Error.Conflict("Games.MoveExecutionFailed", ex.Message);
+            return Error.Conflict("Games.NotActive", ex.Message);
+        }
+        catch (InvalidTurnException ex)
+        {
+            return Error.Conflict("Games.NotYourTurn", ex.Message);
         }
     }
 }

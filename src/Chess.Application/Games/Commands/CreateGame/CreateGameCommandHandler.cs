@@ -33,9 +33,7 @@ namespace Chess.Application.Games.Commands.CreateGame
         public async Task<Result<Guid>> Handle(CreateGameCommand command, CancellationToken cancellationToken)
         {
             if (command.WhitePlayerId == string.Empty)
-            {
                 return Error.Validation("Games.InvalidPlayer", "White Player ID cannot be empty.");
-            }
 
             try
             {

@@ -1,6 +1,7 @@
 ﻿using Chess.Application.Common.Results;
 using Chess.Application.Games.Commands.CreateGame;
 using Chess.Domain.Entities;
+using Chess.Domain.Exceptions;
 using Chess.Domain.Interfaces;
 using MediatR;
 
@@ -45,9 +46,9 @@ namespace Chess.Application.Games.Commands.JoinGame
 
                 return Result.Success();
             }
-            catch (InvalidOperationException ex)
+            catch (GameStateTransitionException ex)
             {
-                return Error.Conflict("Games.StateError", ex.Message);
+                return Error.Conflict("Games.JoinFailed", ex.Message);
             }
 
         }

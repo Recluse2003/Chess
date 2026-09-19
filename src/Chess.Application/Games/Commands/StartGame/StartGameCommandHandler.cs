@@ -1,5 +1,6 @@
 ﻿using Chess.Application.Common.Results;
 using Chess.Domain.Entities;
+using Chess.Domain.Exceptions;
 using Chess.Domain.Interfaces;
 using MediatR;
 
@@ -43,9 +44,9 @@ namespace Chess.Application.Games.Commands.StartGame
 
                 return Result.Success();
             }
-            catch (InvalidOperationException ex)
+            catch (GameStateTransitionException ex)
             {
-                return Error.Conflict("Games.StartGameFailure", ex.Message);
+                return Error.Conflict("Games.StartFailed", ex.Message);
             }
         }
     }
