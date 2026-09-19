@@ -2,8 +2,25 @@
 
 namespace Chess.Domain.Services
 {
+    /// <summary>
+    /// Provides chess rule validation and move-generation functionality.
+    /// </summary>
+    /// <remarks>  
+    /// This service is responsible for determining which moves are available 
+    /// to pieces, filtering moves that would leave the player's king in check, 
+    /// detecting checkmate and stalemate, and determining whether a position 
+    /// contains insufficient material to checkmate.
+    /// </remarks>
     public class ChessRulesService
     {
+        /// <summary>
+        /// Calculates where a specified move is legal for the current board. 
+        /// </summary>
+        /// <param name="board">The current state of the chess board.</param>
+        /// <param name="move">The move to validate. It includes the starting and ending positions.</param>
+        /// <returns>
+        /// <c>true</c> if the move is legal; otherwise, <c>false</c>.
+        /// </returns>
         public bool IsMoveLegal(Board board, Move move)
         {
             if (board.GetPiece(move.From) == '.')
@@ -14,6 +31,14 @@ namespace Chess.Domain.Services
             return legalMoves.Contains(move.To);
         }
 
+        /// <summary>
+        /// Retrieves all legal moves available for a piece at the specified position.
+        /// </summary>
+        /// <param name="board">The current state of the chess board.</param>
+        /// <param name="piecePosition">The position of the piece whose legal moves will be determined.</param>
+        /// <returns>
+        /// A collection containing all legal destination positions for the piece.
+        /// </returns>
         public List<Position> GetLegalMoves(Board board, Position piecePosition)
         {
             var candidateMoves = GetCanidiateMoves(board, piecePosition);
@@ -21,6 +46,15 @@ namespace Chess.Domain.Services
             return RemoveKingCheckMoves(board, piecePosition, candidateMoves);
         }
 
+        /// <summary>
+        /// Gets the possible movement destinations for a piece without determining if the move would leave its
+        /// own king in check.
+        /// </summary>
+        /// <param name="board">The current state of the chess board.</param>
+        /// <param name="piecePosition">The position of the piece whose candidate moves should be calculated.</param>
+        /// <returns>
+        /// A list containing candidate destination positions.
+        /// </returns>
         public List<Position> GetCanidiateMoves(Board board, Position piecePosition)
         {
             var piece = board.GetPiece(piecePosition);
@@ -39,6 +73,14 @@ namespace Chess.Domain.Services
             return candidateMoves;
         }
 
+        /// <summary>
+        /// Generates candidate moves for a pawn.
+        /// </summary>
+        /// <param name="board">The current state of the chess board.</param>
+        /// <param name="piecePosition">The current position of the pawn.</param>
+        /// <returns>
+        /// A list containing valid pawn destinations including regular and eligible en passant captures.
+        /// </returns>
         private List<Position> GetPawnMoves(Board board, Position piecePosition)
         {
             char piece = board.GetPiece(piecePosition);
@@ -100,25 +142,37 @@ namespace Chess.Domain.Services
             return candidatePositions;
         }
 
+        /// <summary>
+        /// Generates candidate moves for a knight.
+        /// </summary>
+        /// <param name="board">The current state of the chess board.</param>
+        /// <param name="piecePosition">The current position of the knight.</param>
+        /// <returns>
+        /// A list containing valid knight destinations including regular captures.
+        /// </returns>
         private List<Position> GetKnightMoves(Board board, Position piecePosition)
         {
             var piece = board.GetPiece(piecePosition);
 
+            // All possible knight movements
             var offsets = new List<(int File, int Rank)> { (-2, -1), (-2, +1), (-1, -2), (-1, +2), (+1, -2), (+1, +2), (+2, -1), (+2, +1) };
 
             var candidatePositions = new List<Position>();
 
+            // Check each possible movement and see if they would be valid or not
             foreach (var offset in offsets)
             {
                 int file = piecePosition.File + offset.File;
                 int rank = piecePosition.Rank + offset.Rank;
 
+                // Prevents the creation of moves that would be off the board
                 if (file < 0 || file > 7 || rank < 0 || rank > 7)
                     continue;
 
                 var newPosition = new Position(file, rank);
                 var destination = board.GetPiece(newPosition);
 
+                // Only adds movements that land the knight on an empty square, or one occupied by an opposing piece
                 if (destination == '.' || char.IsUpper(piece) != char.IsUpper(destination))
                     candidatePositions.Add(newPosition);
             }
@@ -126,27 +180,68 @@ namespace Chess.Domain.Services
             return candidatePositions;
         }
 
+        /// <summary>
+        /// Generates candidate moves for a rook.
+        /// </summary>
+        /// <param name="board">The current state of the chess board.</param>
+        /// <param name="piecePosition">The current position of the rook.</param>
+        /// <returns>
+        /// A list containing valid rook destinations including regular captures.
+        /// </returns>
         private List<Position> GetRookMoves(Board board, Position piecePosition)
         {
             return GetSlidingMoves(board, piecePosition, new() { (1, 0), (0, 1), (-1, 0), (0, -1) });
         }
 
+        /// <summary>
+        /// Generates candidate moves for a bishop.
+        /// </summary>
+        /// <param name="board">The current state of the chess board.</param>
+        /// <param name="piecePosition">The current position of the bishop.</param>
+        /// <returns>
+        /// A list containing valid bishop destinations including regular captures.
+        /// </returns>
         private List<Position> GetBishopMoves(Board board, Position piecePosition)
         {
             return GetSlidingMoves(board, piecePosition, new() { (1, -1), (1, 1), (-1, 1), (-1, -1) });
         }
 
+
+        /// <summary>
+        /// Generates candidate moves for a queen.
+        /// </summary>
+        /// <param name="board">The current state of the chess board.</param>
+        /// <param name="piecePosition">The current position of the queen.</param>
+        /// <returns>
+        /// A list containing all valid queen destinations including regular captures.
+        /// </returns>
         private List<Position> GetQueenMoves(Board board, Position piecePosition)
         {
             return GetSlidingMoves(board, piecePosition, new() { (1, 0), (0, 1), (-1, 0), (0, -1), (1, -1), (1, 1), (-1, 1), (-1, -1) });
         }
 
+        /// <summary>
+        /// Generates candidate moves for sliding pieces including rooks, bishops and queens.
+        /// </summary>
+        /// <param name="board">The current state of the chess board.</param>
+        /// <param name="piecePosition">The current position of the sliding piece.</param>
+        /// <param name="offsets"> The directions in which the piece can move. </param>
+        /// <returns>
+        /// A list containing all valid destinations including regular captures.
+        /// </returns>
+        /// <remarks> 
+        /// Movement continues in each direction until the edge of the board 
+        /// or another piece is encountered. Friendly pieces block movement, 
+        /// while opposing pieces can be captured. 
+        /// </remarks>
         private List<Position> GetSlidingMoves(Board board, Position piecePosition, List<(int File, int Rank)> offsets)
         {
             var piece = board.GetPiece(piecePosition);
 
             var candidatePositions = new List<Position>();
 
+            // Generate all canidate moves for each provided direction, and only stops until it reaches the edge of board, or 
+            // encounters a piece. 
             foreach (var offset in offsets)
             {
                 for (int distance = 1; distance < 8; distance++)
@@ -176,6 +271,16 @@ namespace Chess.Domain.Services
             return candidatePositions;
         }
 
+
+        /// <summary>
+        /// Generates candidate moves for a king.
+        /// </summary>
+        /// <param name="board">The current state of the chess board.</param>
+        /// <param name="piecePosition">The current position of the king.</param>
+        /// <returns>
+        /// A list containing all valid king destinations including regular captures and castling destinations where the
+        /// castling conditions are met.
+        /// </returns>
         private List<Position> GetKingMoves(Board board, Position piecePosition)
         {
             var piece = board.GetPiece(piecePosition);
@@ -184,6 +289,7 @@ namespace Chess.Domain.Services
 
             var candidatePositions = new List<Position>();
 
+            // Checks each square in the region of the king to see if they are valid.
             foreach (var offset in offsets)
             {
                 int file = piecePosition.File + offset.File;
@@ -238,7 +344,17 @@ namespace Chess.Domain.Services
             return candidatePositions;
         }
 
-
+        /// <summary>
+        /// Finds the king belonging to the specified side. 
+        /// </summary>
+        /// <param name="board">The current state of the chess board.</param>
+        /// <param name="isWhitePiece"><c>true</c> to find the white king, <c>false</c> to find</param>
+        /// <returns>
+        /// The position of the requested king.
+        /// </returns>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown when the requested king cannot be found on the board.
+        /// </exception>
         private Position FindKing(Board board, bool isWhitePiece)
         {
             for (int rank = 7; rank >= 0; rank--)
@@ -255,6 +371,19 @@ namespace Chess.Domain.Services
             throw new InvalidOperationException("King not found on board.");
         }
 
+        /// <summary>
+        /// Removes candidate moves that would leave the moving player's king in check.
+        /// </summary>
+        /// <param name="board">The current state of the chess board.</param>
+        /// <param name="piecePosition">The original position of the moving piece.</param>
+        /// <param name="candidateMoves">The candidate moves generated for the piece.</param>
+        /// <returns>
+        /// A list containing only moves that do not leave the player's king in check.
+        /// </returns>
+        /// <remarks>
+        /// Each candidate move is temporarily applied to a simulated board. The resulting position is then checked 
+        /// to determine whether the player's king is attacked. 
+        /// </remarks>
         private List<Position> RemoveKingCheckMoves(Board board, Position piecePosition, List<Position> candidateMoves)
         {
             char piece = board.GetPiece(piecePosition);
@@ -288,6 +417,15 @@ namespace Chess.Domain.Services
             return legalMoves;
         }
 
+        /// <summary>
+        /// Determines whether a specified square is currently attacked by a specified side.
+        /// </summary>
+        /// <param name="board">The current state of the chess board.</param>
+        /// <param name="position">The square being checked for possible attacks.</param>
+        /// <param name="byWhite"><c>true</c> to check for attacks by white pieces, <c>false</c> to check for attacks by black pieces.</param>
+        /// <returns>
+        /// <c>true</c> if the square is attacked by the specified side, otherwise, <c>false</c>.
+        /// </returns>
         private bool IsSquareAttacked(Board board, Position position, bool byWhite)
         {
             for (int rank = 0; rank < 8; rank++)
@@ -306,17 +444,11 @@ namespace Chess.Domain.Services
                     List<Position> attacks = piece switch
                     {
                         'P' or 'p' => GetPawnAttacks(board, piecePosition),
-
                         'N' or 'n' => GetKnightMoves(board, piecePosition),
-
                         'B' or 'b' => GetBishopMoves(board, piecePosition),
-
                         'R' or 'r' => GetRookMoves(board, piecePosition),
-
                         'Q' or 'q' => GetQueenMoves(board, piecePosition),
-
                         'K' or 'k' => GetKingAttackSquares(board, piecePosition),
-
                         _ => []
                     };
 
@@ -328,8 +460,18 @@ namespace Chess.Domain.Services
             return false;
         }
 
-        // Helper function to check if a pawn attacks a specific position, as they can not move forward to a
-        // sqaure occupied by another piece. 
+        /// <summary>
+        /// Gets the squares attacked by a specified pawn.
+        /// </summary>
+        /// <param name="board">The current state of the chess board.</param>
+        /// <param name="piecePosition">The current position of the pawn.</param>
+        /// <returns>
+        /// The diagonal squares attacked by the pawn.
+        /// </returns>
+        /// <remarks> 
+        /// Pawn attacks differ from pawn movement because a pawn attacks diagonally but moves forward can not capture other
+        /// pieces. This method therefore does not consider whether the destination contains a piece. 
+        /// </remarks>
         private List<Position> GetPawnAttacks(Board board, Position piecePosition)
         {
             char piece = board.GetPiece(piecePosition);
@@ -357,6 +499,17 @@ namespace Chess.Domain.Services
             return attacks;
         }
 
+        /// <summary>
+        /// Gets all squares directly attacked by a king.
+        /// </summary>
+        /// <param name="board">The current state of the chess board.</param>
+        /// <param name="piecePosition">The current position of the king.</param>
+        /// <returns>
+        /// A list containing the squares immediately surrounding the king.
+        /// </returns>
+        /// <remarks>
+        /// Castling is intentionally excluded because castling is a move, rather than a square directly attacked by the king. 
+        /// </remarks>
         private List<Position> GetKingAttackSquares(Board board, Position piecePosition)
         {
             var offsets = new List<(int File, int Rank)>
@@ -387,16 +540,37 @@ namespace Chess.Domain.Services
             return attacks;
         }
 
+        /// <summary>
+        /// Determines whether the current player is in checkmate.
+        /// </summary>
+        /// <param name="board">The current state of the chess board.</param>
+        /// <returns>
+        /// c>true</c> if the current player's king is in check and the player has no legal moves, otherwise <c>false</c>.
+        /// </returns>
         public bool IsCheckmate(Board board)
         {
             return IsKingInCheck(board) && !HasAnyLegalMove(board);
         }
 
+        /// <summary>
+        /// Determines whether the current player is in stalemate.
+        /// </summary>
+        /// <param name="board">The current state of the chess board.</param>
+        /// <returns>
+        /// c>true</c> if the current player's king is not in check and the player has no legal moves, otherwise <c>false</c>.
+        /// </returns>
         public bool IsStalemate(Board board)
         {
             return !IsKingInCheck(board) && !HasAnyLegalMove(board);
         }
 
+        /// <summary>
+        /// Determines whether the current player's king is in check.
+        /// </summary>
+        /// <param name="board">The current state of the chess board.</param>
+        /// <returns>
+        /// <c>true</c> if the current player's king is attacked by an opposing piece, otherwise <c>false</c>.
+        /// </returns>
         private bool IsKingInCheck(Board board)
         {
             Position? kingPosition = FindKing(board, board.IsWhiteTurn);
@@ -407,6 +581,14 @@ namespace Chess.Domain.Services
             return IsSquareAttacked(board, kingPosition.Value, !board.IsWhiteTurn);
         }
 
+
+        /// <summary>
+        /// Determines whether the current player has at least one legal move.
+        /// </summary>
+        /// <param name="board">The current state of the chess board.</param>
+        /// <returns>
+        /// <c>true</c> if the current player has at least one legal move, otherwise <c>false</c>.
+        /// </returns>
         private bool HasAnyLegalMove(Board board)
         {
             for (int rank = 0; rank < 8; rank++)
@@ -430,6 +612,13 @@ namespace Chess.Domain.Services
             return false;
         }
 
+        /// <summary>
+        /// Determines whether the current board position contains insufficient material to force checkmate.
+        /// </summary>
+        /// <param name="board">The current state of the chess board.</param>
+        /// <returns>
+        /// <c>true</c> if the position contains recognised insufficient mating material, otherwise <c>false</c>.
+        /// </returns>
         public bool IsInsufficientMaterial(Board board)
         {
             var pieces = new List<(char Piece, Position Position)>();

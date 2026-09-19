@@ -87,9 +87,6 @@ namespace Chess.Domain.Services
                     throw new ArgumentException("Invalid FEN rank.");
             }
 
-            bool IsWhiteTurn = gameState[1] == "w";
-            int halfmoveClock = int.Parse(gameState[4]);
-
             Position? enPassantTarget = null;
 
             if (gameState[3] != "-")
