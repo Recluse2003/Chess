@@ -5,6 +5,10 @@ using MediatR;
 
 namespace Chess.Application.Games.Commands.StartGame
 {
+    /// <summary>
+    /// Handles the execution of a game start request. 
+    /// Validates the user requesting it is allowed to do so, and that the specified game exists.
+    /// </summary>
     public class StartGameCommandHandler : IRequestHandler<StartGameCommand, Result>
     {
         private readonly IChessGameRepository _gameRepository;
@@ -14,6 +18,15 @@ namespace Chess.Application.Games.Commands.StartGame
             _gameRepository = gameRepository;
         }
 
+        /// <summary>
+        /// Processes the incoming start game command. Ensures the game exists, and that the requester is allowed to
+        /// do so.
+        /// </summary>
+        /// <param name="command">The details of the requested game start command.</param>
+        /// <param name="token">Triggers if the HTTP or network request is aborted early.</param>
+        /// <returns>
+        /// A successful start will provide a <see cref="Result"/> stating so, while a failure will result in an <see cref="Error"/>.
+        /// </returns>
         public async Task<Result> Handle(StartGameCommand command, CancellationToken token)
         {
             ChessGame? chessGame = await _gameRepository.GetByIdAsync(command.GameId);

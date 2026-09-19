@@ -1,4 +1,5 @@
 ﻿using Chess.Application.Common.Results;
+using Chess.Application.Games.Commands.MakeMove;
 using Chess.Domain.Entities;
 using Chess.Domain.Enums;
 using Chess.Domain.Interfaces;
@@ -8,6 +9,10 @@ using MediatR;
 
 namespace Chess.Application.Games.Commands.MakeMove;
 
+/// <summary>
+/// Handles the execution of a player's <see cref="MakeMoveCommand"/> request.
+/// Validates game state, rule compliance, and updates the database.
+/// </summary>
 public class MakeMoveCommandHandler : IRequestHandler<MakeMoveCommand, Result<MoveResultDto>>
 {
     private readonly IChessGameRepository _gameRepository;
@@ -19,6 +24,15 @@ public class MakeMoveCommandHandler : IRequestHandler<MakeMoveCommand, Result<Mo
         _rules = rules;
     }
 
+    /// <summary>
+    /// Processes the incoming <see cref="MakeMoveCommand">, enforces chess rules, and commit changes to the database.
+    /// </summary>
+    /// <param name="command">The details of the requested move.</param>
+    /// <param name="cancellationToken">Triggers if the HTTP or network request is aborted early.</param>
+    /// <returns>
+    /// A successful move execution will provide a <see cref="Result"/> containing the <see cref="BoardChange"/>s, and new state 
+    /// of the game. A failure will provide a <see cref="Result"/> containing an <see cref="Error"/> stating the reason.
+    /// </returns>
     public async Task<Result<MoveResultDto>> Handle(MakeMoveCommand command, CancellationToken cancellationToken) 
     {
         ChessGame? game = await _gameRepository.GetByIdAsync(command.GameId);
@@ -44,8 +58,8 @@ public class MakeMoveCommandHandler : IRequestHandler<MakeMoveCommand, Result<Mo
 
         try
         {
+            // Mutate the board and check if the game has ended (Checkmate, Stalemate, e.g.)
             IReadOnlyList<BoardChange> boardChanges = game.MakeMove(move);
-
             game.CheckGameState(_rules);
 
             await _gameRepository.UpdateAsync(game);
