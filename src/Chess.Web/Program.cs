@@ -29,12 +29,12 @@ builder.Services.AddRazorPages()
     });
 
 builder.Services.AddSignalR();
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateGameCommand).Assembly));
 
 builder.Services.AddScoped<ChessRulesService>();
 
 builder.Services.AddScoped<IChessGameRepository, ChessGameRepository>();
 
-builder.Services.AddScoped<CreateGameCommandHandler>();
 builder.Services.AddScoped<MakeMoveCommandHandler>();
 builder.Services.AddScoped<JoinGameCommandHandler>();
 builder.Services.AddScoped<StartGameCommandHandler>();

@@ -1,10 +1,12 @@
-﻿using Chess.Domain.Entities;
+﻿using Chess.Application.Common.Results;
+using Chess.Domain.Entities;
 using Chess.Domain.Interfaces;
 using Chess.Domain.Services;
+using MediatR;
 
 namespace Chess.Application.Games.Commands.CreateGame
 {
-    public class CreateGameCommandHandler
+    public class CreateGameCommandHandler : IRequestHandler<CreateGameCommand, Result<Guid>>
     {
         private readonly IChessGameRepository _gameRepository;
 
@@ -13,20 +15,26 @@ namespace Chess.Application.Games.Commands.CreateGame
             _gameRepository = gameRepository;
         }
 
-        public async Task<Guid> ExecuteAsync(CreateGameCommand command)
+        public async Task<Result<Guid>> Handle(CreateGameCommand command, CancellationToken cancellationToken)
         {
-            ChessGame chessGame = new ChessGame(
-                Guid.NewGuid(), 
-                command.WhitePlayerId,
-                FenConverterService.StartingPositionFen);
+            if (command.WhitePlayerId == string.Empty)
+            {
+                return Error.Validation("Games.InvalidPlayer", "White Player ID cannot be empty.");
+            }
 
-            chessGame.Join("whitePlayer"); // Temp addition to allow me to play chess from a single view for testing. 
-            chessGame.Start("whitePlayer");
+            try
+            {
+                var chessGame = new ChessGame(Guid.NewGuid(), command.WhitePlayerId, FenConverterService.StartingPositionFen);
 
-            await _gameRepository.AddAsync(chessGame);
-            await _gameRepository.SaveChangesAsync();
+                await _gameRepository.AddAsync(chessGame);
+                await _gameRepository.SaveChangesAsync();
 
-            return chessGame.Id;
+                return chessGame.Id;
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Error.Conflict("Games.StateError", ex.Message);
+            }
         }
     }
 }

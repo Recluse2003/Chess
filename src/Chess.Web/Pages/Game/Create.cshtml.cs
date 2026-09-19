@@ -1,18 +1,17 @@
+using Chess.Application.Common.Results;
 using Chess.Application.Games.Commands.CreateGame;
+using MediatR;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.Security.Claims;
 
 namespace Chess.Web.Pages.Game
 {
     public class CreateModel : PageModel
     {
-        private readonly CreateGameCommandHandler _createGameHandler;
+        private readonly IMediator _mediator;
 
-        public CreateModel(CreateGameCommandHandler createGameHandler)
-        {
-            _createGameHandler = createGameHandler;
-        }
+        public CreateModel(IMediator mediator) => _mediator = mediator;
 
         public IActionResult OnGet()
         {
@@ -28,9 +27,16 @@ namespace Chess.Web.Pages.Game
 
             var command = new CreateGameCommand("whitePlayer");
 
-            Guid gameId = await _createGameHandler.ExecuteAsync(command);
+            Result<Guid> result = await _mediator.Send(command);
 
-            return RedirectToPage("/Chess/Index", new { gameId });
+            if (!result.IsSuccess)
+            {
+                ModelState.AddModelError(string.Empty, result.Error!.Description);
+
+                return Page();
+            }
+
+            return RedirectToPage("/Chess/Index", new { gameId = result.Value });
         }
     }
 }
