@@ -1,10 +1,12 @@
-﻿using Chess.Domain.Entities;
+﻿using Chess.Application.Common.Results;
+using Chess.Domain.Entities;
 using Chess.Domain.Interfaces;
 using Chess.Domain.ValueObjects;
+using MediatR;
 
 namespace Chess.Application.Games.Queries.ViewGame
 {
-    public class ViewGameQueryHandler
+    public class ViewGameQueryHandler : IRequestHandler<ViewGameQuery, Result<ViewGameDto>>
     {
         private readonly IChessGameRepository _gameRepository;
 
@@ -13,24 +15,24 @@ namespace Chess.Application.Games.Queries.ViewGame
             _gameRepository = gameRepository;
         }
 
-        public async Task<ViewGameDto?> ExecuteAsync(ViewGameQuery query)
+        public async Task<Result<ViewGameDto>> Handle(ViewGameQuery query, CancellationToken cancellationToken)
         {
             ChessGame? game = await _gameRepository.GetByIdAsync(query.GameId);
 
             if (game == null)
-                return null;
+                return Error.NotFound("Games.NotFound", "Game not found.");
 
-            bool isPlayer = game.WhitePlayerId == query.CurrentUserId || game.BlackPlayerId == query.CurrentUserId;
+            bool isPlayer = game.WhitePlayerId == query.PlayerId || game.BlackPlayerId == query.PlayerId;
 
             if (!isPlayer)
-                throw new InvalidOperationException("This user is not a player of this game.");
+                return Error.Unauthorized("Games.Unauthorized", "You are not a participant in this game.");
 
             ViewGameDto result = new ViewGameDto
             {
                 GameId = game.Id,
                 WhitePlayerId = game.WhitePlayerId,
                 BlackPlayerId = game.BlackPlayerId,
-                IsWhitePlayer = game.WhitePlayerId == query.CurrentUserId,
+                IsWhitePlayer = game.WhitePlayerId == query.PlayerId,
                 Status = game.Status,
                 CurrentTurn = game.Board.IsWhiteTurn
                 ? "White"

@@ -13,35 +13,35 @@
 
 <h1>Chess Game</h1>
 
-<p><strong>Game ID:</strong> @Model.Game!.GameId</p>
+<p><strong>Game ID:</strong> @Model.GameDetails!.GameId</p>
 
 <p>
     <strong>Status:</strong>
-    @Model.Game.Status
+    @Model.GameDetails.Status
 </p>
 
 <p>
     <strong>Turn:</strong>
-    @Model.Game.CurrentTurn
+    @Model.GameDetails.CurrentTurn
 </p>
 
 <p>
     <strong>White:</strong>
-    @Model.Game.WhitePlayerId
+    @Model.GameDetails.WhitePlayerId
 </p>
 
 <p>
     <strong>Black:</strong>
-    @(Model.Game.BlackPlayerId ?? "Waiting for opponent")
+    @(Model.GameDetails.BlackPlayerId ?? "Waiting for opponent")
 </p>
 
 <div class="chess-board"
-     data-game-id="@Model.Game.GameId"
-     data-status="@Model.Game.Status"
-     data-current-turn="@Model.Game.CurrentTurn"
-     data-is-white-player="@Model.Game.IsWhitePlayer">
+     data-game-id="@Model.GameDetails.GameId"
+     data-status="@Model.GameDetails.Status"
+     data-current-turn="@Model.GameDetails.CurrentTurn"
+     data-is-white-player="@Model.GameDetails.IsWhitePlayer">
 
-    @if (Model.Game.IsWhitePlayer)
+    @if (Model.GameDetails.IsWhitePlayer)
     {
         for (int rank = 7; rank >= 0; rank--)
         {
@@ -51,7 +51,7 @@
                     data-file="@file"
                     data-rank="@rank">
                     @{
-                        var piece = Model.Game.Pieces.FirstOrDefault(p => p.File == file && p.Rank == rank);
+                        var piece = Model.GameDetails.Pieces.FirstOrDefault(p => p.File == file && p.Rank == rank);
                     }
                     
                     @if (piece != null)
@@ -75,7 +75,7 @@
                      data-file="@file"
                      data-rank="@rank">
                     @{
-                        var piece = Model.Game.Pieces.FirstOrDefault(p => p.File == file && p.Rank == rank);
+                        var piece = Model.GameDetails.Pieces.FirstOrDefault(p => p.File == file && p.Rank == rank);
                     }
 
                     @if (piece != null)

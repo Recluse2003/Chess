@@ -1,31 +1,21 @@
+using Chess.Application.Common.Results;
 using Chess.Application.Games.Commands.MakeMove;
 using Chess.Application.Games.Queries.GetLegalMoves;
 using Chess.Application.Games.Queries.ViewGame;
 using Chess.Domain.ValueObjects;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.Security.Claims;
 
 namespace Chess.Web.Pages.Chess
 {
     public class IndexModel : PageModel
     {
-        private readonly ViewGameQueryHandler _viewGameQueryHandler;
-        private readonly GetLegalMovesQueryHandler _getLegalMovesQueryHandler;
-        private readonly MakeMoveCommandHandler _makeMoveCommandHandler;
+        private readonly IMediator _mediator;
 
+        public IndexModel(IMediator mediator) => _mediator = mediator;
 
-        public IndexModel(
-            ViewGameQueryHandler viewGameQueryHandler, 
-            GetLegalMovesQueryHandler getLegalMovesQueryHandler,
-            MakeMoveCommandHandler makeMoveCommandHandler)
-        {
-            _viewGameQueryHandler = viewGameQueryHandler;
-            _getLegalMovesQueryHandler = getLegalMovesQueryHandler;
-            _makeMoveCommandHandler = makeMoveCommandHandler;
-        }
-
-        public ViewGameDto? Game { get; private set; }
+        public ViewGameDto? GameDetails { get; private set; }
 
         public async Task<IActionResult> OnGetAsync(Guid gameId)
         {
@@ -34,10 +24,21 @@ namespace Chess.Web.Pages.Chess
             // if (currentUserId == null)
             //    return Unauthorized();
 
-            Game = await _viewGameQueryHandler.ExecuteAsync(new ViewGameQuery(gameId, "whitePlayer"));
+            ViewGameQuery query = new(gameId, "whitePlayer");
 
-            if (Game == null)
-                return NotFound();
+            Result<ViewGameDto> result = await _mediator.Send(query);
+
+            if (!result.IsSuccess)
+            {
+                return result.Error!.Type switch
+                {
+                    ErrorType.NotFound => RedirectToPage("/NotFound"), 
+                    ErrorType.Unauthorized => RedirectToPage("/AccessDenied"), 
+                    _ => RedirectToPage("/Error") 
+                };
+            }
+
+            GameDetails = result.Value;
 
             return Page();
         }
@@ -49,13 +50,21 @@ namespace Chess.Web.Pages.Chess
             // if (currentUserId == null)
             //    return Unauthorized();
 
-            List<LegalMoveDto> moves = await _getLegalMovesQueryHandler.ExecuteAsync(
-                new GetLegalMovesQuery(
-                    gameId,
-                    "whitePlayer", 
-                    new Position(file, rank)));
+            GetLegalMovesQuery command = new(gameId, "whitePlayer", new Position(file, rank));
 
-            return new JsonResult(moves);
+            Result<List<LegalMoveDto>> result = await _mediator.Send(command);
+
+            if (!result.IsSuccess)
+            {
+                return result.Error!.Type switch
+                {
+                    ErrorType.NotFound => new NotFoundObjectResult(result.Error),
+                    ErrorType.Unauthorized => new StatusCodeResult(StatusCodes.Status403Forbidden),
+                    _ => new BadRequestObjectResult(result.Error)
+                };
+            }
+
+            return new JsonResult(result.Value);
         }
 
         public async Task<IActionResult> OnPostMoveAsync([FromBody] MakeMoveRequest request)
@@ -65,16 +74,28 @@ namespace Chess.Web.Pages.Chess
             // if (currentUserId == null)
             //    return Unauthorized();
 
-            MakeMoveCommand command = new MakeMoveCommand(
+            MakeMoveCommand command = new(
                 request.GameId,
                 "whitePlayer",
                 new Position(request.FromFile, request.FromRank),
                 new Position(request.ToFile, request.ToRank),
                 request.PromotionPiece);
 
-            MoveResultDto result = await _makeMoveCommandHandler.ExecuteAsync(command);
+            Result<MoveResultDto> result = await _mediator.Send(command);
 
-            return new JsonResult(result);
+            if (!result.IsSuccess) 
+            {
+                return result.Error!.Type switch
+                {
+                    ErrorType.NotFound => new NotFoundObjectResult(result.Error),
+                    ErrorType.Conflict => new ConflictObjectResult(result.Error),
+                    ErrorType.Unauthorized => new StatusCodeResult(StatusCodes.Status403Forbidden),
+                    ErrorType.Validation => new BadRequestObjectResult(result.Error),
+                    _ => new BadRequestObjectResult(result.Error)
+                };
+            }
+
+            return new JsonResult(result.Value);
         }
 
         public string GetPieceSymbol(char piece)

@@ -1,11 +1,13 @@
-﻿using Chess.Domain.Entities;
+﻿using Chess.Application.Common.Results;
+using Chess.Domain.Entities;
 using Chess.Domain.Interfaces;
 using Chess.Domain.Services;
 using Chess.Domain.ValueObjects;
+using MediatR;
 
 namespace Chess.Application.Games.Queries.GetLegalMoves
 {
-    public class GetLegalMovesQueryHandler
+    public class GetLegalMovesQueryHandler : IRequestHandler<GetLegalMovesQuery, Result<List<LegalMoveDto>>>
     {
         private readonly IChessGameRepository _gameRepository;
         private readonly ChessRulesService _rules;
@@ -16,20 +18,20 @@ namespace Chess.Application.Games.Queries.GetLegalMoves
             _rules = rules;
         }
 
-        public async Task<List<LegalMoveDto>> ExecuteAsync(GetLegalMovesQuery query)
+        public async Task<Result<List<LegalMoveDto>>> Handle(GetLegalMovesQuery query, CancellationToken cancellationToken)
         {
             ChessGame? game = await _gameRepository.GetByIdAsync(query.GameId);
 
             if (game == null)
-                throw new InvalidOperationException("Game not found.");
+                return Error.NotFound("Games.NotFound", "The requested chess game was not found.");
 
             // if (!game.CanPlayerMove(query.PlayerId))
-               // return [];
+                // return Error.Conflict("Games.NotYourTurn", "It is currently not your turn to move.");
 
             char piece = game.Board.GetPiece(query.PiecePosition);
 
             if (piece == '.' || game.Board.IsWhiteTurn != char.IsUpper(piece))
-                return [];
+                return new List<LegalMoveDto>();
 
             List<Position> legalMoves = _rules.GetLegalMoves(game.Board, query.PiecePosition);
 

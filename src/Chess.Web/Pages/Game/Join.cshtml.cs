@@ -9,10 +9,7 @@ namespace Chess.Web.Pages.Game
     {
         private readonly IMediator _mediator;
 
-        public JoinModel(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
+        public JoinModel(IMediator mediator) => _mediator = mediator;
 
         public IActionResult OnGet()
         {
