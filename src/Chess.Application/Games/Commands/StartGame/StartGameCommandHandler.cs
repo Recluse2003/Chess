@@ -1,11 +1,11 @@
-﻿using Chess.Application.Games.Commands.CreateGame;
+﻿using Chess.Application.Common.Results;
 using Chess.Domain.Entities;
 using Chess.Domain.Interfaces;
-using Chess.Domain.Services;
+using MediatR;
 
 namespace Chess.Application.Games.Commands.StartGame
 {
-    public class StartGameCommandHandler
+    public class StartGameCommandHandler : IRequestHandler<StartGameCommand, Result>
     {
         private readonly IChessGameRepository _gameRepository;
 
@@ -14,19 +14,26 @@ namespace Chess.Application.Games.Commands.StartGame
             _gameRepository = gameRepository;
         }
 
-        public async Task<bool> ExecuteAsync(StartGameCommand command)
+        public async Task<Result> Handle(StartGameCommand command, CancellationToken token)
         {
             ChessGame? chessGame = await _gameRepository.GetByIdAsync(command.GameId);
 
             if (chessGame == null)
-                return false;
+                return Error.NotFound("Games.NotFound", "The requested chess game was not found.");
 
-            chessGame.Start(command.PlayerId);
+            try
+            {
+                chessGame.Start(command.PlayerId);
 
-            await _gameRepository.UpdateAsync(chessGame);
-            await _gameRepository.SaveChangesAsync();
+                await _gameRepository.UpdateAsync(chessGame);
+                await _gameRepository.SaveChangesAsync();
 
-            return true;
+                return Result.Success();
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Error.Conflict("Games.StartGameFailure", ex.Message);
+            }
         }
     }
 }
