@@ -1,16 +1,17 @@
 using Chess.Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using MediatR;
 
 namespace Chess.Web.Pages.Game
 {
     public class LobbyModel : PageModel
     {
-        private readonly IChessGameRepository _gameRepository;
+        private readonly IMediator _mediator;
 
-        public LobbyModel(IChessGameRepository gameRepository)
+        public LobbyModel(IMediator mediator)
         {
-            _gameRepository = gameRepository;
+            _mediator = mediator;
         }
 
         public async Task<IActionResult> OnGetAsync(Guid id)
