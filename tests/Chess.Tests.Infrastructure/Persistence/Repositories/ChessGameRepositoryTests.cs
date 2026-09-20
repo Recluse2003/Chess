@@ -50,7 +50,7 @@ namespace Chess.Tests.Infrastructure.Persistence.Repositories
 
             game.Join("black-player");
 
-            await _repository.AddAsync(game);
+            await _repository.CreateAsync(game);
             await _repository.SaveChangesAsync();
 
             // Act
@@ -89,7 +89,7 @@ namespace Chess.Tests.Infrastructure.Persistence.Repositories
             game.Join("black-player");
 
             // Act
-            await _repository.AddAsync(game);
+            await _repository.CreateAsync(game);
             await _repository.SaveChangesAsync();
 
             // Assert
@@ -112,7 +112,7 @@ namespace Chess.Tests.Infrastructure.Persistence.Repositories
 
             game.Join("black-player");
 
-            await _repository.AddAsync(game);
+            await _repository.CreateAsync(game);
             await _repository.SaveChangesAsync();
 
             // Act
@@ -141,7 +141,7 @@ namespace Chess.Tests.Infrastructure.Persistence.Repositories
 
             game.MakeMove(new Move(Guid.NewGuid(), new Position(4, 1), new Position(4, 3)));
 
-            await _repository.AddAsync(game);
+            await _repository.CreateAsync(game);
             await _repository.SaveChangesAsync();
 
             // Act

@@ -1,9 +1,8 @@
 ﻿using Chess.Application.Common.Results;
-using Chess.Application.Games.Commands.MakeMove;
+using Chess.Application.Interfaces;
 using Chess.Domain.Entities;
 using Chess.Domain.Enums;
 using Chess.Domain.Exceptions;
-using Chess.Domain.Interfaces;
 using Chess.Domain.Services;
 using Chess.Domain.ValueObjects;
 using MediatR;

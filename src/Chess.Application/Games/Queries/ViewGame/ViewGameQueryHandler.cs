@@ -1,6 +1,6 @@
 ﻿using Chess.Application.Common.Results;
+using Chess.Application.Interfaces;
 using Chess.Domain.Entities;
-using Chess.Domain.Interfaces;
 using Chess.Domain.ValueObjects;
 using MediatR;
 

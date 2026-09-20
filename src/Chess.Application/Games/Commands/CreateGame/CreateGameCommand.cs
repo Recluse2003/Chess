@@ -7,5 +7,5 @@ namespace Chess.Application.Games.Commands.CreateGame
     /// 
     /// </summary>
     /// <param name="WhitePlayerId"></param>
-    public record CreateGameCommand(string WhitePlayerId) : IRequest<Result<Guid>>;
+    public record CreateGameCommand(string WhitePlayerId) : IRequest<Result<CreateGameDto>>;
 }

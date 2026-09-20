@@ -1,8 +1,7 @@
 ﻿using Chess.Application.Common.Results;
-using Chess.Application.Games.Commands.CreateGame;
+using Chess.Application.Interfaces;
 using Chess.Domain.Entities;
 using Chess.Domain.Exceptions;
-using Chess.Domain.Interfaces;
 using MediatR;
 
 namespace Chess.Application.Games.Commands.JoinGame
@@ -14,10 +13,12 @@ namespace Chess.Application.Games.Commands.JoinGame
     public class JoinGameCommandHandler : IRequestHandler<JoinGameCommand, Result>
     {
         private readonly IChessGameRepository _gameRepository;
+        private readonly IGameCodeRepository _codeRepository;
 
-        public JoinGameCommandHandler(IChessGameRepository gameRepository)
+        public JoinGameCommandHandler(IChessGameRepository gameRepository, IGameCodeRepository codeRepository)
         {
             _gameRepository = gameRepository;
+            _codeRepository = codeRepository;
         }
 
         /// <summary>
@@ -34,8 +35,11 @@ namespace Chess.Application.Games.Commands.JoinGame
         {
             try
             {
-                ChessGame? chessGame = await _gameRepository.GetByIdAsync(command.GameId);
+                Guid? chessGameId = await _codeRepository.ConsumeCodeAsync(command.Code);
+                if (chessGameId == null)
+                    return Error.NotFound("Games.InvalidCode", "The provided game code was not linked to any active games.");
 
+                ChessGame? chessGame = await _gameRepository.GetByIdAsync(chessGameId.Value);
                 if (chessGame == null)
                     return Error.NotFound("Games.NotFound", "The requested chess game was not found.");
 

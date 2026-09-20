@@ -1,8 +1,5 @@
 ﻿using Chess.Domain.Entities;
 using Chess.Domain.Enums;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Chess.Application.Games.Queries.ViewGame
 {

@@ -15,5 +15,10 @@ namespace Chess.Web.Pages.Game
         {
             return Page();
         }
+
+        public IActionResult OnPostCode(string code)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

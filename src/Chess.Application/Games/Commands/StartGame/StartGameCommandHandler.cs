@@ -1,7 +1,7 @@
 ﻿using Chess.Application.Common.Results;
+using Chess.Application.Interfaces;
 using Chess.Domain.Entities;
 using Chess.Domain.Exceptions;
-using Chess.Domain.Interfaces;
 using MediatR;
 
 namespace Chess.Application.Games.Commands.StartGame

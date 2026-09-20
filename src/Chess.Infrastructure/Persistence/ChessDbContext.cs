@@ -6,8 +6,8 @@ namespace Chess.Infrastructure.Persistence
     public class ChessDbContext : DbContext
     {
         public DbSet<ChessGameEntity> ChessGames => Set<ChessGameEntity>();
-
         public DbSet<MoveEntity> Moves => Set<MoveEntity>();
+        public DbSet<GameCodeEntity> GameCodes => Set<GameCodeEntity>();
 
         public ChessDbContext(DbContextOptions<ChessDbContext> options)
             : base(options)
@@ -61,6 +61,17 @@ namespace Chess.Infrastructure.Persistence
                     move.MoveNumber
                 })
                 .IsUnique();
+            });
+
+            modelBuilder.Entity<GameCodeEntity>(entity =>
+            {
+                entity.HasKey(c => c.Code);
+                entity.Property(c => c.Code).HasMaxLength(6);
+
+                entity.HasOne(code => code.ChessGame)
+                      .WithOne() 
+                      .HasForeignKey<GameCodeEntity>(code => code.ChessGameId)
+                      .OnDelete(DeleteBehavior.Cascade); // Deleting the game will delete the code. 
             });
         }
     }

@@ -1,5 +1,5 @@
-﻿using Chess.Domain.Entities;
-using Chess.Domain.Interfaces;
+﻿using Chess.Application.Interfaces;
+using Chess.Domain.Entities;
 using Chess.Domain.Services;
 using Chess.Domain.ValueObjects;
 using Chess.Infrastructure.Persistence.Mappers;
@@ -29,11 +29,33 @@ namespace Chess.Infrastructure.Persistence.Repositories
             return ChessGameMapper.ToDomain(entity);
         }
 
-        public async Task AddAsync(ChessGame game)
+        public async Task<string> CreateAsync(ChessGame game)
         {
-            ChessGameEntity entity = ChessGameMapper.ToEntity(game);
+            ChessGameEntity gameEntity = ChessGameMapper.ToEntity(game);
 
-            await _context.ChessGames.AddAsync(entity);
+            _context.ChessGames.Add(gameEntity);
+
+            for (int attempt = 0; attempt < 10; attempt++)
+            {
+                string code = GameCodeEntity.Generate(5);
+
+                bool exists = await _context.GameCodes.AnyAsync(x => x.Code == code);
+
+                if (exists)
+                    continue;
+
+                GameCodeEntity codeEntity = new()
+                {
+                    Code = code,
+                    ChessGameId = game.Id
+                };
+
+                _context.GameCodes.Add(codeEntity);
+
+                return code;
+            }
+
+            throw new InvalidOperationException("Failed to generate a unique lobby code.");
         }
 
         public async Task UpdateAsync(ChessGame game)

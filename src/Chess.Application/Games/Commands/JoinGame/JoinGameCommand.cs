@@ -7,7 +7,7 @@ namespace Chess.Application.Games.Commands.JoinGame
     /// <summary>
     /// Contains the details required to join a specified <see cref="ChessGame"/>.
     /// </summary>
-    /// <param name="GameId">The identifier of the <see cref="ChessGame"/> the user is attempting to join.</param>
+    /// <param name="Code">The believed game code linked to the <see cref="ChessGame"/>.</param>
     /// <param name="PlayerId">The identifier of the user attempting to join the <see cref="ChessGame"/>.</param>
-    public record JoinGameCommand(Guid GameId, string PlayerId) : IRequest<Result>;
+    public record JoinGameCommand(string Code, string PlayerId) : IRequest<Result>;
 }
