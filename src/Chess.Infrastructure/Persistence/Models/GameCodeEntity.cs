@@ -6,9 +6,9 @@ namespace Chess.Infrastructure.Persistence.Models
 {
     public class GameCodeEntity
     {
-        public string Code { get; set; } = null!; // Primary Key, e.g., "X7K9B"
+        public string Code { get; set; } = null!;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public Guid ChessGameId { get; set; }     // Foreign Key
+        public Guid ChessGameId { get; set; }
         public ChessGameEntity ChessGame { get; set; } = null!;
 
         // Static helper to generate a unique code structure

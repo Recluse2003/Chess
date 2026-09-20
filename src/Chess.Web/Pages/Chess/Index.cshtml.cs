@@ -17,7 +17,7 @@ namespace Chess.Web.Pages.Chess
 
         public ViewGameDto? GameDetails { get; private set; }
 
-        public async Task<IActionResult> OnGetAsync(Guid gameId)
+        public async Task<IActionResult> OnGetAsync([FromRoute] Guid gameId)
         {
             // string? currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 

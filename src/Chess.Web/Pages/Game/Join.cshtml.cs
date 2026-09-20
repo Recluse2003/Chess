@@ -1,3 +1,5 @@
+using Chess.Application.Common.Results;
+using Chess.Application.Games.Commands.CreateGame;
 using Chess.Application.Games.Commands.JoinGame;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -16,9 +18,18 @@ namespace Chess.Web.Pages.Game
             return Page();
         }
 
-        public IActionResult OnPostCode(string code)
+        public async Task<IActionResult> OnPostCode(string code)
         {
-            throw new NotImplementedException();
+            // string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            // if (userId is null)
+            //    return Unauthorized();
+
+            JoinGameCommand command = new(code, "whitePlayer");
+
+            Result<Guid> gameId = await _mediator.Send(command);
+
+            return RedirectToPage("/Game/Lobby", new { gameId });
         }
     }
 }

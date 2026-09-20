@@ -8,6 +8,7 @@ using Chess.Domain.Interfaces;
 using Chess.Domain.Services;
 using Chess.Infrastructure.Persistence;
 using Chess.Infrastructure.Persistence.Repositories;
+using Chess.Web.Hubs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
@@ -68,5 +69,7 @@ app.MapGet("/", () => Results.Redirect("/Game/Create"));
 
 app.MapRazorPages()
    .WithStaticAssets();
+
+app.MapHub<GameHub>("/gameHub");
 
 app.Run();

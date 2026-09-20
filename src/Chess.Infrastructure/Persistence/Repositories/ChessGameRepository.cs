@@ -29,6 +29,19 @@ namespace Chess.Infrastructure.Persistence.Repositories
             return ChessGameMapper.ToDomain(entity);
         }
 
+        public async Task<Guid?> GetGameIdByCodeAsync(string joinCode)
+        {
+            GameCodeEntity? entity = await _context.GameCodes
+                .Include(code => code.ChessGame)
+                .SingleOrDefaultAsync(code => code.Code == joinCode);
+
+            if (entity == null)
+                return null;
+
+            return entity != null ? entity.ChessGame.Id 
+                                  : null;
+        }
+
         public async Task<string> CreateAsync(ChessGame game)
         {
             ChessGameEntity gameEntity = ChessGameMapper.ToEntity(game);

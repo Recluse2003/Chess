@@ -1,4 +1,12 @@
-﻿@page "{id:guid}"
+﻿@page "{gameId:guid}"
 @model LobbyModel
 
 <h1>Game Lobby</h1>
+
+<p>Join code: @Model.Lobby.JoinCode</p>
+
+<form method="post">
+    <input type="hidden" name="gameId" value="@Model.Lobby.GameId" />
+
+    <button type="submit">Start Game</button>
+</form>

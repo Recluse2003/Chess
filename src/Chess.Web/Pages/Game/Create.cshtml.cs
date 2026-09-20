@@ -27,7 +27,7 @@ namespace Chess.Web.Pages.Game
 
             var command = new CreateGameCommand("whitePlayer");
 
-            Result<Guid> result = await _mediator.Send(command);
+            Result<CreateGameDto> result = await _mediator.Send(command);
 
             if (!result.IsSuccess)
             {
@@ -36,7 +36,7 @@ namespace Chess.Web.Pages.Game
                 return Page();
             }
 
-            return RedirectToPage("/Chess/Index", new { gameId = result.Value });
+            return RedirectToPage("/Chess/Index", new { gameId = result.Value.gameId, joinCode = result.Value.joinCode });
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Chess.Application.Interfaces;
 using Chess.Infrastructure.Persistence.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client.NativeInterop;
 
 namespace Chess.Infrastructure.Persistence.Repositories
 {
@@ -18,13 +19,13 @@ namespace Chess.Infrastructure.Persistence.Repositories
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                var gameCode = await _context.GameCodes.FirstOrDefaultAsync(c => c.Code == code.ToUpper().Trim());
+                GameCodeEntity? entity = await _context.GameCodes.FirstOrDefaultAsync(c => c.Code == code.ToUpper().Trim());
 
-                if (gameCode == null) return null;
+                if (entity == null) return null;
 
-                var gameId = gameCode.ChessGameId;
+                var gameId = entity.ChessGameId;
 
-                _context.GameCodes.Remove(gameCode);
+                _context.GameCodes.Remove(entity);
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
@@ -35,6 +36,14 @@ namespace Chess.Infrastructure.Persistence.Repositories
                 await transaction.RollbackAsync();
                 throw;
             }
+        }
+
+        public async Task<string?> GetCodeByGameIdAsync(Guid gameId)
+        {
+            return await _context.GameCodes
+                .Where(c => c.ChessGameId == gameId)
+                .Select(c => c.Code)
+                .SingleOrDefaultAsync();
         }
     }
 }
