@@ -2,6 +2,23 @@
 
 console.log("CHESS.JS LOADED");
 
+const connection = new signalR.HubConnectionBuilder().withUrl("/chessHub").build();
+
+async function startConnection() {
+    try {
+        await connection.start();
+        console.log("Connected to ChessHub");
+
+        await connection.invoke("JoinGame", gameId);
+        console.log("Joined game:", gameId);
+    }
+    catch (err) {
+        console.error(err);
+    }
+}
+
+startConnection();
+
 const board = document.querySelector(".chess-board");
 
 if (!board) {
@@ -13,10 +30,6 @@ const squares = document.querySelectorAll(".chess-square");
 
 console.log("Game ID:", gameId);
 console.log("Squares:", squares.length);
-
-const token = document.querySelector(
-    'input[name="__RequestVerificationToken"]'
-)?.value;
 
 let gameActive = true;
 
@@ -109,43 +122,29 @@ function promotePawn() {
 
 
 async function makeMove(fromFile, fromRank, toFile, toRank, promotionPiece) {
+    try {
+        await connection.invoke("MakeMove", {
+            gameId: gameId,
+            fromFile: fromFile,
+            fromRank: fromRank,
+            toFile: toFile,
+            toRank: toRank,
+            promotionPiece: promotionPiece
+        });
 
-    const response = await fetch("?handler=Move", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json", 
-            "RequestVerificationToken": token
-        },
-        body: JSON.stringify({
-            gameId,
-            fromFile,
-            fromRank,
-            toFile,
-            toRank,
-            promotionPiece
-        })
-    });
-
-    if (!response.ok) {
+        return true;
+    }
+    catch (err) {
+        console.error(err);
         return false;
     }
-
-    const result = await response.json();
-
-    if (!result.success) {
-        return false;
-    }
-
-    applyBoardChanges(result.boardChanges);
-
-    checkGameState(
-        result.status,
-        result.endReason
-    );
-
-    return true;
 }
 
+connection.on("MoveMade", function (result) {
+    applyBoardChanges(result.boardChanges);
+
+    checkGameState(result.status, result.endReason);
+});
 
 function applyBoardChanges(boardChanges) {
 
@@ -154,6 +153,10 @@ function applyBoardChanges(boardChanges) {
         const square = document.querySelector(
             `[data-file="${boardChange.file}"][data-rank="${boardChange.rank}"]`
         );
+
+        if (!square) {
+            return;
+        }
 
         const existingPiece = square.querySelector('.chess-piece');
 
