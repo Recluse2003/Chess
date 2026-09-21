@@ -1,10 +1,5 @@
 using Chess.Application.Games.Commands.CreateGame;
-using Chess.Application.Games.Commands.JoinGame;
-using Chess.Application.Games.Commands.MakeMove;
-using Chess.Application.Games.Commands.StartGame;
-using Chess.Application.Games.Queries.GetLegalMoves;
-using Chess.Application.Games.Queries.ViewGame;
-using Chess.Domain.Interfaces;
+using Chess.Application.Interfaces;
 using Chess.Domain.Services;
 using Chess.Infrastructure.Persistence;
 using Chess.Infrastructure.Persistence.Repositories;
@@ -35,13 +30,8 @@ builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Creat
 builder.Services.AddScoped<ChessRulesService>();
 
 builder.Services.AddScoped<IChessGameRepository, ChessGameRepository>();
+builder.Services.AddScoped<IGameCodeRepository, GameCodeRepository>();
 
-builder.Services.AddScoped<MakeMoveCommandHandler>();
-builder.Services.AddScoped<JoinGameCommandHandler>();
-builder.Services.AddScoped<StartGameCommandHandler>();
-
-builder.Services.AddScoped<ViewGameQueryHandler>();
-builder.Services.AddScoped<GetLegalMovesQueryHandler>();
 
 var app = builder.Build();
 
@@ -67,9 +57,10 @@ app.MapStaticAssets();
 
 app.MapGet("/", () => Results.Redirect("/Game/Create"));
 
+app.MapHub<ChessHub>("/chessHub");
+app.MapHub<LobbyHub>("/lobbyHub");
+
 app.MapRazorPages()
    .WithStaticAssets();
-
-app.MapHub<ChessHub>("/gameHub");
 
 app.Run();

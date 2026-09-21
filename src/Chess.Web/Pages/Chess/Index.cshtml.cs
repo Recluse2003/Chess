@@ -76,7 +76,7 @@ namespace Chess.Web.Pages.Chess
 
             MakeMoveCommand command = new(
                 request.GameId,
-                "whitePlayer",
+                "userId",
                 new Position(request.FromFile, request.FromRank),
                 new Position(request.ToFile, request.ToRank),
                 request.PromotionPiece);

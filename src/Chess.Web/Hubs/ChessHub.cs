@@ -1,6 +1,9 @@
 ﻿using Chess.Application.Common.Results;
-using Chess.Application.Games.Queries.GetGameCode;
+using Chess.Application.Games.Commands.MakeMove;
+using Chess.Application.Games.Queries.VerifyGameMembershipQuery;
+using Chess.Domain.ValueObjects;
 using Chess.Web.Hubs.Clients;
+using Chess.Web.Pages.Chess;
 using MediatR;
 using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
@@ -23,23 +26,31 @@ namespace Chess.Web.Hubs
             if (userId is null)
                 throw new HubException();
 
-            GetGameLobbyQuery query = new(gameId, userId);
+            VerifyGameMembershipQuery query = new(gameId, userId);
 
-            Result<GameLobbyDto> result = await _mediator.Send(query);
+            Result result = await _mediator.Send(query);
 
             if (!result.IsSuccess) 
-                throw new HubException();
+                throw new HubException(result.Error!.Description);
 
             await Groups.AddToGroupAsync(Context.ConnectionId, $"game-{gameId}");
-
-            string? username = result.Value.IsWhitePlayer ? result.Value.WhitePlayerUsername : result.Value.BlackPlayerUsername;
-
-            await Clients.Group($"game-{gameId}").PlayerJoined(result.Value.IsWhitePlayer, username!);
         }
 
-        public async Task StartGame(Guid gameId)
+        public async Task MakeMove(MakeMoveRequest request)
         {
-            await Clients.Group($"game-{gameId}").GameStarted();
+            MakeMoveCommand command = new(
+                request.GameId,
+                "whitePlayer",
+                new Position(request.FromFile, request.FromRank),
+                new Position(request.ToFile, request.ToRank),
+                request.PromotionPiece);
+
+            Result<MoveResultDto> result = await _mediator.Send(command);
+
+            if (!result.IsSuccess)
+                throw new HubException(result.Error!.Description);
+
+            await Clients.Group($"game-{request.GameId}").MoveMade(result.Value);
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿console.log("CHESS.JS LOADED");
+﻿"use strict";
+
+console.log("CHESS.JS LOADED");
 
 const board = document.querySelector(".chess-board");
 

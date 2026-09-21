@@ -1,4 +1,4 @@
-﻿namespace Chess.Application.Games.Queries.GetGameCode
+﻿namespace Chess.Application.Games.Queries.GetGameLobby
 {
     public class GameLobbyDto
     {

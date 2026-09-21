@@ -1,6 +1,6 @@
 using Chess.Application.Common.Results;
 using Chess.Application.Games.Commands.StartGame;
-using Chess.Application.Games.Queries.GetGameCode;
+using Chess.Application.Games.Queries.GetGameLobby;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;

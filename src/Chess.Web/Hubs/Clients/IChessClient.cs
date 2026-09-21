@@ -6,7 +6,5 @@ namespace Chess.Web.Hubs.Clients
     {
         Task PlayerJoined(bool IsWhitePlayer, string playerUsername);
         Task MoveMade(MoveResultDto result);
-        Task GameStarted();
-        Task GameEnded();
     }
 }

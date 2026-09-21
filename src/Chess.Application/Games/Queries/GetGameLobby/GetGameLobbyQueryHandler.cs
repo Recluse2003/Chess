@@ -5,7 +5,7 @@ using Chess.Application.Interfaces;
 using Chess.Domain.Entities;
 using MediatR;
 
-namespace Chess.Application.Games.Queries.GetGameCode
+namespace Chess.Application.Games.Queries.GetGameLobby
 {
     public class GetGameLobbyQueryHandler : IRequestHandler<GetGameLobbyQuery, Result<GameLobbyDto>>
     {
