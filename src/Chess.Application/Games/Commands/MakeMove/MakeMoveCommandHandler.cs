@@ -65,7 +65,7 @@ public class MakeMoveCommandHandler : IRequestHandler<MakeMoveCommand, Result<Mo
             await _gameRepository.UpdateAsync(game);
             await _gameRepository.SaveChangesAsync();
 
-            return new MoveResultDto(true, boardChanges, game.Status, game.EndReason);
+            return new MoveResultDto(true, boardChanges, game.Board.IsWhiteTurn, game.Status, game.EndReason);
         }
         catch (GameNotActiveException ex)
         {

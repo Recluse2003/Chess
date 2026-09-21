@@ -15,6 +15,7 @@ namespace Chess.Application.Games.Commands.MakeMove
     public record MoveResultDto(
         bool Success,
         IReadOnlyList<BoardChange> BoardChanges,
+        bool IsWhiteTurn,
         GameStatus Status,
         GameEndReason? EndReason = null
     );

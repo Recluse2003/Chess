@@ -47,10 +47,8 @@ namespace Chess.Application.Games.Queries.ViewGame
                 WhitePlayerId = game.WhitePlayerId,
                 BlackPlayerId = game.BlackPlayerId,
                 IsWhitePlayer = game.WhitePlayerId == query.PlayerId,
+                IsWhiteTurn = game.Board.IsWhiteTurn,
                 Status = game.Status,
-                CurrentTurn = game.Board.IsWhiteTurn
-                ? "White"
-                : "Black",
                 Pieces = RetrievePieces(game)
             };
 

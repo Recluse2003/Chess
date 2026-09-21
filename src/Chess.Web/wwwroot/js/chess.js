@@ -143,6 +143,8 @@ async function makeMove(fromFile, fromRank, toFile, toRank, promotionPiece) {
 connection.on("MoveMade", function (result) {
     applyBoardChanges(result.boardChanges);
 
+    document.getElementById("currentTurn").textContent = result.isWhiteTurn ? "White" : "Black";
+
     checkGameState(result.status, result.endReason);
 });
 

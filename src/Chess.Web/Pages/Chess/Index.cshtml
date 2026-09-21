@@ -13,32 +13,32 @@
 
 <h1>Chess Game</h1>
 
-<p><strong>Game ID:</strong> @Model.GameDetails!.GameId</p>
+<p><strong>Game ID: </strong>@Model.GameDetails!.GameId</p>
 
 <p>
-    <strong>Status:</strong>
+    <strong>Status: </strong>
     @Model.GameDetails.Status
 </p>
 
 <p>
-    <strong>Turn:</strong>
-    @Model.GameDetails.CurrentTurn
+    <strong>Turn: </strong>
+    <span id="currentTurn">@(Model.GameDetails.IsWhiteTurn ? "White" : "Black")</span>
 </p>
 
 <p>
-    <strong>White:</strong>
+    <strong>White: </strong>
     @Model.GameDetails.WhitePlayerId
 </p>
 
 <p>
-    <strong>Black:</strong>
+    <strong>Black: </strong>
     @(Model.GameDetails.BlackPlayerId ?? "Waiting for opponent")
 </p>
 
 <div class="chess-board"
      data-game-id="@Model.GameDetails.GameId"
      data-status="@Model.GameDetails.Status"
-     data-current-turn="@Model.GameDetails.CurrentTurn"
+     data-is-white-turn="@Model.GameDetails.IsWhiteTurn"
      data-is-white-player="@Model.GameDetails.IsWhitePlayer">
 
     @if (Model.GameDetails.IsWhitePlayer)
