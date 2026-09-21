@@ -7,7 +7,7 @@ using MediatR;
 
 namespace Chess.Application.Games.Queries.GetGameCode
 {
-    public class GetGameLobbyQueryHandler : IRequestHandler<GetGameLobbyQuery, Result<GameLobbyDto?>>
+    public class GetGameLobbyQueryHandler : IRequestHandler<GetGameLobbyQuery, Result<GameLobbyDto>>
     {
         private readonly IChessGameRepository _gameRepository;
         private readonly IGameCodeRepository _codeRepository;
@@ -18,7 +18,7 @@ namespace Chess.Application.Games.Queries.GetGameCode
             _codeRepository = codeRepository;
         }
 
-        public async Task<Result<GameLobbyDto?>> Handle(GetGameLobbyQuery query, CancellationToken cancellationToken)
+        public async Task<Result<GameLobbyDto>> Handle(GetGameLobbyQuery query, CancellationToken cancellationToken)
         {
             ChessGame? chessGame = await _gameRepository.GetByIdAsync(query.GameId);
 
@@ -39,7 +39,10 @@ namespace Chess.Application.Games.Queries.GetGameCode
             return new GameLobbyDto
             {
                 GameId = chessGame.Id,
-                JoinCode = joinCode
+                JoinCode = joinCode,
+                IsWhitePlayer = chessGame.WhitePlayerId == query.UserId, 
+                WhitePlayerUsername = "whitePlayer",
+                BlackPlayerUsername = "blackPlayer"
             };
         }
     }

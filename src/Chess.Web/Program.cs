@@ -70,6 +70,6 @@ app.MapGet("/", () => Results.Redirect("/Game/Create"));
 app.MapRazorPages()
    .WithStaticAssets();
 
-app.MapHub<GameHub>("/gameHub");
+app.MapHub<ChessHub>("/gameHub");
 
 app.Run();

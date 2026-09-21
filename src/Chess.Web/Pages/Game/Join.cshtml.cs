@@ -1,5 +1,4 @@
 using Chess.Application.Common.Results;
-using Chess.Application.Games.Commands.CreateGame;
 using Chess.Application.Games.Commands.JoinGame;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
