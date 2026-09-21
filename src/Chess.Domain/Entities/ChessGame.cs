@@ -52,8 +52,8 @@ namespace Chess.Domain.Entities
             if (BlackPlayerId != null)
                 throw GameStateTransitionException.OpponentAlreadyJoined();
 
-            // if (WhitePlayerId == playerId)
-            //    throw new GameStateTransitionException("You cannot join your own game.");
+            if (WhitePlayerId == playerId)
+               throw new GameStateTransitionException("You cannot join your own game.");
 
             BlackPlayerId = playerId;
             Status = GameStatus.NotStarted;

@@ -6,6 +6,7 @@ using Chess.Domain.ValueObjects;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Security.Claims;
 
 namespace Chess.Web.Pages.Chess
 {
@@ -19,12 +20,12 @@ namespace Chess.Web.Pages.Chess
 
         public async Task<IActionResult> OnGetAsync([FromRoute] Guid gameId)
         {
-            // string? currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            string? currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            // if (currentUserId == null)
-            //    return Unauthorized();
+            if (currentUserId == null)
+               return Unauthorized();
 
-            ViewGameQuery query = new(gameId, "whitePlayer");
+            ViewGameQuery query = new(gameId, currentUserId);
 
             Result<ViewGameDto> result = await _mediator.Send(query);
 

@@ -4,6 +4,7 @@ using MediatR;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Security.Claims;
 
 namespace Chess.Web.Pages.Game
 {
@@ -20,12 +21,12 @@ namespace Chess.Web.Pages.Game
 
         public async Task<IActionResult> OnPostAsync()
         {
-            // string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            // if (userId is null)
-            //    return Unauthorized();
+            if (userId is null)
+                return Unauthorized();
 
-            var command = new CreateGameCommand("whitePlayer");
+            var command = new CreateGameCommand(userId);
 
             Result<CreateGameDto> result = await _mediator.Send(command);
 

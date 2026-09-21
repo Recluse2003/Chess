@@ -1,9 +1,10 @@
 ﻿using Chess.Infrastructure.Persistence.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Chess.Infrastructure.Persistence
 {
-    public class ChessDbContext : DbContext
+    public class ChessDbContext : IdentityDbContext<ApplicationUser>
     {
         public DbSet<ChessGameEntity> ChessGames => Set<ChessGameEntity>();
         public DbSet<MoveEntity> Moves => Set<MoveEntity>();

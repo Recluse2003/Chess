@@ -42,9 +42,9 @@ public class MakeMoveCommandHandler : IRequestHandler<MakeMoveCommand, Result<Mo
 
         if (game.Status != GameStatus.Active)
             return Error.Conflict("Games.NotActive", "The game is not currently active.");
-
-        // if (!game.CanPlayerMove(command.PlayerId))
-        //    return Error.Conflict("Games.NotYourTurn", "It is currently not your turn to move.");
+         
+        if (!game.CanPlayerMove(command.PlayerId))
+            return Error.Conflict("Games.NotYourTurn", "It is currently not your turn to move.");
 
         Move move = new Move(
             Guid.NewGuid(),

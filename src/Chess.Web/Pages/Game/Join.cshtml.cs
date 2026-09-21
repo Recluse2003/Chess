@@ -3,6 +3,7 @@ using Chess.Application.Games.Commands.JoinGame;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Security.Claims;
 
 namespace Chess.Web.Pages.Game
 {
@@ -19,12 +20,12 @@ namespace Chess.Web.Pages.Game
 
         public async Task<IActionResult> OnPostCode(string code)
         {
-            // string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            // if (userId is null)
-            //    return Unauthorized();
+            if (userId is null)
+                return Unauthorized();
 
-            JoinGameCommand command = new(code, "whitePlayer");
+            JoinGameCommand command = new(code, userId);
 
             Result<Guid> gameId = await _mediator.Send(command);
 

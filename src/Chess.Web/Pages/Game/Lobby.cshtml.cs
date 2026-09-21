@@ -44,30 +44,5 @@ namespace Chess.Web.Pages.Game
 
             return Page();
         }
-
-        public async Task<IActionResult> OnPostAsync(Guid gameId)
-        {
-            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (userId is null)
-                return Unauthorized();
-
-            StartGameCommand command = new(gameId, userId);
-
-            Result result = await _mediator.Send(command);
-
-            if (!result.IsSuccess)
-            {
-                return result.Error!.Type switch
-                {
-                    ErrorType.NotFound => new NotFoundObjectResult(result.Error),
-                    ErrorType.Conflict => new ConflictObjectResult(result.Error),
-                    _ => new BadRequestObjectResult(result.Error)
-                };
-            }
-
-            return RedirectToPage("/Chess/Index", new { gameId });
-
-        }
     }
 }

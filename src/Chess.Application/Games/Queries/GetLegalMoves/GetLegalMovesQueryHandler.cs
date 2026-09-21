@@ -40,8 +40,8 @@ namespace Chess.Application.Games.Queries.GetLegalMoves
             if (game == null)
                 return Error.NotFound("Games.NotFound", "The requested chess game was not found.");
 
-            // if (!game.CanPlayerMove(query.PlayerId))
-                // return Error.Conflict("Games.NotYourTurn", "It is currently not your turn to move.");
+            if (!game.CanPlayerMove(query.PlayerId))
+                return Error.Conflict("Games.NotYourTurn", "It is currently not your turn to move.");
 
             char piece = game.Board.GetPiece(query.PiecePosition);
 
