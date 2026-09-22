@@ -16,6 +16,7 @@ using Chess.Infrastructure.Persistence.Models;
 
 namespace Chess.Web.Areas.Identity.Pages.Account;
 
+[AllowAnonymous]
 public class ForgotPasswordModel : PageModel
 {
     private readonly UserManager<ApplicationUser> _userManager;

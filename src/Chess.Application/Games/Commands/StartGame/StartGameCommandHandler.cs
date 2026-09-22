@@ -13,10 +13,12 @@ namespace Chess.Application.Games.Commands.StartGame
     public class StartGameCommandHandler : IRequestHandler<StartGameCommand, Result>
     {
         private readonly IChessGameRepository _gameRepository;
+        private readonly IGameCodeRepository _codeRepository;
 
-        public StartGameCommandHandler(IChessGameRepository gameRepository)
+        public StartGameCommandHandler(IChessGameRepository gameRepository, IGameCodeRepository codeRepository)
         {
             _gameRepository = gameRepository;
+            _codeRepository = codeRepository;
         }
 
         /// <summary>
@@ -40,6 +42,7 @@ namespace Chess.Application.Games.Commands.StartGame
                 chessGame.Start(command.PlayerId);
 
                 await _gameRepository.UpdateAsync(chessGame);
+                await _codeRepository.DeleteCodeByGameIdAsync(chessGame.Id);
                 await _gameRepository.SaveChangesAsync();
 
                 return Result.Success();

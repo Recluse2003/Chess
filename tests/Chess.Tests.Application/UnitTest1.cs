@@ -1,4 +1,4 @@
-﻿namespace Chess.Tests.Infrastructure
+﻿namespace Chess.Tests.Application
 {
     public class UnitTest1
     {

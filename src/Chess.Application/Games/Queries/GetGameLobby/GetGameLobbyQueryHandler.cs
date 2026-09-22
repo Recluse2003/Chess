@@ -11,11 +11,16 @@ namespace Chess.Application.Games.Queries.GetGameLobby
     {
         private readonly IChessGameRepository _gameRepository;
         private readonly IGameCodeRepository _codeRepository;
+        private readonly IUserRepository _userRepository;
 
-        public GetGameLobbyQueryHandler(IChessGameRepository gameRepository, IGameCodeRepository codeRepository) 
+        public GetGameLobbyQueryHandler(
+            IChessGameRepository gameRepository,
+            IGameCodeRepository codeRepository,
+            IUserRepository userRepository)
         {
             _gameRepository = gameRepository;
             _codeRepository = codeRepository;
+            _userRepository = userRepository;
         }
 
         public async Task<Result<GameLobbyDto>> Handle(GetGameLobbyQuery query, CancellationToken cancellationToken)
@@ -36,13 +41,20 @@ namespace Chess.Application.Games.Queries.GetGameLobby
             if (joinCode == null)
                 return Error.NotFound("Games.GameAlreadyStarted", "The game is no longer in the lobby.");
 
+            string? whiteUsername = await _userRepository.GetUsernameByIdAsync(chessGame.WhitePlayerId);
+
+            string? blackUsername = null;
+
+            if (chessGame.BlackPlayerId != null)
+                blackUsername = await _userRepository.GetUsernameByIdAsync(chessGame.BlackPlayerId);
+
             return new GameLobbyDto
             {
                 GameId = chessGame.Id,
                 JoinCode = joinCode,
                 IsWhitePlayer = chessGame.WhitePlayerId == query.UserId, 
-                WhitePlayerUsername = "whitePlayer",
-                BlackPlayerUsername = "blackPlayer"
+                WhitePlayerUsername = whiteUsername!,
+                BlackPlayerUsername = blackUsername
             };
         }
     }

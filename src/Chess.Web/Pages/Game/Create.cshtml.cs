@@ -37,7 +37,7 @@ namespace Chess.Web.Pages.Game
                 return Page();
             }
 
-            return RedirectToPage("/Chess/Index", new { gameId = result.Value.gameId, joinCode = result.Value.joinCode });
+            return RedirectToPage("/Game/Lobby", new { gameId = result.Value.GameId });
         }
     }
 }

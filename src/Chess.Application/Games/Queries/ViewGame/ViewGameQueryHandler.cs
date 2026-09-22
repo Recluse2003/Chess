@@ -13,10 +13,12 @@ namespace Chess.Application.Games.Queries.ViewGame
     public class ViewGameQueryHandler : IRequestHandler<ViewGameQuery, Result<ViewGameDto>>
     {
         private readonly IChessGameRepository _gameRepository;
+        private readonly IUserRepository _userRepository;
 
-        public ViewGameQueryHandler(IChessGameRepository gameRepository)
+        public ViewGameQueryHandler(IChessGameRepository gameRepository, IUserRepository userRepository)
         {
             _gameRepository = gameRepository;
+            _userRepository = userRepository;
         }
 
         /// <summary>
@@ -41,11 +43,14 @@ namespace Chess.Application.Games.Queries.ViewGame
             if (!isPlayer)
                 return Error.Unauthorized("Games.Unauthorized", "You are not a participant in this game.");
 
+            string? whiteUsername = await _userRepository.GetUsernameByIdAsync(game.WhitePlayerId);
+            string? blackUsername = await _userRepository.GetUsernameByIdAsync(game.BlackPlayerId!);
+
             ViewGameDto result = new ViewGameDto
             {
                 GameId = game.Id,
-                WhitePlayerId = game.WhitePlayerId,
-                BlackPlayerId = game.BlackPlayerId,
+                WhitePlayerUsername = whiteUsername!,
+                BlackPlayerUsername = blackUsername!,
                 IsWhitePlayer = game.WhitePlayerId == query.PlayerId,
                 IsWhiteTurn = game.Board.IsWhiteTurn,
                 Status = game.Status,

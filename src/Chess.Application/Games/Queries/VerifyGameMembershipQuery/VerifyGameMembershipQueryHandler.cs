@@ -2,9 +2,6 @@
 using Chess.Application.Interfaces;
 using Chess.Domain.Entities;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Chess.Application.Games.Queries.VerifyGameMembershipQuery
 {

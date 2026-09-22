@@ -27,12 +27,12 @@
 
 <p>
     <strong>White: </strong>
-    @Model.GameDetails.WhitePlayerId
+    @Model.GameDetails.WhitePlayerUsername
 </p>
 
 <p>
     <strong>Black: </strong>
-    @(Model.GameDetails.BlackPlayerId ?? "Waiting for opponent")
+    @(Model.GameDetails.BlackPlayerUsername ?? "Waiting for opponent")
 </p>
 
 <div class="chess-board"

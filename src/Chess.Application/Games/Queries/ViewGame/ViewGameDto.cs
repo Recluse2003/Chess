@@ -11,8 +11,8 @@ namespace Chess.Application.Games.Queries.ViewGame
     public record ViewGameDto
     {
         public Guid GameId { get; init; }
-        public string WhitePlayerId { get; init; } = string.Empty;
-        public string? BlackPlayerId { get; init; }
+        public string WhitePlayerUsername { get; init; } = string.Empty;
+        public string BlackPlayerUsername { get; init; } = string.Empty;
         public bool IsWhitePlayer { get; init; }
         public bool IsWhiteTurn { get; init; }
         public GameStatus Status { get; init; }

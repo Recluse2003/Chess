@@ -1,7 +1,6 @@
 ﻿using Chess.Application.Interfaces;
 using Chess.Infrastructure.Persistence.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client.NativeInterop;
 
 namespace Chess.Infrastructure.Persistence.Repositories
 {
@@ -14,28 +13,15 @@ namespace Chess.Infrastructure.Persistence.Repositories
             _context = context;
         }
 
-        public async Task<Guid?> ConsumeCodeAsync(string code)
+        public async Task DeleteCodeByGameIdAsync(Guid gameId)
         {
-            using var transaction = await _context.Database.BeginTransactionAsync();
-            try
-            {
-                GameCodeEntity? entity = await _context.GameCodes.FirstOrDefaultAsync(c => c.Code == code.ToUpper().Trim());
+            GameCodeEntity? entity = await _context.GameCodes
+                .SingleOrDefaultAsync(c => c.ChessGameId == gameId);
 
-                if (entity == null) return null;
+            if (entity == null)
+                return;
 
-                var gameId = entity.ChessGameId;
-
-                _context.GameCodes.Remove(entity);
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-
-                return gameId;
-            }
-            catch
-            {
-                await transaction.RollbackAsync();
-                throw;
-            }
+            _context.GameCodes.Remove(entity);
         }
 
         public async Task<string?> GetCodeByGameIdAsync(Guid gameId)

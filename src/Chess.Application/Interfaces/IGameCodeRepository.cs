@@ -2,8 +2,7 @@
 {
     public interface IGameCodeRepository
     {
-        // Returns the Game ID linked to a code and removes the code atomically
-        Task<Guid?> ConsumeCodeAsync(string code);
+        Task DeleteCodeByGameIdAsync(Guid gameId);
         Task<string?> GetCodeByGameIdAsync(Guid gameId);
     }
 }

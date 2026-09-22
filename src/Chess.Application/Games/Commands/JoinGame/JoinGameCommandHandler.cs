@@ -1,7 +1,6 @@
 ﻿using Chess.Application.Common.Results;
 using Chess.Application.Interfaces;
 using Chess.Domain.Entities;
-using Chess.Domain.Enums;
 using Chess.Domain.Exceptions;
 using MediatR;
 
@@ -15,7 +14,7 @@ namespace Chess.Application.Games.Commands.JoinGame
     {
         private readonly IChessGameRepository _gameRepository;
 
-        public JoinGameCommandHandler(IChessGameRepository gameRepository, IGameCodeRepository codeRepository)
+        public JoinGameCommandHandler(IChessGameRepository gameRepository)
         {
             _gameRepository = gameRepository;
         }

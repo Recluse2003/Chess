@@ -22,6 +22,8 @@ namespace Chess.Domain.UnitTests.Entities
 
             game.Join("black-player");
 
+            game.Start("white-player");
+
             return game;
         }
 

@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using Chess.Infrastructure.Persistence.Models;
 namespace Chess.Web.Areas.Identity.Pages.Account;
 
+[AllowAnonymous]
 public class ConfirmEmailChangeModel : PageModel
 {
     private readonly UserManager<ApplicationUser> _userManager;

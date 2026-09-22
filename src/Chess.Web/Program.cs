@@ -5,6 +5,8 @@ using Chess.Infrastructure.Persistence;
 using Chess.Infrastructure.Persistence.Models;
 using Chess.Infrastructure.Persistence.Repositories;
 using Chess.Web.Hubs;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
@@ -16,7 +18,15 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<ChessDbContext>(options => options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ChessDbContext>();
+builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddEntityFrameworkStores<ChessDbContext>();
+
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser() // Anyone accessing the app must be logged in
+        .Build();
+});
 
 builder.Services.AddRazorPages()
     .AddJsonOptions(options =>
@@ -29,7 +39,6 @@ builder.Services.AddSignalR();
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateGameCommand).Assembly));
 
 builder.Services.AddScoped<ChessRulesService>();
-
 builder.Services.AddScoped<IChessGameRepository, ChessGameRepository>();
 builder.Services.AddScoped<IGameCodeRepository, GameCodeRepository>();
 
@@ -52,9 +61,10 @@ app.UseHttpsRedirection();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapStaticAssets();
+app.MapStaticAssets().AllowAnonymous();
 
 app.MapGet("/", () => Results.Redirect("/Game/Create"));
 

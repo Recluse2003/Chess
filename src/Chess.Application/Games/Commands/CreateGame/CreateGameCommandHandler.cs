@@ -13,12 +13,10 @@ namespace Chess.Application.Games.Commands.CreateGame
     public class CreateGameCommandHandler : IRequestHandler<CreateGameCommand, Result<CreateGameDto>>
     {
         private readonly IChessGameRepository _gameRepository;
-        private readonly IGameCodeRepository _codeRepository;
 
-        public CreateGameCommandHandler(IChessGameRepository gameRepository, IGameCodeRepository codeRepository)
+        public CreateGameCommandHandler(IChessGameRepository gameRepository)
         {
             _gameRepository = gameRepository;
-            _codeRepository = codeRepository;
         }
 
         /// <summary>
