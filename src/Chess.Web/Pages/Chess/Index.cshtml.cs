@@ -2,6 +2,7 @@ using Chess.Application.Common.Results;
 using Chess.Application.Games.Commands.MakeMove;
 using Chess.Application.Games.Queries.GetLegalMoves;
 using Chess.Application.Games.Queries.ViewGame;
+using Chess.Domain.Entities;
 using Chess.Domain.ValueObjects;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +11,10 @@ using System.Security.Claims;
 
 namespace Chess.Web.Pages.Chess
 {
+    /// <summary> 
+    /// Handles requests for the chess game page, including retrieving the current game state and processing 
+    /// chess moves.
+    /// </summary>
     public class IndexModel : PageModel
     {
         private readonly IMediator _mediator;
@@ -18,6 +23,14 @@ namespace Chess.Web.Pages.Chess
 
         public ViewGameDto? GameDetails { get; private set; }
 
+        /// <summary>
+        /// Handles the initial GET request for the chess game page.
+        /// </summary>
+        /// <param name="gameId">The unique identifier of the <see cref="ChessGame"/>.</param>
+        /// <returns>
+        /// The chess game page when the game can be loaded, otherwise, an appropriate error or 
+        /// access-denied response.
+        /// </returns>
         public async Task<IActionResult> OnGetAsync([FromRoute] Guid gameId)
         {
             string? currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -44,14 +57,23 @@ namespace Chess.Web.Pages.Chess
             return Page();
         }
 
+        /// <summary>
+        /// Retrieves the legal moves for a piece at the specified board position.
+        /// </summary>
+        /// <param name="gameId">The unique identifier of the <see cref="ChessGame"/>.</param>
+        /// <param name="file">The zero-based file of the selected piece.</param>
+        /// <param name="rank">The zero-based rank of the selected piece.</param>
+        /// <returns>
+        /// A JSON response containing the legal moves.
+        /// </returns>
         public async Task<IActionResult> OnGetPossibleMovesAsync(Guid gameId, int file, int rank)
         {
-            // string? currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            string? currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            // if (currentUserId == null)
-            //    return Unauthorized();
+            if (currentUserId == null)
+               return Unauthorized();
 
-            GetLegalMovesQuery command = new(gameId, "whitePlayer", new Position(file, rank));
+            GetLegalMovesQuery command = new(gameId, currentUserId, new Position(file, rank));
 
             Result<List<LegalMoveDto>> result = await _mediator.Send(command);
 
@@ -68,6 +90,7 @@ namespace Chess.Web.Pages.Chess
             return new JsonResult(result.Value);
         }
 
+
         public async Task<IActionResult> OnPostMoveAsync([FromBody] MakeMoveRequest request)
         {
             string? currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -77,7 +100,7 @@ namespace Chess.Web.Pages.Chess
 
             MakeMoveCommand command = new(
                 request.GameId,
-                "userId",
+                currentUserId,
                 new Position(request.FromFile, request.FromRank),
                 new Position(request.ToFile, request.ToRank),
                 request.PromotionPiece);

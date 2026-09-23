@@ -7,6 +7,9 @@ using System.Security.Claims;
 
 namespace Chess.Web.Pages.Game
 {
+    /// <summary>
+    /// Handles requests for joining an existing chess game using a lobby code.
+    /// </summary>
     public class JoinModel : PageModel
     {
         private readonly IMediator _mediator;
@@ -16,11 +19,24 @@ namespace Chess.Web.Pages.Game
         [BindProperty]
         public string Code { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Handles the initial GET request for the join game page.
+        /// </summary>
+        /// <returns>
+        /// The join game page.
+        /// </returns>
         public IActionResult OnGet()
         {
             return Page();
         }
 
+        /// <summary>
+        /// Handles submission of the lobby code and attempts to join the associated chess game.
+        /// </summary>
+        /// <returns>
+        /// A redirect to the game lobby when the user joins successfully, otherwise, the current
+        /// page with the join error displayed.
+        /// </returns>
         public async Task<IActionResult> OnPostCode()
         {
             string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

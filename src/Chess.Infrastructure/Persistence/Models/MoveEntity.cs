@@ -1,5 +1,10 @@
-﻿namespace Chess.Infrastructure.Persistence.Models
+﻿using Chess.Domain.ValueObjects;
+
+namespace Chess.Infrastructure.Persistence.Models
 {
+    /// <summary>
+    /// Represents a persisted <see cref="Move"/> in the database.
+    /// </summary>
     public class MoveEntity
     {
         public Guid Id { get; set; }

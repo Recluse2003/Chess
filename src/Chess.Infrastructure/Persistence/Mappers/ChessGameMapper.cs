@@ -1,12 +1,22 @@
 ﻿using Chess.Domain.Entities;
 using Chess.Domain.Services;
-using Chess.Domain.ValueObjects;
 using Chess.Infrastructure.Persistence.Models;
 
 namespace Chess.Infrastructure.Persistence.Mappers
 {
+    /// <summary>
+    /// Provides mapping operations between the domain <see cref="ChessGame"/> and its persistence 
+    /// representation <see cref="ChessGameEntity"/>.
+    /// </summary>
     public static class ChessGameMapper
     {
+        /// <summary>
+        /// Converts <see cref="ChessGame"/> to <see cref="ChessGameEntity"/>.
+        /// </summary>
+        /// <param name="game">The <see cref="ChessGame"/> to be converted.</param>
+        /// <returns>
+        /// A <see cref="ChessGameEntity"/> containing the persisted representation of the supplied chess game.
+        /// </returns>
         public static ChessGameEntity ToEntity(ChessGame game)
         {
             return new ChessGameEntity
@@ -36,6 +46,13 @@ namespace Chess.Infrastructure.Persistence.Mappers
             };
         }
 
+        /// <summary>
+        /// Converts <see cref="ChessGameEntity"/> to <see cref="ChessGame"/>.
+        /// </summary>
+        /// <param name="entity">The <see cref="ChessGameEntity"/> to be converted.</param>
+        /// <returns>
+        /// A rehydrated <see cref="ChessGame"/> representing the persisted state.
+        /// </returns>
         public static ChessGame ToDomain(ChessGameEntity entity)
         {
             var game = ChessGame.Rehydrate(

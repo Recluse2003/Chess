@@ -1,8 +1,11 @@
-﻿using Chess.Domain.Enums;
-using Chess.Domain.ValueObjects;
+﻿using Chess.Domain.Entities;
+using Chess.Domain.Enums;
 
 namespace Chess.Infrastructure.Persistence.Models
 {
+    /// <summary>
+    /// Represents a persisted <see cref="ChessGame"/> in the database.
+    /// </summary>
     public class ChessGameEntity
     {
         public Guid Id { get; set; }
