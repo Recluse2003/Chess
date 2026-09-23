@@ -2,3 +2,13 @@
 @model JoinModel
 
 <h1>Join Game</h1>
+
+<form method="post" asp-page-handler="Code">
+    <div>
+        <label asp-for="Code">Game Code</label>
+        <input asp-for="Code" maxlength="5" autocomplete="off" />
+        <span asp-validation-for="Code"></span>
+    </div>
+
+    <button type="submit">Join Game</button>
+</form>

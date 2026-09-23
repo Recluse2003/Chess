@@ -70,10 +70,10 @@ namespace Chess.Web.Pages.Chess
 
         public async Task<IActionResult> OnPostMoveAsync([FromBody] MakeMoveRequest request)
         {
-            // string? currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            string? currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            // if (currentUserId == null)
-            //    return Unauthorized();
+            if (currentUserId == null)
+                return Unauthorized();
 
             MakeMoveCommand command = new(
                 request.GameId,

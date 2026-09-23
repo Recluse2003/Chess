@@ -6,7 +6,6 @@ using Chess.Infrastructure.Persistence.Models;
 using Chess.Infrastructure.Persistence.Repositories;
 using Chess.Web.Hubs;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
@@ -35,12 +34,19 @@ builder.Services.AddRazorPages()
             new JsonStringEnumConverter());
     });
 
-builder.Services.AddSignalR();
+builder.Services.AddSignalR()
+    .AddJsonProtocol(options =>
+    {
+        options.PayloadSerializerOptions.Converters.Add(
+            new JsonStringEnumConverter());
+    });
+
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateGameCommand).Assembly));
 
 builder.Services.AddScoped<ChessRulesService>();
 builder.Services.AddScoped<IChessGameRepository, ChessGameRepository>();
 builder.Services.AddScoped<IGameCodeRepository, GameCodeRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 
 var app = builder.Build();

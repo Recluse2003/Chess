@@ -30,7 +30,7 @@ namespace Chess.Web.Hubs
             Result<GameLobbyDto> result = await _mediator.Send(query);
 
             if (!result.IsSuccess)
-                throw new HubException();
+                throw new HubException(result.Error!.Description);
 
             await Groups.AddToGroupAsync(Context.ConnectionId, $"game-{gameId}");
 

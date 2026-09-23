@@ -1,24 +1,11 @@
 ﻿"use strict";
 
-const connection = new signalR.HubConnectionBuilder().withUrl("/lobbyHub").build();
+const lobby = document.getElementById("lobby");
+const gameId = lobby.dataset.gameId;
 
-async function startConnection() {
-    try {
-        await connection.start();
-        console.log("Connected to ChessHub");
-
-        await connection.invoke("JoinGame", gameId);
-        console.log("Joined game:", gameId);
-    }
-    catch (err) {
-        console.error(err);
-    }
-}
-
-startConnection();
-
-var lobby = document.getElementById("lobby");
-var gameId = lobby.dataset.gameId;
+const connection = new signalR.HubConnectionBuilder()
+    .withUrl("/lobbyHub")
+    .build();
 
 connection.on("PlayerJoined", function (username) {
     document.getElementById("blackPlayer").textContent = username;
@@ -29,15 +16,28 @@ connection.on("GameStarted", function () {
     window.location.href = `/Chess/${gameId}`;
 });
 
-document.getElementById("startButton").addEventListener("click", async function (event) {
+async function startConnection() {
+    try {
+        await connection.start();
 
-    await connection.invoke("StartGame", gameId).catch(function (err) {
-        return console.error(err.toString());
-    });
-    event.preventDefault();
+        console.log("Connected to LobbyHub");
+
+        await connection.invoke("JoinLobby", gameId);
+
+        console.log("Joined lobby:", gameId);
+    }
+    catch (err) {
+        console.error(err);
+    }
+}
+
+document.getElementById("startButton")?.addEventListener("click", async function () {
+    try {
+        await connection.invoke("StartGame", gameId);
+    }
+    catch (err) {
+        console.error(err);
+    }
 });
 
-connection.invoke("JoinGame", gameId).catch(function (err) {
-    return console.error(err.toString());
-});
-event.preventDefault();
+startConnection();

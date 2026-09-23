@@ -13,23 +13,33 @@ namespace Chess.Web.Pages.Game
 
         public JoinModel(IMediator mediator) => _mediator = mediator;
 
+        [BindProperty]
+        public string Code { get; set; } = string.Empty;
+
         public IActionResult OnGet()
         {
             return Page();
         }
 
-        public async Task<IActionResult> OnPostCode(string code)
+        public async Task<IActionResult> OnPostCode()
         {
             string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (userId is null)
                 return Unauthorized();
 
-            JoinGameCommand command = new(code, userId);
+            JoinGameCommand command = new(Code, userId);
 
-            Result<Guid> gameId = await _mediator.Send(command);
+            Result<Guid> result = await _mediator.Send(command);
 
-            return RedirectToPage("/Game/Lobby", new { gameId });
+            if (!result.IsSuccess)
+            {
+                ModelState.AddModelError("code", result.Error!.Description);
+
+                return Page();
+            }
+
+            return RedirectToPage("/Game/Lobby", new { gameId = result.Value });
         }
     }
 }

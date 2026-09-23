@@ -167,7 +167,6 @@ namespace Chess.Domain.Entities
                 return false;
 
             bool isWhitePlayer = playerId == WhitePlayerId;
-
             bool isBlackPlayer = playerId == BlackPlayerId;
 
             if (!isWhitePlayer && !isBlackPlayer)
