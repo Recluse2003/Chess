@@ -8,6 +8,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Chess.Infrastructure.Persistence.Repositories
 {
+    /// <summary>
+    /// Allows <see cref="ChessGame"/> to be persisted using Entity Framework Core.
+    /// </summary>
+    /// <remarks> 
+    /// <see cref="ChessGame"/> is converted into <see cref="ChessGameEntity"/> when being persisted, 
+    /// as storing the <see cref="Board"/> would be ineffective. <see cref="Board"/> is converted into 
+    /// FEN, which is then stored in <see cref="ChessGameEntity"/>.
+    /// </remarks>
     public class ChessGameRepository : IChessGameRepository
     {
         private readonly ChessDbContext _context;
@@ -17,6 +25,13 @@ namespace Chess.Infrastructure.Persistence.Repositories
             _context = context;
         }
 
+        /// <summary>
+        /// Retrieves a <see cref="ChessGame"/> by it unique identifier.
+        /// </summary>
+        /// <param name="id">The id of the <see cref="ChessGame"/>.</param>
+        /// <returns>
+        /// The expected <see cref="ChessGame"/> if it exists, otherwise, returns <see langword="null"/>.
+        /// </returns>
         public async Task<ChessGame?> GetByIdAsync(Guid id)
         {
             ChessGameEntity? entity = await _context.ChessGames
@@ -29,19 +44,34 @@ namespace Chess.Infrastructure.Persistence.Repositories
             return ChessGameMapper.ToDomain(entity);
         }
 
+        /// <summary>
+        /// Retrieves the <see cref="ChessGame"/>'s unique identifier, with the join code associated with it.
+        /// </summary>
+        /// <param name="joinCode">The join code used to identify the <see cref="ChessGame"/>.</param>
+        /// <returns>The unique identifier of the associated game when the code exists, otherwise, returns 
+        /// <see langword="null"/>.</returns>
         public async Task<Guid?> GetGameIdByCodeAsync(string joinCode)
         {
             GameCodeEntity? entity = await _context.GameCodes
                 .Include(code => code.ChessGame)
                 .SingleOrDefaultAsync(code => code.Code == joinCode);
 
-            if (entity == null)
-                return null;
-
             return entity != null ? entity.ChessGame.Id 
                                   : null;
         }
 
+        /// <summary>
+        /// Adds a new <see cref="ChessGame"/> and generates a unique <see cref="GameCodeEntity"/> for it.
+        /// </summary>
+        /// <param name="game">The <see cref="ChessGame"/> to persist.</param>
+        /// <returns>The unique join code generated for the game.</returns>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown when a unique lobby code cannot be generated after the maximum number of attempts.
+        /// </exception>
+        /// <remarks> 
+        /// The game and its lobby code are added to the current database context but are not persisted 
+        /// until <see cref="SaveChangesAsync"/> is called. 
+        /// </remarks>
         public async Task<string> CreateAsync(ChessGame game)
         {
             ChessGameEntity gameEntity = ChessGameMapper.ToEntity(game);
@@ -71,6 +101,13 @@ namespace Chess.Infrastructure.Persistence.Repositories
             throw new InvalidOperationException("Failed to generate a unique lobby code.");
         }
 
+        /// <summary>
+        /// Updates the persisted state of an existing <see cref="ChessGame"/>.
+        /// </summary>
+        /// <param name="game">The <see cref="ChessGame"/> containing the updated state.</param>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown when the specified <see cref="ChessGame"/> does not exist.
+        /// </exception>
         public async Task UpdateAsync(ChessGame game)
         {
             ChessGameEntity? entity = await _context.ChessGames
@@ -113,6 +150,9 @@ namespace Chess.Infrastructure.Persistence.Repositories
             }
         }
 
+        /// <summary>
+        /// Persists all pending changes in the current database context.
+        /// </summary>
         public async Task SaveChangesAsync()
         {
             await _context.SaveChangesAsync();

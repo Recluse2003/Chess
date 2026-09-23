@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Chess.Infrastructure.Persistence.Models
+﻿namespace Chess.Infrastructure.Persistence.Models
 {
     public class MoveEntity
     {

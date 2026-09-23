@@ -6,7 +6,7 @@ using MediatR;
 namespace Chess.Application.Games.Commands.MakeMove
 {
     /// <summary>
-    /// Encapulates the required data to perform a chess move. 
+    /// Contains the required data to perform a chess move. 
     /// </summary>
     /// <param name="GameId">The identifier of the <see cref="ChessGame">.</param>
     /// <param name="PlayerId">The identifier of the player attempting to make a move.</param>

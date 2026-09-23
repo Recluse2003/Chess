@@ -1,8 +1,11 @@
 ﻿namespace Chess.Domain.ValueObjects
 {
+    /// <summary>
+    /// Represents a chess move from one position to another.
+    /// </summary>
     public record Move
     {
-        public Guid Id { get; set; }
+        public Guid Id { get; }
         public Position From { get; }
         public Position To { get; }
         public char? PromotionPiece { get; }

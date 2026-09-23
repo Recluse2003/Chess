@@ -15,7 +15,7 @@ namespace Chess.Domain.Services
         /// <summary>
         /// Represents the standard starting position of a chess game in FEN.
         /// </summary> 
-        public static string StartingPositionFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+        public const string StartingPositionFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
         /// <summary>
         /// Converts a <see cref="Board"/> into its FEN representation. 

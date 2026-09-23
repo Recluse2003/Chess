@@ -7,6 +7,11 @@ using MediatR;
 
 namespace Chess.Application.Games.Queries.GetGameLobby
 {
+    /// <summary>
+    /// Handles the execution of a <see cref="GetGameLobbyQuery"/> request. 
+    /// Validates that user requesting the chess lobby details has the permissions to do so, and that
+    /// the game exists, and isn't already active.
+    /// </summary>
     public class GetGameLobbyQueryHandler : IRequestHandler<GetGameLobbyQuery, Result<GameLobbyDto>>
     {
         private readonly IChessGameRepository _gameRepository;
@@ -23,6 +28,18 @@ namespace Chess.Application.Games.Queries.GetGameLobby
             _userRepository = userRepository;
         }
 
+        /// <summary>
+        /// Processes the incoming <see cref="GetGameLobbyQuery"/>. Ensures the <see cref="ChessGame"/> that
+        /// the user is attempting to retrieve lobby details for exists, isn't already active, and that the
+        /// user is actually allowed to.
+        /// </summary>
+        /// <param name="query">The details required to retrieve the chess lobby details.</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns>
+        /// A successful query will provide a <see cref="Result"/> stating so, and contains a 
+        /// <see cref="GameLobbyDto"/> which contains the required lobby details. A failed query will provide a 
+        /// <see cref="Result"/> containing an <see cref="Error"/> stating the reason why.
+        /// </returns>
         public async Task<Result<GameLobbyDto>> Handle(GetGameLobbyQuery query, CancellationToken cancellationToken)
         {
             ChessGame? chessGame = await _gameRepository.GetByIdAsync(query.GameId);

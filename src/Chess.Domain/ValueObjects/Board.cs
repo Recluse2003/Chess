@@ -5,17 +5,17 @@ namespace Chess.Domain.ValueObjects
     /// <summary>
     /// Represents the current state of the chess board.
     ///
-    /// Piece representation:
-    /// Uppercase = White
-    /// Lowercase = Black
+    /// Piece representation: 
+    /// Uppercase = White, 
+    /// Lowercase = Black,
     ///
-    /// P/p = Pawn
-    /// N/n = Knight
-    /// B/b = Bishop
-    /// R/r = Rook
-    /// Q/q = Queen
-    /// K/k = King
-    /// .   = Empty square
+    /// P/p = Pawn,
+    /// N/n = Knight,
+    /// B/b = Bishop,
+    /// R/r = Rook,
+    /// Q/q = Queen,
+    /// K/k = King,
+    /// '.'   = Empty square
     /// </summary>
     public class Board
     {
@@ -26,6 +26,9 @@ namespace Chess.Domain.ValueObjects
         public int HalfmoveClock { get; }
         public int FullmoveNumber { get; }
 
+        /// <summary> 
+        /// Represents an empty square on the chess board. 
+        /// </summary>
         public const char Empty = '.';
 
         public Board(char[,] squares, bool isWhiteTurn, string castlingRights, Position? enPassantTarget, int halfmoveClock, int fullmoveNumber)
@@ -38,7 +41,22 @@ namespace Chess.Domain.ValueObjects
             FullmoveNumber = fullmoveNumber;
         }
 
-        // Returns a new board to ensure value object is immutable. 
+        /// <summary>
+        /// Applies a chess move and returns the board state after the move, together with the specific 
+        /// changes made to the board. This method also deals with special moves such as castling, en passant 
+        /// captures, and pawn promotions. 
+        /// </summary>
+        /// <param name="move">The move to be applied to the current board.</param>
+        /// <returns>
+        /// A <see cref="BoardMoveResult"/> containing the new board and the individual board changes 
+        /// produced by the move.
+        /// </returns>
+        /// <remarks>
+        /// This method creates a new <see cref="Board"/> rather than modify an existing one. This was done
+        /// to ensure <see cref="Board"/> stays true to the definition of a ValueObject. The returned board 
+        /// contains the updated turn information, castling rights, en passant state, halfmove clock, and 
+        /// fullmove number.
+        /// </remarks>
         public BoardMoveResult ApplyMove(Move move)
         {
             List<BoardChange> changes = new();
@@ -82,20 +100,29 @@ namespace Chess.Domain.ValueObjects
             char? pieceToAdd = piece;
 
             // Promotes black pawn to specified piece if pawn reaches opposite side of board. 
-            if (piece == 'p' && move.To.Rank == 0)
+            // Validates the supplied piece is a valid promotion piece.
+            if (piece == 'p' && move.To.Rank == 0) 
             {
-                char promotionPiece = char.ToLower(move.PromotionPiece ?? 'Q');
+                char promotionPiece = char.ToLower(move.PromotionPiece ?? 'q');
 
-                clonedSquares[move.To.File, move.To.Rank] = promotionPiece;
+                if (!IsValidPromotionPiece(promotionPiece))
+                    promotionPiece = 'q';
 
-                pieceToAdd = promotionPiece;
+                clonedSquares[move.To.File, move.To.Rank] = promotionPiece; 
+                pieceToAdd = promotionPiece; 
             }
 
             // Promotes white pawn to specified piece if pawn reaches opposite side of board. 
+            // Validates the supplied piece is a valid promotion piece.
             if (piece == 'P' && move.To.Rank == 7)
             {
-                clonedSquares[move.To.File, move.To.Rank] = move.PromotionPiece ?? 'Q';
-                pieceToAdd = move.PromotionPiece;
+                char promotionPiece = char.ToUpper(move.PromotionPiece ?? 'Q');
+
+                if (!IsValidPromotionPiece(promotionPiece))
+                    promotionPiece = 'Q';
+
+                clonedSquares[move.To.File, move.To.Rank] = promotionPiece;
+                pieceToAdd = promotionPiece;
             }
 
             changes.Add(new BoardChange(move.To.File, move.To.Rank, pieceToAdd));
@@ -196,6 +223,12 @@ namespace Chess.Domain.ValueObjects
             );
         }
 
+        /// <summary>
+        /// Creates a new 8-by-8 chess board containing only empty squares. 
+        /// </summary>
+        /// <returns>
+        /// A 2D array in which every square contains '.', which represents empty spaces on the chess board.
+        /// </returns>
         public static char[,] EmptyBoard()
         {
             char[,] emptyBoard = new char[8, 8];
@@ -211,24 +244,31 @@ namespace Chess.Domain.ValueObjects
             return emptyBoard;
         }
 
+        /// <summary>
+        /// Retrieves the piece occupying a specified position on the board. 
+        /// </summary>
+        /// <param name="position">The position on hte board being inspected.</param>
+        /// <returns>
+        /// The character that represents the piece at the specified position on the board, or '.' when 
+        /// the position is empty. 
+        /// </returns>
         public char GetPiece(Position position)
         {
             return _squares[position.File, position.Rank];
         }
 
-        public void SetPiece(Position position, char piece)
+        /// <summary>
+        /// Determines whether the supplied character represents a valid piece to which a pawn can be 
+        /// promoted to.
+        /// </summary>
+        /// <param name="piece">The piece, represented by a character, being validated.</param>
+        /// <returns>
+        /// <see langword="true"/> when the piece is a queen, rook, bishop, or knight, otherwise, 
+        /// <see langword="false"/>.
+        /// </returns>
+        private static bool IsValidPromotionPiece(char piece)
         {
-            if (!IsValidPiece(piece))
-                throw new ArgumentException("Invalid chess piece.", nameof(piece));
-
-            _squares[position.File, position.Rank] = piece;
-        }
-
-        private static bool IsValidPiece(char piece)
-        {
-            return piece is 'P' or 'N' or 'B' or 'R' or 'Q' or 'K'
-                or 'p' or 'n' or 'b' or 'r' or 'q' or 'k'
-                or '.';
+            return piece is 'N' or 'B' or 'R' or 'Q' or 'n' or 'b' or 'r' or 'q';
         }
     }
 }

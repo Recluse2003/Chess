@@ -175,7 +175,15 @@ namespace Chess.Domain.Entities
             return isWhitePlayer == Board.IsWhiteTurn;
         }
 
-        public static string GetRepetitionKey(string fen)
+        /// <summary>
+        /// A helper method used to calculate if Threefold Repetition end condition has occured. Cuts down a fen string,
+        /// and leave out the halfmove clock and fullmove numbers. 
+        /// </summary>
+        /// <param name="fen">The fen string to be cut down.</param>
+        /// <returns>
+        /// The original fen string, but excluding the halfmove clock and fullmove numbers.
+        /// </returns>
+        private static string GetRepetitionKey(string fen)
         {
             return string.Join(' ', fen.Split(' ').Take(4));
         }

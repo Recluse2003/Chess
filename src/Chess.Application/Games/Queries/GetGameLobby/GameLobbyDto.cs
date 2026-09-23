@@ -1,5 +1,8 @@
 ﻿namespace Chess.Application.Games.Queries.GetGameLobby
 {
+    /// <summary>
+    /// Contains the required details needed for a chess lobby.
+    /// </summary>
     public class GameLobbyDto
     {
         public Guid GameId { get; init; }

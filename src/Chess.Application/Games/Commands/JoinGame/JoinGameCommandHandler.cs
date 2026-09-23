@@ -8,7 +8,8 @@ namespace Chess.Application.Games.Commands.JoinGame
 {
     /// <summary>
     /// Handles the execution of a player's <see cref="JoinGameCommand"/> request.
-    /// Validates that the game exists, that they are able to, and updates the game in the database.
+    /// Validates that the game exists, that the player are able to join it, and updates the game in 
+    /// the database.
     /// </summary>
     public class JoinGameCommandHandler : IRequestHandler<JoinGameCommand, Result<Guid>>
     {

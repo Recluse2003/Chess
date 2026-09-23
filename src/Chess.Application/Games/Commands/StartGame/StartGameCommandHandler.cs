@@ -7,7 +7,7 @@ using MediatR;
 namespace Chess.Application.Games.Commands.StartGame
 {
     /// <summary>
-    /// Handles the execution of a game start request. 
+    /// Handles the execution of a <see cref="StartGameCommand"/> request. 
     /// Validates the user requesting it is allowed to do so, and that the specified game exists.
     /// </summary>
     public class StartGameCommandHandler : IRequestHandler<StartGameCommand, Result>
