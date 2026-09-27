@@ -5,110 +5,119 @@
     ViewData["Title"] = "Chess Game";
 }
 
+@section Styles {
+    <link rel="stylesheet" href="~/css/chess.css" asp-append-version="true" />
+}
+
 @Html.AntiForgeryToken()
 
-<head>
-    <link rel="stylesheet" href="~/css/chess.css" asp-append-version="true" />
-</head>
+<div class="container">
+    <header>
+        <h1>Chess Game</h1>
 
-<h1>Chess Game</h1>
+        <p><strong>Game ID: </strong>@Model.GameDetails!.GameId</p>
 
-<p><strong>Game ID: </strong>@Model.GameDetails!.GameId</p>
+        <p>
+            <strong>Status: </strong>
+            @Model.GameDetails.Status
+        </p>
 
-<p>
-    <strong>Status: </strong>
-    @Model.GameDetails.Status
-</p>
+        <p>
+            <strong>Turn: </strong>
+            <span id="currentTurn">@(Model.GameDetails.IsWhiteTurn ? "White" : "Black")</span>
+        </p>
 
-<p>
-    <strong>Turn: </strong>
-    <span id="currentTurn">@(Model.GameDetails.IsWhiteTurn ? "White" : "Black")</span>
-</p>
+        <p>
+            <strong>White: </strong>
+            @Model.GameDetails.WhitePlayerUsername
+        </p>
 
-<p>
-    <strong>White: </strong>
-    @Model.GameDetails.WhitePlayerUsername
-</p>
+        <p>
+            <strong>Black: </strong>
+            @(Model.GameDetails.BlackPlayerUsername ?? "Waiting for opponent")
+        </p>
+    </header>
 
-<p>
-    <strong>Black: </strong>
-    @(Model.GameDetails.BlackPlayerUsername ?? "Waiting for opponent")
-</p>
+    <section>
+        <div class="chess-board"
+             data-game-id="@Model.GameDetails.GameId"
+             data-status="@Model.GameDetails.Status"
+             data-is-white-turn="@Model.GameDetails.IsWhiteTurn"
+             data-is-white-player="@Model.GameDetails.IsWhitePlayer">
 
-<div class="chess-board"
-     data-game-id="@Model.GameDetails.GameId"
-     data-status="@Model.GameDetails.Status"
-     data-is-white-turn="@Model.GameDetails.IsWhiteTurn"
-     data-is-white-player="@Model.GameDetails.IsWhitePlayer">
-
-    @if (Model.GameDetails.IsWhitePlayer)
-    {
-        for (int rank = 7; rank >= 0; rank--)
-        {
-            for (int file = 0; file < 8; file++)
+            @if (Model.GameDetails.IsWhitePlayer)
             {
-                <div class="chess-square @((file + rank) % 2 == 1 ? "light-square" : "dark-square")"
-                    data-file="@file"
-                    data-rank="@rank">
-                    @{
-                        var piece = Model.GameDetails.Pieces.FirstOrDefault(p => p.File == file && p.Rank == rank);
-                    }
-                    
-                    @if (piece != null)
+                for (int rank = 7; rank >= 0; rank--)
+                {
+                    for (int file = 0; file < 8; file++)
                     {
-                        <span class="chess-piece" data-piece="@piece.Piece">
-                            @Model.GetPieceSymbol(piece.Piece)
-                        </span>
-                    }
-                </div>
+                        <div class="chess-square @((file + rank) % 2 == 1 ? "light-square" : "dark-square")"
+                             data-file="@file"
+                             data-rank="@rank">
+                            @{
+                                var piece = Model.GameDetails.Pieces.FirstOrDefault(p => p.File == file && p.Rank == rank);
+                            }
 
+                            @if (piece != null)
+                            {
+                                <span class="chess-piece" data-piece="@piece.Piece">
+                                    @Model.GetPieceSymbol(piece.Piece)
+                                </span>
+                            }
+                        </div>
+
+                    }
+                }
             }
-        }
-    }
-    else
-    {
-        for (int rank = 0; rank < 8; rank++)
-        {
-            for (int file = 7; file >= 0; file--)
+            else
             {
-                <div class="chess-square @((file + rank) % 2 == 0 ? "light-square" : "dark-square")"
-                     data-file="@file"
-                     data-rank="@rank">
-                    @{
-                        var piece = Model.GameDetails.Pieces.FirstOrDefault(p => p.File == file && p.Rank == rank);
-                    }
-
-                    @if (piece != null)
+                for (int rank = 0; rank < 8; rank++)
+                {
+                    for (int file = 7; file >= 0; file--)
                     {
-                        <span class="chess-piece" data-piece="@piece.Piece">
-                            @Model.GetPieceSymbol(piece.Piece)
-                        </span>
+                        <div class="chess-square @((file + rank) % 2 == 0 ? "light-square" : "dark-square")"
+                             data-file="@file"
+                             data-rank="@rank">
+                            @{
+                                var piece = Model.GameDetails.Pieces.FirstOrDefault(p => p.File == file && p.Rank == rank);
+                            }
+
+                            @if (piece != null)
+                            {
+                                <span class="chess-piece" data-piece="@piece.Piece">
+                                    @Model.GetPieceSymbol(piece.Piece)
+                                </span>
+                            }
+                        </div>
+
                     }
-                </div>
-
+                }
             }
-        }
-    }
+        </div>
+    </section>
+
+
+    <dialog id="promotion-modal" class="promotion-modal-overlay hidden">
+        <div class="promotion-options">
+            <button data-piece="Q">♕</button>
+            <button data-piece="R">♖</button>
+            <button data-piece="B">♗</button>
+            <button data-piece="N">♘</button>
+        </div>
+    </dialog>
+
+
+    <dialog id="game-end-modal" class="game-end-modal-overlay hidden">
+        <div class="game-end-modal-box">
+            <button id="closeBtn" class="game-end-modal-close">×</button>
+
+            <h3 id="game-end-title"></h3>
+            <p id="game-end-message"></p>
+        </div>
+    </dialog>
 </div>
 
-<div id="promotion-modal" class="promotion-modal-overlay hidden">
-    <div class="promotion-options">
-        <button data-piece="Q">♕</button>
-        <button data-piece="R">♖</button>
-        <button data-piece="B">♗</button>
-        <button data-piece="N">♘</button>
-    </div>
-</div>
-
-
-<div id="game-end-modal" class="game-end-modal-overlay hidden">
-    <div class="game-end-modal-box">
-        <button id="closeBtn" class="game-end-modal-close">×</button>
-
-        <h3 id="game-end-title"></h3>
-        <p id="game-end-message"></p>
-    </div>
-</div>
-
-<script src="~/lib/microsoft/signalr/dist/browser/signalr.js" asp-append-version="true"></script>
-<script src="~/js/chess.js" asp-append-version="true"></script>
+@section Scripts {
+    <script src="~/lib/microsoft/signalr/dist/browser/signalr.js" asp-append-version="true"></script>
+    <script src="~/js/chess.js" asp-append-version="true"></script>
+}

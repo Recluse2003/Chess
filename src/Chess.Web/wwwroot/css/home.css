@@ -1,0 +1,128 @@
+﻿html,
+body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+}
+
+.hero-split {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 2fr 3fr;
+    min-height: 0;
+}
+
+.left-side {
+    background: #284B63;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.left-content {
+    width: 100%;
+    max-width: 400px;
+    padding: 1rem;
+}
+
+.left-content h2 {
+    color: white;
+    text-align: right;
+}
+
+.right-content h2 {
+    color: black;
+    text-align: left;
+}
+
+.left-box, .public-games-container {
+    box-sizing: border-box;
+    border-style: solid;
+    border-width: 2px;
+    border-radius: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+    background-color: white;
+    padding: 0.5rem;
+}
+
+.field-validation-error {
+    color: red;
+    text-align: center;
+    margin-bottom: 0.5rem;
+}
+
+.game-join-group {
+    margin: 0.5rem;
+    display: flex;
+    align-items: stretch;
+}
+
+.game-join-field {
+    border: 1px solid black;
+    padding: 0.25rem 0.5rem;
+    outline: none;
+    border-top-left-radius: 0.5rem;
+    border-bottom-left-radius: 0.5rem;
+    border-right: none;
+}
+
+.game-join-btn {
+    padding: 0.25rem 0.5rem;
+    background-color: #007bff;
+    border: 1px solid;
+    border-top-right-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
+}
+
+.game-create-btn {
+    width: 10rem;
+    padding: 0.25rem 0.5rem;
+    background-color: #007bff;
+    border: 1px solid;
+    border-radius: 0.5rem;
+}
+
+.right-side {
+    width: 100%;
+    background: #F5F5F2;
+    display: flex;
+}
+
+.right-content {
+    width: 100%;
+    max-width: 600px;
+    padding: 1rem;
+}
+
+.left-content hr {
+    height: 2px;
+    background-color: white;
+    border: none;
+    opacity: 1;
+    border-radius: 60% 0 0 0;
+    margin: 0 0 0.5rem auto;
+    width: 60%;
+}
+
+.right-content hr {
+    height: 2px;
+    background-color: black;
+    border: none;
+    opacity: 1;
+    border-radius: 0 0 60% 0;
+    margin: 0 0 0.5rem;
+    width: 60%;
+}

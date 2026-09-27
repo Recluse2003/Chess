@@ -10,6 +10,8 @@
         ThreefoldRepetition,
         FiftyMoveRule,
         InsufficientMaterial,
-        Agreement
+        Agreement,
+        WhitePlayerLeft,
+        BlackPlayerLeft
     }
 }

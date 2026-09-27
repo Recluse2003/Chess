@@ -14,7 +14,8 @@
         /// <summary>
         /// Notifies connected clients that a player has left the lobby.
         /// </summary>
-        Task PlayerLeft();
+        /// <param name="wasWhitePlayer">Indicates whether the player who left was the white player.</param>
+        Task PlayerLeft(bool wasWhitePlayer);
 
         /// <summary>
         /// Notifies connected clients that the game has started.

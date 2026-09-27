@@ -18,7 +18,7 @@ html {
 }
 
 body {
-  margin-bottom: 60px;
+  margin-bottom: 0px;
 }
 
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
@@ -28,4 +28,19 @@ body {
 
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
+}
+
+nav {
+    background-color: #153243;
+}
+
+footer {
+    background-color: #153243;
+}
+
+.navbar .nav-link,
+.navbar .navbar-brand,
+.site-footer,
+.site-footer a {
+    color: white;
 }

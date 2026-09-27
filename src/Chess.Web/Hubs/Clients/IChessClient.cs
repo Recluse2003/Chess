@@ -14,5 +14,15 @@ namespace Chess.Web.Hubs.Clients
         /// The result of the completed move, including the board changes and updated game state.
         /// </param>
         Task MoveMade(MoveResultDto result);
+
+        /// <summary>
+        /// Notifies connected clients that a player has left the game.
+        /// </summary>
+        Task PlayerLeft();
+
+        /// <summary>
+        /// Notifies connected clients that the game has ended by mutual agreement.
+        /// </summary>
+        Task GameEndedByAgreement();
     }
 }

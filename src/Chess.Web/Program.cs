@@ -72,7 +72,7 @@ app.UseAuthorization();
 
 app.MapStaticAssets().AllowAnonymous();
 
-app.MapGet("/", () => Results.Redirect("/Game/Create"));
+app.MapGet("/", () => Results.Redirect("/Game/"));
 
 app.MapHub<ChessHub>("/chessHub");
 app.MapHub<LobbyHub>("/lobbyHub");

@@ -1,0 +1,50 @@
+﻿@page
+@model Pages.Game.IndexModel
+
+@{
+    ViewData["Title"] = "Play Chess";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+}
+
+<section class="hero-split">
+
+    <div class="left-side">
+        <div class="left-content">
+            <h2>Play Chess</h2>
+            <hr />
+
+            <div class="left-box">
+                <h3>Join Game</h3>
+                <form method="post" asp-page-handler="Code">
+                    <div class="game-join-group">
+                        <input asp-for="Code" class="game-join-field" maxlength="5" autocomplete="off" placeholder="Code..."  />
+                        <button class="game-join-btn" type="submit">Join</button>
+                    </div>
+                </form>
+                <span asp-validation-for="Code"></span>
+                <p>or</p>
+                <h3>Create Game</h3>
+                <form method="post" asp-page-handler="Create">
+                    @Html.AntiForgeryToken()
+
+                    <button class="game-create-btn" type="submit">Create</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="right-side">
+        <div class="right-content">
+            <h2>Public Games</h2>
+            <hr />
+
+            <div class="public-games-container">
+            </div>
+        </div>
+    </div>
+
+</section>
+
