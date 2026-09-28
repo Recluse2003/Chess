@@ -1,5 +1,6 @@
 ﻿using Chess.Application.Interfaces;
 using Chess.Domain.Entities;
+using Chess.Domain.Enums;
 using Chess.Domain.Services;
 using Chess.Domain.ValueObjects;
 using Chess.Infrastructure.Persistence.Mappers;
@@ -148,6 +149,17 @@ namespace Chess.Infrastructure.Persistence.Repositories
 
                 _context.Moves.Add(newMove);
             }
+        }
+
+        public async Task DeleteUnstartedGamesOlderThanAsync(DateTime cutoffTime, CancellationToken cancellationToken)
+        {
+            var abandonedGames = await _context.ChessGames
+                .Where(g => g.CreatedAt < cutoffTime && 
+                    (g.Status == GameStatus.WaitingForOpponent 
+                    || g.Status == GameStatus.NotStarted))
+                .ToListAsync(cancellationToken);
+
+            _context.ChessGames.RemoveRange(abandonedGames);
         }
 
         /// <summary>

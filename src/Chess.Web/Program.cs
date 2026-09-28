@@ -1,6 +1,7 @@
 using Chess.Application.Games.Commands.CreateGame;
 using Chess.Application.Interfaces;
 using Chess.Domain.Services;
+using Chess.Infrastructure.BackgroundTasks;
 using Chess.Infrastructure.Persistence;
 using Chess.Infrastructure.Persistence.Models;
 using Chess.Infrastructure.Persistence.Repositories;
@@ -48,6 +49,7 @@ builder.Services.AddScoped<IChessGameRepository, ChessGameRepository>();
 builder.Services.AddScoped<IGameCodeRepository, GameCodeRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
+builder.Services.AddHostedService<RemoveAbandonedGamesWorker>();
 
 var app = builder.Build();
 

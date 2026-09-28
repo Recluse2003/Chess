@@ -9,5 +9,6 @@ namespace Chess.Application.Interfaces
         Task<string> CreateAsync(ChessGame game);
         Task UpdateAsync(ChessGame game);
         Task SaveChangesAsync();
+        Task DeleteUnstartedGamesOlderThanAsync(DateTime cutoffTime, CancellationToken cancellationToken);
     }
 }

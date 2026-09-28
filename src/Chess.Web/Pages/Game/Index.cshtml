@@ -23,14 +23,16 @@
                         <input asp-for="Code" class="game-join-field" maxlength="5" autocomplete="off" placeholder="Code..."  />
                         <button class="game-join-btn" type="submit">Join</button>
                     </div>
+                    <span asp-validation-for="Code"></span>
                 </form>
-                <span asp-validation-for="Code"></span>
+                
                 <p>or</p>
                 <h3>Create Game</h3>
                 <form method="post" asp-page-handler="Create">
                     @Html.AntiForgeryToken()
 
                     <button class="game-create-btn" type="submit">Create</button>
+                    <span asp-validation-for="CreateGameForm"></span>
                 </form>
             </div>
         </div>
@@ -47,4 +49,3 @@
     </div>
 
 </section>
-

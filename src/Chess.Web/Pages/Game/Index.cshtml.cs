@@ -17,6 +17,9 @@ namespace Chess.Web.Pages.Game
         [BindProperty]
         public string Code { get; set; } = string.Empty;
 
+        [BindProperty]
+        public string? CreateGameForm { get; set; }
+
         /// <summary>
         /// Handles the initial GET request for the join game page.
         /// </summary>
@@ -48,7 +51,7 @@ namespace Chess.Web.Pages.Game
 
             if (!result.IsSuccess)
             {
-                ModelState.AddModelError(string.Empty, result.Error!.Description);
+                ModelState.AddModelError("CreateGameForm", result.Error!.Description);
 
                 return Page();
             }

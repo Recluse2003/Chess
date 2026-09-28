@@ -39,8 +39,6 @@ footer {
 }
 
 .navbar .nav-link,
-.navbar .navbar-brand,
-.site-footer,
-.site-footer a {
+.navbar .navbar-brand {
     color: white;
 }
