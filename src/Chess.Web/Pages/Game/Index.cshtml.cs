@@ -4,10 +4,12 @@ using Chess.Application.Games.Commands.JoinGame;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.RateLimiting;
 using System.Security.Claims;
 
 namespace Chess.Web.Pages.Game
 {
+    [EnableRateLimiting("chess_game_creation_and_join")]
     public class IndexModel : PageModel
     {
         private readonly IMediator _mediator;
@@ -26,6 +28,7 @@ namespace Chess.Web.Pages.Game
         /// <returns>
         /// The join game page.
         /// </returns>
+        [DisableRateLimiting]  
         public IActionResult OnGet()
         {
             return Page();
@@ -66,7 +69,7 @@ namespace Chess.Web.Pages.Game
         /// A redirect to the game lobby when the user joins successfully, otherwise, the current
         /// page with the join error displayed.
         /// </returns>
-        public async Task<IActionResult> OnPostCode()
+        public async Task<IActionResult> OnPostCodeAsync()
         {
             string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
