@@ -25,6 +25,9 @@ startConnection();
 connection.onreconnecting((error) => {
     gameActive = false;
 
+    selectedSquare = null;
+    removeLegalMoves();
+
     const modal = document.querySelector("#game-end-modal");
     document.querySelector("#game-end-title").textContent = "Connection Lost...";
     document.querySelector("#game-end-message").textContent = "Attempting to reconnect and restore your match...";
@@ -94,6 +97,9 @@ connection.onclose((error) => {
 
 connection.on("OpponentDisconnected", () => {
     gameActive = false;
+
+    selectedSquare = null;
+    removeLegalMoves();
 
     const modal = document.querySelector("#game-end-modal");
 

@@ -3,5 +3,8 @@ using MediatR;
 
 namespace Chess.Application.Games.Commands.RemoveAbandonedGames
 {
-    public record RemoveAbandonedGamesCommand : IRequest<Result>;
+    /// <summary>
+    /// Contains the details required to remove abandoned games periodically.
+    /// </summary>
+    public record RemoveAbandonedGamesCommand() : IRequest<Result>;
 }

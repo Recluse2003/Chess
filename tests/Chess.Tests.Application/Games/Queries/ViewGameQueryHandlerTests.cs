@@ -8,7 +8,7 @@ using Chess.Domain.ValueObjects;
 using FluentAssertions;
 using Moq;
 
-namespace Chess.Tests.Application.Games.Queries.ViewGame
+namespace Chess.Tests.Application.Games.Queries
 {
     public class ViewGameQueryHandlerTests
     {

@@ -85,10 +85,9 @@ namespace Chess.Web.Hubs
         }
 
         /// <summary>
-        /// 
+        /// Attempts to rejoin a <see cref="ChessGame"/> a player has disconnected from. 
         /// </summary>
-        /// <param name="gameId"></param>
-        /// <returns></returns>
+        /// <param name="gameId">The id of the <see cref="ChessGame"/> the player is attempting to rejoin.</param>
         /// <exception cref="HubException">
         /// Thrown when the connected user is not authenticated or the player was unable to verified to a part of the game
         /// they attempted to rejoin, or if attempting to retrieve the current game state failed. 
@@ -115,6 +114,10 @@ namespace Chess.Web.Hubs
             await Clients.OthersInGroup($"game-{gameId}").OpponentReconnected();
         }
 
+        /// <summary>
+        /// Deals with a player disconnecting from an active chess game. 
+        /// </summary>
+        /// <param name="exception"></param>
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
             string? userId = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);

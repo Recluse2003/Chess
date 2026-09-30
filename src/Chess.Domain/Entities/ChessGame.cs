@@ -94,8 +94,8 @@ namespace Chess.Domain.Entities
 
         public void Resume(string playerId)
         {
-            if (Status != GameStatus.Active)
-                throw new GameNotActiveException();
+            if (Status != GameStatus.Paused)
+                throw new GameNotPausedException();
 
             if (playerId != WhitePlayerId && playerId != BlackPlayerId)
                 throw new NotPlayerException();

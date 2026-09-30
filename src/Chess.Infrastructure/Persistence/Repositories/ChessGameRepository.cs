@@ -153,22 +153,21 @@ namespace Chess.Infrastructure.Persistence.Repositories
 
         public async Task DeleteUnstartedGamesOlderThanAsync(DateTime cutoffTime, CancellationToken cancellationToken)
         {
-            List<ChessGameEntity> abandonedGames = await _context.ChessGames
-                .AsNoTracking()
-                .Where(g => g.CreatedAt < cutoffTime && 
-                    (g.Status == GameStatus.WaitingForOpponent 
-                    || g.Status == GameStatus.NotStarted))
-                .ToListAsync(cancellationToken);
-
-            _context.ChessGames.RemoveRange(abandonedGames);
+            await _context.ChessGames
+                .Where(g => g.CreatedAt < cutoffTime &&
+                    (g.Status == GameStatus.WaitingForOpponent ||
+                     g.Status == GameStatus.NotStarted))
+                .ExecuteDeleteAsync(cancellationToken);
         }
 
         public async Task<Guid?> GetActiveGameByUserIdAsync(string userId)
         {
             Guid? newestGameId = await _context.ChessGames
-                .Where(g => (g.WhitePlayerId == userId || g.BlackPlayerId == userId) && g.Status == GameStatus.Active)
-                .OrderByDescending(g => g.CreatedAt) // Targets most recent game
-                .Select(g => g.Id)
+                .Where(g =>
+                    (g.WhitePlayerId == userId || g.BlackPlayerId == userId) &&
+                    g.Status == GameStatus.Active)
+                .OrderByDescending(g => g.CreatedAt)
+                .Select(g => (Guid?)g.Id)
                 .FirstOrDefaultAsync();
 
             var duplicateGames = await _context.ChessGames

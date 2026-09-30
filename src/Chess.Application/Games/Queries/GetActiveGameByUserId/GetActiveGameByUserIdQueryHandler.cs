@@ -2,16 +2,12 @@
 using Chess.Application.Interfaces;
 using Chess.Domain.Entities;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Chess.Application.Games.Queries.GetActiveGameByUserId
 {
     /// <summary>
     /// Handles the execution of a <see cref="GetActiveGameByUserIdQuery"/> request.
-    /// Validates that a <see cref="ChessGame"/> with that user id exists, and that it is currently
-    /// active.
+    /// Validates that an active <see cref="ChessGame"/> with that user id exists.
     /// </summary>
     public class GetActiveGameByUserIdQueryHandler : IRequestHandler<GetActiveGameByUserIdQuery, Result<Guid>>
     {
@@ -23,7 +19,8 @@ namespace Chess.Application.Games.Queries.GetActiveGameByUserId
         }
 
         /// <summary>
-        /// 
+        /// Processes the incoming <see cref="GetActiveGameByUserIdQuery"/>. Validates that a <see cref="ChessGame"/> with
+        /// that user id exists, and that it is currently active.
         /// </summary>
         /// <param name="query"></param>
         /// <param name="cancellationToken"></param>
