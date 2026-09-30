@@ -1,4 +1,5 @@
 ﻿using Chess.Application.Games.Commands.MakeMove;
+using Chess.Application.Games.Queries.ViewGame;
 
 namespace Chess.Web.Hubs.Clients
 {
@@ -16,9 +17,31 @@ namespace Chess.Web.Hubs.Clients
         Task MoveMade(MoveResultDto result);
 
         /// <summary>
-        /// Notifies connected clients that a player has left the game.
+        /// Notifies connected clients that the opponent has disconnected, and is attempting 
+        /// reconnect.
         /// </summary>
-        Task PlayerLeft();
+        Task OpponentDisconnected();
+
+        /// <summary>
+        /// Notifies connected clients that the disconnected opponent reconnected.
+        /// </summary>
+        Task OpponentReconnected();
+
+        /// <summary>
+        /// Notifies connected clients that the disconnected opponent reconnected.
+        /// </summary>
+        /// <param name="chessGame">
+        /// The current state of the game after the reconnect. 
+        /// </param>
+        Task GameRejoined(ViewGameDto chessGame);
+
+        /// <summary>
+        /// Notifies connected clients that the game ended by forfeit.
+        /// </summary>
+        /// <param name="isWhiteWin">
+        /// If true, white wins by default, as black player forfeited
+        /// </param>
+        Task GameEndedByForfeit(bool isWhiteWin);
 
         /// <summary>
         /// Notifies connected clients that the game has ended by mutual agreement.

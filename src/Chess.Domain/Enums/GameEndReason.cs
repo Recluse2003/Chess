@@ -11,7 +11,7 @@
         FiftyMoveRule,
         InsufficientMaterial,
         Agreement,
-        WhitePlayerLeft,
-        BlackPlayerLeft
+        Resignation,
+        Disconnect
     }
 }

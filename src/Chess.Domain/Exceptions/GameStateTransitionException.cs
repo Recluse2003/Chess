@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Chess.Domain.Exceptions
+﻿namespace Chess.Domain.Exceptions
 {
     public class GameStateTransitionException : DomainException
     {
@@ -15,7 +11,7 @@ namespace Chess.Domain.Exceptions
             => new("The game already contains an opponent.");
 
         public static GameStateTransitionException MatchAlreadyStarted()
-            => new("The game has already been started.");
+            => new("The game has already been started or is still waiting for an opponent.");
 
         public static GameStateTransitionException OpponentMissing()
             => new("The game cannot start without an opposing player.");

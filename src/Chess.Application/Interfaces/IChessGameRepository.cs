@@ -8,7 +8,12 @@ namespace Chess.Application.Interfaces
         Task<Guid?> GetGameIdByCodeAsync(string joinCode);
         Task<string> CreateAsync(ChessGame game);
         Task UpdateAsync(ChessGame game);
-        Task SaveChangesAsync();
         Task DeleteUnstartedGamesOlderThanAsync(DateTime cutoffTime, CancellationToken cancellationToken);
+        Task<Guid?> GetActiveGameByUserIdAsync(string userId);
+
+        /// <summary>
+        /// Persists all pending changes in the current database context.
+        /// </summary>
+        Task SaveChangesAsync();
     }
 }

@@ -2,7 +2,10 @@
 
 console.log("CHESS.JS LOADED");
 
-const connection = new signalR.HubConnectionBuilder().withUrl("/chessHub").build();
+const connection = new signalR.HubConnectionBuilder()
+    .withUrl("/chessHub")
+    .withAutomaticReconnect([0, 5000, 15000, 30000]) // Try reconnecting instantly, then 5s, 15s, 30s
+    .build();
 
 async function startConnection() {
     try {
@@ -18,6 +21,114 @@ async function startConnection() {
 }
 
 startConnection();
+
+connection.onreconnecting((error) => {
+    gameActive = false;
+
+    const modal = document.querySelector("#game-end-modal");
+    document.querySelector("#game-end-title").textContent = "Connection Lost...";
+    document.querySelector("#game-end-message").textContent = "Attempting to reconnect and restore your match...";
+
+    modal.classList.remove("hidden");
+});
+
+connection.onreconnected(async (newConnectionId) => {
+    try {
+        document.querySelector("#game-end-message").textContent = "Restoring game state...";
+
+        await connection.invoke("RejoinGame", gameId);
+    } catch (err) {
+        console.error("Failed to automatically rejoin the game: ", err);
+
+        document.querySelector("#game-end-title").textContent = "Rejoin Failed";
+        document.querySelector("#game-end-message").textContent = "Could not synchronize with the match.";
+    }
+});
+
+connection.on("GameRejoined", (viewGameDto) => {
+    gameActive = true;
+
+    selectedSquare = null;
+    removeLegalMoves();
+
+    const turnSpan = document.querySelector("#currentTurn");
+    if (turnSpan) {
+        turnSpan.textContent = viewGameDto.isWhiteTurn ? "White" : "Black";
+    }
+
+    const squares = document.querySelectorAll(".chess-square");
+    squares.forEach(square => {
+        square.innerHTML = "";
+    });
+
+    viewGameDto.pieces.forEach(piece => {
+        const targetSquare = document.querySelector(
+            `.chess-square[data-file="${piece.file}"][data-rank="${piece.rank}"]`
+        );
+
+        if (targetSquare) {
+            const pieceElement = document.createElement("span");
+            pieceElement.classList.add("chess-piece");
+            pieceElement.setAttribute("data-piece", piece.piece);
+            pieceElement.textContent = getPieceSymbol(piece.piece);
+
+            targetSquare.appendChild(pieceElement);
+        }
+    });
+
+    document.querySelector("#game-end-modal").classList.add("hidden");
+});
+
+connection.onclose((error) => {
+    console.assert(connection.state === signalR.HubConnectionState.Disconnected);
+
+    gameActive = false;
+
+    const modal = document.querySelector("#game-end-modal");
+
+    document.querySelector("#game-end-title").textContent = "You disconnected from the server";
+    document.querySelector("#game-end-message").textContent = "The match has been forfeited.";
+
+    modal.classList.remove("hidden");
+});
+
+connection.on("OpponentDisconnected", () => {
+    gameActive = false;
+
+    const modal = document.querySelector("#game-end-modal");
+
+    document.querySelector("#game-end-title").textContent = "Your opponent has disconnected...";
+    document.querySelector("#game-end-message").textContent = "Waiting for them to reconnect (60s)...";
+
+    modal.classList.remove("hidden");
+});
+
+connection.on("OpponentReconnected", () => {
+    gameActive = true;
+    document.querySelector("#game-end-modal").classList.add("hidden");
+});
+
+connection.on("GameEndedByForfeit", (isWhiteWinner) => {
+    gameActive = false;
+
+    const iAmWhite = board.dataset.isWhitePlayer === "true"; 
+
+    const modal = document.querySelector("#game-end-modal");
+    const title = document.querySelector("#game-end-title");
+    const message = document.querySelector("#game-end-message");
+
+    const iWon = (isWhiteWinner && iAmWhite) || (!isWhiteWinner && !iAmWhite);
+
+    if (iWon) {
+        title.textContent = "Victory!";
+        message.textContent = "Your opponent failed to reconnect. You win by default!";
+    } else {
+        title.textContent = "Match Forfeited";
+        message.textContent = "You were disconnected for too long and lost by default.";
+    }
+
+    modal.classList.remove("hidden");
+});
 
 const board = document.querySelector(".chess-board");
 
@@ -178,7 +289,6 @@ function applyBoardChanges(boardChanges) {
     });
 }
 
-
 function getPieceSymbol(piece) {
     const pieces = {
         'K': '♔', 'Q': '♕', 'R': '♖', 'B': '♗', 'N': '♘', 'P': '♙',
@@ -187,7 +297,6 @@ function getPieceSymbol(piece) {
 
     return pieces[piece] || '';
 }
-
 
 function checkGameState(status, endReason) {
 
@@ -274,7 +383,6 @@ async function getLegalMoves(file, rank) {
 
     });
 }
-
 
 function removeLegalMoves() {
 

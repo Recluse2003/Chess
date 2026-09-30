@@ -10,6 +10,8 @@
         Active,
         WhiteWin,
         BlackWin,
-        Draw
+        Draw,
+        Abandoned,
+        Paused
     }
 }

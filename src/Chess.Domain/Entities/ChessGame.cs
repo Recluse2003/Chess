@@ -81,6 +81,28 @@ namespace Chess.Domain.Entities
             Status = GameStatus.Active;
         }
 
+        public void Pause(string playerId)
+        {
+            if (Status != GameStatus.Active)
+                throw new GameNotActiveException();
+
+            if (playerId != WhitePlayerId && playerId != BlackPlayerId) 
+                throw new NotPlayerException();
+
+            Status = GameStatus.Paused;
+        }
+
+        public void Resume(string playerId)
+        {
+            if (Status != GameStatus.Active)
+                throw new GameNotActiveException();
+
+            if (playerId != WhitePlayerId && playerId != BlackPlayerId)
+                throw new NotPlayerException();
+
+            Status = GameStatus.Active;
+        }
+
         /// <summary>
         /// Performs a change to the chess game's board using the specified move.
         /// </summary>
@@ -153,6 +175,31 @@ namespace Chess.Domain.Entities
                     Status = GameStatus.Draw;
                     EndReason = GameEndReason.ThreefoldRepetition;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Used to end the game outside a reason caused by a board state. This includes agreement and disconnect. 
+        /// </summary>
+        /// <param name="reason">Reason for the game ending.</param>
+        /// <param name="triggerByUserId">Id of the user ending the game.</param>
+        public void EndGame(GameEndReason reason, string triggerByUserId)
+        {
+            EndReason = reason;
+
+            switch (reason)
+            {
+                case GameEndReason.Disconnect:
+                    if (WhitePlayerId == triggerByUserId)
+                        Status = GameStatus.BlackWin;
+                    else
+                        Status = GameStatus.WhiteWin;
+
+                    break;
+
+                case GameEndReason.Agreement:
+                    Status = GameStatus.Draw;
+                    break;
             }
         }
 

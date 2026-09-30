@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Chess.Domain.Exceptions
+﻿namespace Chess.Domain.Exceptions
 {
     public class GameNotActiveException : DomainException
     {

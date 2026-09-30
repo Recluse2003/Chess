@@ -14,4 +14,9 @@
     <ProjectReference Include="..\Chess.Domain\Chess.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Games\Commands\AcceptDraw\" />
+    <Folder Include="Games\Commands\OfferDraw\" />
+  </ItemGroup>
+
 </Project>

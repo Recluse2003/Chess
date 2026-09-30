@@ -3,7 +3,7 @@ using Chess.Application.Interfaces;
 using Chess.Domain.Entities;
 using MediatR;
 
-namespace Chess.Application.Games.Queries.VerifyGameMembershipQuery
+namespace Chess.Application.Games.Queries.VerifyGameMembership
 {
     /// <summary>
     /// Handles the execution of a <see cref="VerifyGameMembershipQuery"/> request.

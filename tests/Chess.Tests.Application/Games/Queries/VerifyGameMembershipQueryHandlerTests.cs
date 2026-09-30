@@ -1,5 +1,5 @@
 ﻿using Chess.Application.Common.Results;
-using Chess.Application.Games.Queries.VerifyGameMembershipQuery;
+using Chess.Application.Games.Queries.VerifyGameMembership;
 using Chess.Application.Interfaces;
 using Chess.Domain.Entities;
 using Chess.Domain.Services;

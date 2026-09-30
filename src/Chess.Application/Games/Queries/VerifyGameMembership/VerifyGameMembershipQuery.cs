@@ -2,7 +2,7 @@
 using Chess.Domain.Entities;
 using MediatR;
 
-namespace Chess.Application.Games.Queries.VerifyGameMembershipQuery
+namespace Chess.Application.Games.Queries.VerifyGameMembership
 {
     /// <summary>
     /// Contains the required details needed to verify if a specified user is actually player for a specified
