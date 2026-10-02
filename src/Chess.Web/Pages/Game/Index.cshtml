@@ -19,20 +19,39 @@
             <div class="left-box">
                 <h3>Join Game</h3>
                 <form method="post" asp-page-handler="Code">
-                    <div class="game-join-group">
-                        <input asp-for="Code" class="game-join-field" maxlength="5" autocomplete="off" placeholder="Code..."  />
-                        <button class="game-join-btn" type="submit">Join</button>
+                    <div class="join-game-group">
+                        <input asp-for="Code" class="join-game-field" maxlength="5" autocomplete="off" placeholder="Code..." />
+                        <button class="join-game-button" type="submit">Join</button>
                     </div>
                     <span asp-validation-for="Code"></span>
                 </form>
                 
                 <p>or</p>
-                <h3>Create Game</h3>
+
+                <h3>Create game</h3>
+
                 <form method="post" asp-page-handler="Create">
                     @Html.AntiForgeryToken()
 
-                    <button class="game-create-btn" type="submit">Create</button>
-                    <span asp-validation-for="CreateGameForm"></span>
+                    <fieldset class="create-game-settings">
+                        <div class="create-game-setting">
+                            <input asp-for="CreateGameViewModel.IsPrivate"
+                                   class="privacy-toggle"
+                                   id="is-private"/>
+
+                            <label for="is-private"
+                                   class="privacy-toggle-label">
+                                <div>Public</div>
+                                <div>Private</div>
+                            </label>
+                        </div>
+                    </fieldset>
+
+                    <button type="submit" class="create-game-button">
+                        Create
+                    </button>
+
+                    <span asp-validation-for="CreateGameViewModel.IsPrivate"></span>
                 </form>
             </div>
         </div>
