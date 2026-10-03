@@ -1,4 +1,5 @@
-﻿using Chess.Domain.Entities;
+﻿using Chess.Application.Games.Queries.GetRandomPublicGames;
+using Chess.Domain.Entities;
 
 namespace Chess.Application.Interfaces
 {
@@ -10,6 +11,7 @@ namespace Chess.Application.Interfaces
         Task UpdateAsync(ChessGame game);
         Task DeleteUnstartedGamesOlderThanAsync(DateTime cutoffTime, CancellationToken cancellationToken);
         Task<Guid?> GetActiveGameByUserIdAsync(string userId);
+        Task<List<PublicGameDto>> GetRandomPublicGamesAsync(string userId, int count, CancellationToken cancellationToken);
 
         /// <summary>
         /// Persists all pending changes in the current database context.

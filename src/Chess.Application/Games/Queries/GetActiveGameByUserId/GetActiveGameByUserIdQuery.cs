@@ -2,7 +2,6 @@
 using Chess.Domain.Entities;
 using MediatR;
 
-
 namespace Chess.Application.Games.Queries.GetActiveGameByUserId
 {
     /// <summary>

@@ -16,6 +16,7 @@ namespace Chess.Domain.Entities
         public string? BlackPlayerId { get; private set; } 
         public string InitialFen { get; private set; }
         public Board Board { get; private set; } = null!;
+        public bool IsPrivate { get; private set; }
         public GameStatus Status { get; private set; } = GameStatus.Active;
         public GameEndReason? EndReason { get; private set; }
         public List<Move> MoveHistory { get; private set; } = new();
@@ -26,7 +27,8 @@ namespace Chess.Domain.Entities
         /// <param name="id">The unique identifier to assign to this game match.</param>
         /// <param name="whitePlayerId">The identifier of the player creating and hosting the match.</param>
         /// <param name="fen">The starting position setup format string.</param>
-        public ChessGame(Guid id, string whitePlayerId, string fen) 
+        /// <param name="isPrivate">Defines if the game is viewable from the Public Games section.</param>
+        public ChessGame(Guid id, string whitePlayerId, string fen, bool isPrivate = false) 
         { 
             Id = id;
             WhitePlayerId = whitePlayerId;
@@ -35,6 +37,8 @@ namespace Chess.Domain.Entities
             Board = FenConverterService.FromFen(fen);
 
             Status = GameStatus.WaitingForOpponent;
+
+            IsPrivate = isPrivate;
         }
 
         /// <summary>
@@ -241,6 +245,7 @@ namespace Chess.Domain.Entities
             string? blackPlayerId,
             string initialFen,
             string currentFen,
+            bool isPrivate,
             GameStatus status,
             GameEndReason? endReason,
             IEnumerable<Move> moveHistory)
@@ -248,7 +253,8 @@ namespace Chess.Domain.Entities
             var game = new ChessGame(
                 id,
                 whitePlayerId,
-                currentFen);
+                currentFen, 
+                isPrivate);
 
             game.BlackPlayerId = blackPlayerId;
             game.InitialFen = initialFen;

@@ -39,6 +39,11 @@ namespace Chess.Infrastructure.Persistence
                     .WithOne(move => move.Game)
                     .HasForeignKey(move => move.GameId)
                     .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(game => game.GameCode)
+                    .WithOne(code => code.ChessGame)
+                    .HasForeignKey<GameCodeEntity>(code => code.ChessGameId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<MoveEntity>(entity =>
@@ -70,9 +75,9 @@ namespace Chess.Infrastructure.Persistence
                 entity.Property(c => c.Code).HasMaxLength(6);
 
                 entity.HasOne(code => code.ChessGame)
-                      .WithOne() 
-                      .HasForeignKey<GameCodeEntity>(code => code.ChessGameId)
-                      .OnDelete(DeleteBehavior.Cascade); // Deleting the game will delete the code. 
+                    .WithOne(game => game.GameCode) 
+                    .HasForeignKey<GameCodeEntity>(code => code.ChessGameId)
+                    .OnDelete(DeleteBehavior.Cascade); // Deleting the game will delete the code. 
             });
         }
     }

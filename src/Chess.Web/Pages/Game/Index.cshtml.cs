@@ -1,6 +1,7 @@
 using Chess.Application.Common.Results;
 using Chess.Application.Games.Commands.CreateGame;
 using Chess.Application.Games.Commands.JoinGame;
+using Chess.Application.Games.Queries.GetRandomPublicGames;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -14,13 +15,18 @@ namespace Chess.Web.Pages.Game
     {
         private readonly IMediator _mediator;
 
-        public IndexModel(IMediator mediator) => _mediator = mediator;
+        public IndexModel(IMediator mediator)
+        {
+            _mediator = mediator;
+        }
 
-        [BindProperty]
-        public string Code { get; set; } = string.Empty;
+        public List<PublicGameDto> PublicGames { get; set; } = new();
 
         [BindProperty]
         public CreateGameViewModel CreateGameViewModel { get; set; } = new();
+
+        [BindProperty]
+        public string Code { get; set; } = string.Empty;
 
         /// <summary>
         /// Handles the initial GET request for the join game page.
@@ -28,9 +34,17 @@ namespace Chess.Web.Pages.Game
         /// <returns>
         /// The join game page.
         /// </returns>
-        [DisableRateLimiting]  
-        public IActionResult OnGet()
+        public async Task<IActionResult> OnGetAsync()
         {
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId is null)
+                return Unauthorized();
+
+            Result<List<PublicGameDto>> result = await _mediator.Send(new GetRandomPublicGamesQuery(userId, 10));
+
+            PublicGames = result.Value;
+
             return Page();
         }
 
@@ -48,7 +62,7 @@ namespace Chess.Web.Pages.Game
             if (userId is null)
                 return Unauthorized();
 
-            var command = new CreateGameCommand(userId);
+            CreateGameCommand command = new(userId, CreateGameViewModel.IsPrivate);
 
             Result<CreateGameDto> result = await _mediator.Send(command);
 
@@ -82,7 +96,7 @@ namespace Chess.Web.Pages.Game
 
             if (!result.IsSuccess)
             {
-                ModelState.AddModelError("code", result.Error!.Description);
+                ModelState.AddModelError(Code, result.Error!.Description);
 
                 return Page();
             }

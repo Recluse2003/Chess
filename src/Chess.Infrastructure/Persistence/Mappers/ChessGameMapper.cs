@@ -26,6 +26,7 @@ namespace Chess.Infrastructure.Persistence.Mappers
                 BlackPlayerId = game.BlackPlayerId,
                 InitialFen = game.InitialFen,
                 Fen = FenConverterService.ToFen(game.Board),
+                IsPrivate = game.IsPrivate,
                 Status = game.Status,
                 EndReason = game.EndReason,
                 UpdatedAt = DateTime.UtcNow,
@@ -61,6 +62,7 @@ namespace Chess.Infrastructure.Persistence.Mappers
                 entity.BlackPlayerId,
                 entity.InitialFen,
                 entity.Fen,
+                entity.IsPrivate,
                 entity.Status,
                 entity.EndReason,
                 MoveMapper.ToDomainList(entity.Moves));

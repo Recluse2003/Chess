@@ -44,7 +44,7 @@ main {
     text-align: left;
 }
 
-.left-box, .public-games-container {
+.left-box {
     box-sizing: border-box;
     border-style: solid;
     border-width: 2px;
@@ -65,13 +65,13 @@ main {
     margin-bottom: 0.5rem;
 }
 
-.join-game-group {
+.join-private-game-group {
     margin: 0.5rem;
     display: flex;
     align-items: stretch;
 }
 
-.join-game-field {
+.join-private-game-field {
     border: 1px solid black;
     padding: 0.25rem 0.5rem;
     outline: none;
@@ -80,7 +80,7 @@ main {
     border-right: none;
 }
 
-.join-game-button {
+.join-private-game-button {
     padding: 0.25rem 0.5rem;
     background-color: #007bff;
     font-weight: bold;
@@ -173,6 +173,26 @@ main {
     width: 100%;
     max-width: 600px;
     padding: 1rem;
+}
+
+.public-games-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+}
+
+.public-game-card {
+    border: 1px solid black;
+    border-radius: 0.5rem;
+
+}
+
+.join-public-game-button {
+    padding: 0.25rem 0.5rem;
+    background-color: #007bff;
+    font-weight: bold;
+    border: 1px solid;
+    border-radius: 0.5rem;
 }
 
 .left-content hr {

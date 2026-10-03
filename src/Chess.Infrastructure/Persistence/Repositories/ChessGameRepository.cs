@@ -1,4 +1,5 @@
-﻿using Chess.Application.Interfaces;
+﻿using Chess.Application.Games.Queries.GetRandomPublicGames;
+using Chess.Application.Interfaces;
 using Chess.Domain.Entities;
 using Chess.Domain.Enums;
 using Chess.Domain.Services;
@@ -172,7 +173,7 @@ namespace Chess.Infrastructure.Persistence.Repositories
 
             var duplicateGames = await _context.ChessGames
                 .Where(g => (g.WhitePlayerId == userId || g.BlackPlayerId == userId)
-                            && g.Status == GameStatus.Active
+                            && (g.Status == GameStatus.Active || g.Status == GameStatus.Paused)
                             && g.Id != newestGameId)
                 .ToListAsync();
 
@@ -187,6 +188,25 @@ namespace Chess.Infrastructure.Persistence.Repositories
             }
 
             return newestGameId;
+        }
+
+        public async Task<List<PublicGameDto>> GetRandomPublicGamesAsync(string userId, int count, CancellationToken cancellationToken)
+        {
+            return await _context.ChessGames
+                .Where(g =>
+                    !g.IsPrivate &&
+                    g.Status == GameStatus.WaitingForOpponent &&
+                    g.WhitePlayerId != null && 
+                    g.WhitePlayerId != userId &&
+                    g.GameCode != null)
+                .OrderBy(g => Guid.NewGuid())
+                .Take(count)
+                .Select(g => new PublicGameDto
+                {
+                    Code = g.GameCode!.Code,
+                    WhitePlayerUsername = g.WhitePlayer!.UserName!
+                })
+                .ToListAsync(cancellationToken);
         }
 
         /// <inheritdoc />

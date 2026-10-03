@@ -37,7 +37,7 @@ namespace Chess.Application.Games.Commands.CreateGame
 
             try
             {
-                ChessGame chessGame = new(Guid.NewGuid(), command.WhitePlayerId, FenConverterService.StartingPositionFen);
+                ChessGame chessGame = new(Guid.NewGuid(), command.WhitePlayerId, FenConverterService.StartingPositionFen, command.IsPrivate);
 
                 string joinCode = await _gameRepository.CreateAsync(chessGame);
                 await _gameRepository.SaveChangesAsync();
