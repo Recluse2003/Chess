@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Security.Claims;
 
-namespace Chess.Web.Pages.Game
+namespace Chess.Web.Pages.Games
 {
     /// <summary>
     /// Handles requests for joining an existing chess game using a lobby code.

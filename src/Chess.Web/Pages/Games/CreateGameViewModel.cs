@@ -1,4 +1,4 @@
-﻿namespace Chess.Web.Pages.Game
+﻿namespace Chess.Web.Pages.Games
 {
     public class CreateGameViewModel
     {

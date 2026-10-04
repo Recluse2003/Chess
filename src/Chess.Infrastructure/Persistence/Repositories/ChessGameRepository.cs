@@ -1,4 +1,6 @@
-﻿using Chess.Application.Games.Queries.GetRandomPublicGames;
+﻿using Chess.Application.Common.Results;
+using Chess.Application.Games.Queries.GetGamesByUserId;
+using Chess.Application.Games.Queries.GetRandomPublicGames;
 using Chess.Application.Interfaces;
 using Chess.Domain.Entities;
 using Chess.Domain.Enums;
@@ -207,6 +209,40 @@ namespace Chess.Infrastructure.Persistence.Repositories
                     WhitePlayerUsername = g.WhitePlayer!.UserName!
                 })
                 .ToListAsync(cancellationToken);
+        }
+
+        public async Task<PagedList<GameDto>> GetGamesByUserIdAsync(string userId, int pageNumber, int pageSize)
+        {
+            pageNumber = pageNumber < 1 ? 1 : pageNumber;
+            pageSize = pageSize < 1 ? 10 : pageSize;
+
+            var query = _context.ChessGames
+                .AsNoTracking()
+                .Where(g => 
+                    (g.WhitePlayerId == userId || g.BlackPlayerId == userId) &&
+                     g.Status != GameStatus.WaitingForOpponent &&
+                     g.Status != GameStatus.NotStarted);
+
+            int totalCount = await query.CountAsync();
+
+            IReadOnlyList<GameDto> games = await query
+                .OrderByDescending(g => g.CreatedAt)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .Select(g => new GameDto
+                {
+                    Id = g.Id,
+                    OpponentUsername = g.WhitePlayerId == userId
+                        ? (g.BlackPlayer != null ? g.BlackPlayer.UserName ?? "Unknown" : "Unknown")
+                        : (g.WhitePlayer != null ? g.WhitePlayer.UserName ?? "Unknown" : "Unknown"),
+                    MoveCount = g.Moves.Count(),
+                    WasWhitePlayer = g.WhitePlayerId == userId,
+                    Status = g.Status,
+                    EndReason = g.EndReason
+                })
+                .ToListAsync();
+
+            return new PagedList<GameDto>(games, pageNumber, pageSize, totalCount);
         }
 
         /// <inheritdoc />

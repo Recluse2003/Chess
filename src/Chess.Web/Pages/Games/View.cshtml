@@ -1,0 +1,41 @@
+﻿@page
+@using global::Chess.Domain.Enums
+@model ViewModel
+@{
+    ViewData["Title"] = "View Games";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/view-games.css" asp-append-version="true" />
+}
+
+<section class="container">
+    <h1>My Games</h1>
+
+    <div class="games-container">
+        @foreach (var game in Model.PaginatedGames!.Items)
+        {
+            <div class="game-card">
+                <span>Vs @game.OpponentUsername</span>
+                <span>As: @(game.WasWhitePlayer ? "White" : "Black") Player</span>
+                <span>Status: @game.Status</span>
+                @if (game.Status == GameStatus.Active || game.Status == GameStatus.Paused)
+                {
+                    <a href="/Chess/@game.Id" class="rejoin-button">
+                        Rejoin
+                    </a>
+                }
+                else
+                {
+                    <span>End Reason: @game.EndReason</span>
+                    <form method="post" asp-page-handler="Review">
+                        <input type="hidden" name="gameId" value="@game.Id" />
+
+                        <button type="submit">View</button>
+                    </form>
+                }
+            </div>
+        }
+    </div>
+
+</section>

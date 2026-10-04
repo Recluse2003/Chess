@@ -1,0 +1,29 @@
+﻿body {
+    box-sizing: border-box;
+    background: #284B63;
+}
+
+.centered-container {
+    width: 100%;
+    max-width: 1000px;
+    display: flex;
+    min-height: 100vh; 
+    margin: 0; 
+}
+
+h1 {
+    color: white;
+}
+
+hr {
+
+}
+
+.games-container {
+    display: grid;
+    grid-template-columns: auto auto auto;
+}
+
+.game-card {
+
+}

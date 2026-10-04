@@ -13,6 +13,13 @@ main {
     flex: 1;
     display: flex;
     min-height: 0;
+
+    background: linear-gradient(to right, #284B63 0%, #284B63 50%, #F5F5F2 50%, #F5F5F2 100%);
+}
+
+main > .container {
+    display: flex;
+    flex: 1;
 }
 
 .hero-split {
@@ -20,28 +27,22 @@ main {
     display: grid;
     grid-template-columns: 2fr 3fr;
     min-height: 0;
+    width: 100%;
 }
 
 .left-side {
-    background: #284B63;
     display: flex;
     justify-content: flex-end;
 }
 
 .left-content {
     width: 100%;
-    max-width: 400px;
     padding: 1rem;
 }
 
 .left-content h2 {
     color: white;
     text-align: right;
-}
-
-.right-content h2 {
-    color: black;
-    text-align: left;
 }
 
 .left-box {
@@ -171,8 +172,12 @@ main {
 
 .right-content {
     width: 100%;
-    max-width: 600px;
     padding: 1rem;
+}
+
+.right-content h2 {
+    color: black;
+    text-align: left;
 }
 
 .public-games-container {
@@ -213,4 +218,31 @@ main {
     border-radius: 0 0 60% 0;
     margin: 0 0 0.5rem;
     width: 60%;
+}
+
+@media (max-width: 767.98px) {
+    main {
+        background: #F5F5F2; 
+    }
+
+    .hero-split {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        padding-top: 1rem;
+    }
+
+    .left-side {
+        background: #284B63;
+        border-radius: 1rem;
+        padding-bottom: 1rem;
+        justify-content: center;
+    }
+
+    .left-content h2 {
+        text-align: center;
+    }
+
+    .left-content hr {
+        margin: 0 auto 0.5rem;
+    }
 }

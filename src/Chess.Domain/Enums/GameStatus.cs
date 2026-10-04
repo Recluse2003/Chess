@@ -8,10 +8,10 @@
         WaitingForOpponent,
         NotStarted,
         Active,
+        Paused,
         WhiteWin,
         BlackWin,
         Draw,
-        Abandoned,
-        Paused
+        Abandoned
     }
 }

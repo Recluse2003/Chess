@@ -1,0 +1,82 @@
+﻿@page
+@model IndexModel
+
+@{
+    ViewData["Title"] = "Play Chess";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+}
+<div class="container">
+    <section class="hero-split">
+
+        <div class="left-side">
+            <div class="left-content">
+                <h2>Play Chess</h2>
+                <hr />
+
+                <div class="left-box">
+                    <h3>Join Game</h3>
+                    <form method="post" asp-page-handler="Code">
+                        <div class="join-private-game-group">
+                            <input asp-for="Code" class="join-private-game-field" maxlength="5" autocomplete="off" placeholder="Code..." />
+                            <button class="join-private-game-button" type="submit">Join</button>
+                        </div>
+                        <span asp-validation-for="Code"></span>
+                    </form>
+                
+                    <p>or</p>
+
+                    <h3>Create game</h3>
+
+                    <form method="post" asp-page-handler="Create">
+                        @Html.AntiForgeryToken()
+
+                        <fieldset class="create-game-settings">
+                            <div class="create-game-setting">
+                                <input asp-for="CreateGameViewModel.IsPrivate"
+                                       class="privacy-toggle"
+                                       id="is-private" />
+
+                                <label for="is-private"
+                                       class="privacy-toggle-label">
+                                    <div>Public</div>
+                                    <div>Private</div>
+                                </label>
+                            </div>
+                        </fieldset>
+
+                        <button type="submit" class="create-game-button">
+                            Create
+                        </button>
+
+                        <span asp-validation-for="CreateGameViewModel"></span>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-side">
+            <div class="right-content">
+                <h2>Public Games</h2>
+                <hr />
+
+                <div class="public-games-container">
+                    @foreach (var game in Model.PublicGames)
+                    {
+                        <div class="public-game-card">
+                            <span>@game.WhitePlayerUsername</span>
+
+                            <form method="post" asp-page-handler="Code">
+                                <input type="hidden" name="Code" value="@game.Code" />
+                                <button type="submit" class="join-public-game-button">Join</button>
+                            </form>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+    </section>
+</div>

@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Security.Claims;
 
-namespace Chess.Web.Pages.Game
+namespace Chess.Web.Pages.Games
 {
     [EnableRateLimiting("chess_game_creation_and_join")]
     public class IndexModel : PageModel
