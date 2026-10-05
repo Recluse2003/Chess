@@ -18,6 +18,8 @@ namespace Chess.Infrastructure.Persistence.Models
         public bool IsPrivate { get; set; }
         public GameStatus Status { get; set; }
         public GameEndReason? EndReason { get; set; }
+        public string? DisconnectedPlayerId { get; set; }
+        public DateTime? ReconnectDeadline { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public GameCodeEntity? GameCode { get; set; }

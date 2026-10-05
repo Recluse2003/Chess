@@ -17,6 +17,7 @@
   <ItemGroup>
     <Folder Include="Games\Commands\AcceptDraw\" />
     <Folder Include="Games\Commands\OfferDraw\" />
+    <Folder Include="Games\Services\" />
   </ItemGroup>
 
 </Project>

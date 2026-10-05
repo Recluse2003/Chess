@@ -19,6 +19,8 @@ namespace Chess.Domain.Entities
         public bool IsPrivate { get; private set; }
         public GameStatus Status { get; private set; } = GameStatus.Active;
         public GameEndReason? EndReason { get; private set; }
+        public string? DisconnectedPlayerId { get; private set; }
+        public DateTime? ReconnectDeadline { get; private set; }
         public List<Move> MoveHistory { get; private set; } = new();
 
         /// <summary>
@@ -94,6 +96,8 @@ namespace Chess.Domain.Entities
                 throw new NotPlayerException();
 
             Status = GameStatus.Paused;
+            DisconnectedPlayerId = playerId;
+            ReconnectDeadline = DateTime.UtcNow.AddSeconds(60);
         }
 
         public void Resume(string playerId)
@@ -105,6 +109,8 @@ namespace Chess.Domain.Entities
                 throw new NotPlayerException();
 
             Status = GameStatus.Active;
+            DisconnectedPlayerId = null;
+            ReconnectDeadline = null;
         }
 
         /// <summary>
@@ -248,6 +254,8 @@ namespace Chess.Domain.Entities
             bool isPrivate,
             GameStatus status,
             GameEndReason? endReason,
+            string? disconnectedPlayerId,
+            DateTime? reconnectDeadline,
             IEnumerable<Move> moveHistory)
         {
             var game = new ChessGame(
@@ -260,6 +268,8 @@ namespace Chess.Domain.Entities
             game.InitialFen = initialFen;
             game.Status = status;
             game.EndReason = endReason;
+            game.DisconnectedPlayerId = disconnectedPlayerId;
+            game.ReconnectDeadline = reconnectDeadline;
             game.MoveHistory.AddRange(moveHistory);
 
             return game;

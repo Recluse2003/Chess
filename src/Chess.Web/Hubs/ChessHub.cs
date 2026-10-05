@@ -143,51 +143,21 @@ namespace Chess.Web.Hubs
         {
             string? userId = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (userId == null)
-            { 
-                await base.OnDisconnectedAsync(exception); 
-                return; 
+            if (userId is null)
+            {
+                await base.OnDisconnectedAsync(exception);
+                return;
             }
 
-            GetActiveGameByUserIdQuery activeGameQuery = new(userId);
-            Result<Guid> gameIdResult = await _mediator.Send(activeGameQuery);
+            Result<Guid> result = await _mediator.Send(new GetActiveGameByUserIdQuery(userId));
 
-            if (gameIdResult.IsSuccess)
+            if (result.IsSuccess)
             {
-                Guid gameId = gameIdResult.Value;
+                Guid gameId = result.Value;
 
-                // Tell the opponent to show the "Opponent Disconnected" banner
                 await Clients.OthersInGroup($"{gameId}").OpponentDisconnected();
 
-                // Fire a command to set the DB status to 'Paused'
                 await _mediator.Send(new PauseGameCommand(gameId, userId));
-
-                // Start the 60-second timer in the background.
-                _ = Task.Run(async () =>
-                {
-                    await Task.Delay(TimeSpan.FromSeconds(60));
-
-                    // Fetch the game's state from the database
-                    GetGameStatusByIdQuery checkGameStatusQuery = new (gameId);
-                    Result<GameStatus> gameStatusResult = await _mediator.Send(checkGameStatusQuery);
-
-                    // If the player never rejoined, the game would still be in a paused state. 
-                    if (gameStatusResult.IsSuccess && gameStatusResult.Value == GameStatus.Paused)
-                    {
-                        // Forfeit the player who disconnected
-                        EndGameCommand command = new (gameId, userId, GameEndReason.Disconnect);
-                        await _mediator.Send(command);
-
-                        var finalStatusQuery = new GetGameStatusByIdQuery(gameId);
-                        var finalStatusResult = await _mediator.Send(finalStatusQuery);
-
-                        if (finalStatusResult.IsSuccess)
-                        {
-                            bool isWhiteWinner = finalStatusResult.Value == GameStatus.WhiteWin;
-                            await Clients.Group($"{gameId}").GameEndedByForfeit(isWhiteWinner);
-                        }
-                    }
-                });
             }
 
             await base.OnDisconnectedAsync(exception);

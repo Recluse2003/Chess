@@ -117,7 +117,7 @@ connection.on("OpponentReconnected", () => {
 connection.on("GameEndedByForfeit", (isWhiteWinner) => {
     gameActive = false;
 
-    const iAmWhite = board.dataset.isWhitePlayer === "true"; 
+    const iAmWhite = board.dataset.isWhitePlayer === "True"; 
 
     const modal = document.querySelector("#game-end-modal");
     const title = document.querySelector("#game-end-title");

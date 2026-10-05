@@ -1,4 +1,5 @@
 ﻿using Chess.Application.Common.Results;
+using Chess.Application.Games.Commands.ForfeitExpiredGames;
 using Chess.Application.Games.Queries.GetGamesByUserId;
 using Chess.Application.Games.Queries.GetRandomPublicGames;
 using Chess.Application.Interfaces;
@@ -127,6 +128,8 @@ namespace Chess.Infrastructure.Persistence.Repositories
             entity.Fen = FenConverterService.ToFen(game.Board);
             entity.Status = game.Status;
             entity.EndReason = game.EndReason;
+            entity.DisconnectedPlayerId = game.DisconnectedPlayerId;
+            entity.ReconnectDeadline = game.ReconnectDeadline;
             entity.UpdatedAt = DateTime.UtcNow;
 
             var existingMoveIds = entity.Moves
@@ -172,7 +175,7 @@ namespace Chess.Infrastructure.Persistence.Repositories
                 .OrderByDescending(g => g.CreatedAt)
                 .Select(g => (Guid?)g.Id)
                 .FirstOrDefaultAsync();
-            
+            /*
             List<ChessGameEntity> duplicateGames = await _context.ChessGames
                 .Where(g => (g.WhitePlayerId == userId || g.BlackPlayerId == userId)
                             && (g.Status == GameStatus.Active || g.Status == GameStatus.Paused)
@@ -188,7 +191,7 @@ namespace Chess.Infrastructure.Persistence.Repositories
 
                 await _context.SaveChangesAsync();
             } 
-
+            */
             return newestGameId;
         }
 
@@ -243,6 +246,44 @@ namespace Chess.Infrastructure.Persistence.Repositories
                 .ToListAsync();
 
             return new PagedList<GameDto>(games, pageNumber, pageSize, totalCount);
+        }
+
+        public async Task<List<ExpiredGameDto>> ForfeitExpiredGamesAsync(CancellationToken cancellationToken)
+        {
+            List<ChessGameEntity> expiredGames = await _context.ChessGames
+                .Where(g =>
+                    g.Status == GameStatus.Paused &&
+                    g.ReconnectDeadline != null && 
+                    g.ReconnectDeadline <= DateTime.UtcNow)
+                .ToListAsync(cancellationToken);
+
+            Console.WriteLine($"Expired games: {expiredGames.Count}");
+
+            List<ExpiredGameDto> expiredGameResults = [];
+
+            foreach (ChessGameEntity expiredGame in expiredGames)
+            {
+                if (expiredGame.DisconnectedPlayerId == expiredGame.WhitePlayerId)
+                {
+                    expiredGame.Status = GameStatus.BlackWin;
+                    expiredGameResults.Add(new ExpiredGameDto(expiredGame.Id, false));
+                }
+                else if (expiredGame.DisconnectedPlayerId == expiredGame.BlackPlayerId)
+                { 
+                    expiredGame.Status = GameStatus.WhiteWin;
+                    expiredGameResults.Add(new ExpiredGameDto(expiredGame.Id, true));
+                }
+                else
+                {
+                    continue;
+                }
+
+                expiredGame.EndReason = GameEndReason.Disconnect;
+                expiredGame.DisconnectedPlayerId = null;
+                expiredGame.ReconnectDeadline = null;
+            }
+
+            return expiredGameResults;
         }
 
         /// <inheritdoc />

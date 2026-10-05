@@ -7,7 +7,6 @@ using Chess.Infrastructure.Persistence.Models;
 using Chess.Infrastructure.Persistence.Repositories;
 using Chess.Web.Hubs;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.Text.Json.Serialization;
@@ -71,8 +70,10 @@ builder.Services.AddScoped<ChessRulesService>();
 builder.Services.AddScoped<IChessGameRepository, ChessGameRepository>();
 builder.Services.AddScoped<IGameCodeRepository, GameCodeRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IGameNotifier, SignalRGameNotifier>();
 
 builder.Services.AddHostedService<RemoveAbandonedGamesWorker>();
+builder.Services.AddHostedService<GameTimeoutWorker>();
 
 var app = builder.Build();
 

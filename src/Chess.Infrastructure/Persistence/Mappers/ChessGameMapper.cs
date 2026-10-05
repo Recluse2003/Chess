@@ -29,6 +29,8 @@ namespace Chess.Infrastructure.Persistence.Mappers
                 IsPrivate = game.IsPrivate,
                 Status = game.Status,
                 EndReason = game.EndReason,
+                DisconnectedPlayerId = game.DisconnectedPlayerId,
+                ReconnectDeadline = game.ReconnectDeadline,
                 UpdatedAt = DateTime.UtcNow,
 
                 Moves = game.MoveHistory
@@ -65,6 +67,8 @@ namespace Chess.Infrastructure.Persistence.Mappers
                 entity.IsPrivate,
                 entity.Status,
                 entity.EndReason,
+                entity.DisconnectedPlayerId, 
+                entity.ReconnectDeadline,
                 MoveMapper.ToDomainList(entity.Moves));
 
             return game;
