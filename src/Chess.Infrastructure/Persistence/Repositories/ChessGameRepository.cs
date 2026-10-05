@@ -168,12 +168,12 @@ namespace Chess.Infrastructure.Persistence.Repositories
             Guid? newestGameId = await _context.ChessGames
                 .Where(g =>
                     (g.WhitePlayerId == userId || g.BlackPlayerId == userId) &&
-                    g.Status == GameStatus.Active)
+                    (g.Status == GameStatus.Active || g.Status == GameStatus.Paused))
                 .OrderByDescending(g => g.CreatedAt)
                 .Select(g => (Guid?)g.Id)
                 .FirstOrDefaultAsync();
-
-            var duplicateGames = await _context.ChessGames
+            
+            List<ChessGameEntity> duplicateGames = await _context.ChessGames
                 .Where(g => (g.WhitePlayerId == userId || g.BlackPlayerId == userId)
                             && (g.Status == GameStatus.Active || g.Status == GameStatus.Paused)
                             && g.Id != newestGameId)
@@ -181,13 +181,13 @@ namespace Chess.Infrastructure.Persistence.Repositories
 
             if (duplicateGames.Any())
             {
-                foreach (var duplicateGame in duplicateGames)
+                foreach (ChessGameEntity duplicateGame in duplicateGames)
                 {
                     duplicateGame.Status = GameStatus.Abandoned;
                 }
 
                 await _context.SaveChangesAsync();
-            }
+            } 
 
             return newestGameId;
         }

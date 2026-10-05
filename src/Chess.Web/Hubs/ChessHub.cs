@@ -32,7 +32,7 @@ namespace Chess.Web.Hubs
 
         /// <summary>
         /// Verifies that the connected user is a participant in the specified <see cref="ChessGame"/> 
-        /// and adds their SignalR connection to the game's group.
+        /// and adds their SignalR connection to the game's group. Resumes a chess game if the user is rejoining.
         /// </summary>
         /// <param name="gameId">The unique identifier of the <see cref="ChessGame"/> to join.</param>
         /// <exception cref="HubException">
@@ -43,16 +43,67 @@ namespace Chess.Web.Hubs
             string? userId = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (userId == null)
-                throw new HubException();
+                throw new HubException("You must be logged in.");
 
-            VerifyGameMembershipQuery query = new(gameId, userId);
+            VerifyGameMembershipQuery verifyGameMembershipQuery = new(gameId, userId);
 
-            Result result = await _mediator.Send(query);
+            Result verifyGameMembershipResult = await _mediator.Send(verifyGameMembershipQuery);
 
-            if (!result.IsSuccess) 
+            if (!verifyGameMembershipResult.IsSuccess) 
+                throw new HubException(verifyGameMembershipResult.Error!.Description);
+
+            Result<ViewGameDto> viewGameResult = await _mediator.Send(new ViewGameQuery(gameId, userId));
+
+            if (!viewGameResult.IsSuccess)
+                throw new HubException(viewGameResult.Error!.Description);
+
+            if (viewGameResult.Value.Status != GameStatus.Active && viewGameResult.Value.Status != GameStatus.Paused)
+                throw new HubException("This match has already been completed or forfeited.");
+
+            if (viewGameResult.Value.Status == GameStatus.Paused)
+            {
+                await _mediator.Send(new ResumeGameCommand(gameId, userId));
+
+                await Groups.AddToGroupAsync(Context.ConnectionId, $"{gameId}");
+                await Clients.Client(Context.ConnectionId).GameRejoined(viewGameResult.Value);
+
+                await Clients.OthersInGroup($"{gameId}").OpponentReconnected();
+            }
+            else
+            {
+                await Groups.AddToGroupAsync(Context.ConnectionId, $"{gameId}");
+            }
+        }
+
+        /// <summary>
+        /// Attempts to rejoin a <see cref="ChessGame"/> a player has disconnected from. 
+        /// </summary>
+        /// <param name="gameId">The id of the <see cref="ChessGame"/> the player is attempting to rejoin.</param>
+        /// <exception cref="HubException">
+        /// Thrown when the connected user is not authenticated or the player was unable to verified to a part of the game
+        /// they attempted to rejoin, or if attempting to retrieve the current game state failed. 
+        /// </exception>
+        public async Task RejoinGame(Guid gameId)
+        {
+            string? userId = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId == null)
+                throw new HubException("You must be logged in.");
+
+            Result<ViewGameDto> result = await _mediator.Send(new ViewGameQuery(gameId, userId));
+
+            if (!result.IsSuccess)
                 throw new HubException(result.Error!.Description);
 
-            await Groups.AddToGroupAsync(Context.ConnectionId, $"game-{gameId}");
+            if (result.Value.Status != GameStatus.Paused)
+                throw new HubException("This match has already been completed or forfeited.");
+
+            await _mediator.Send(new ResumeGameCommand(gameId, userId));
+
+            await Groups.AddToGroupAsync(Context.ConnectionId, $"{gameId}");
+            await Clients.Client(Context.ConnectionId).GameRejoined(result.Value);
+
+            await Clients.OthersInGroup($"{gameId}").OpponentReconnected();
         }
 
         /// <summary>
@@ -81,37 +132,7 @@ namespace Chess.Web.Hubs
             if (!result.IsSuccess)
                 throw new HubException(result.Error!.Description);
 
-            await Clients.Group($"game-{request.GameId}").MoveMade(result.Value);
-        }
-
-        /// <summary>
-        /// Attempts to rejoin a <see cref="ChessGame"/> a player has disconnected from. 
-        /// </summary>
-        /// <param name="gameId">The id of the <see cref="ChessGame"/> the player is attempting to rejoin.</param>
-        /// <exception cref="HubException">
-        /// Thrown when the connected user is not authenticated or the player was unable to verified to a part of the game
-        /// they attempted to rejoin, or if attempting to retrieve the current game state failed. 
-        /// </exception>
-        public async Task RejoinGame(Guid gameId)
-        {
-            string? userId = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (userId == null) 
-                throw new HubException("You must be logged in.");
-
-            Result<ViewGameDto> result = await _mediator.Send(new ViewGameQuery(gameId, userId));
-
-            if (!result.IsSuccess)
-                throw new HubException(result.Error!.Description);
-
-            if (result.Value.Status != GameStatus.Paused)
-                throw new HubException("This match has already been completed or forfeited.");
-
-            await _mediator.Send(new ResumeGameCommand(gameId, userId));
-
-            await Groups.AddToGroupAsync(Context.ConnectionId, $"game-{gameId}");
-            await Clients.Client(Context.ConnectionId).GameRejoined(result.Value);
-
-            await Clients.OthersInGroup($"game-{gameId}").OpponentReconnected();
+            await Clients.Group($"{request.GameId}").MoveMade(result.Value);
         }
 
         /// <summary>
@@ -136,7 +157,7 @@ namespace Chess.Web.Hubs
                 Guid gameId = gameIdResult.Value;
 
                 // Tell the opponent to show the "Opponent Disconnected" banner
-                await Clients.OthersInGroup($"game-{gameId}").OpponentDisconnected();
+                await Clients.OthersInGroup($"{gameId}").OpponentDisconnected();
 
                 // Fire a command to set the DB status to 'Paused'
                 await _mediator.Send(new PauseGameCommand(gameId, userId));
@@ -163,7 +184,7 @@ namespace Chess.Web.Hubs
                         if (finalStatusResult.IsSuccess)
                         {
                             bool isWhiteWinner = finalStatusResult.Value == GameStatus.WhiteWin;
-                            await Clients.Group($"game-{gameId}").GameEndedByForfeit(isWhiteWinner);
+                            await Clients.Group($"{gameId}").GameEndedByForfeit(isWhiteWinner);
                         }
                     }
                 });

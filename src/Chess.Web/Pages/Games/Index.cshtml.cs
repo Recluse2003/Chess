@@ -73,7 +73,7 @@ namespace Chess.Web.Pages.Games
                 return Page();
             }
 
-            return RedirectToPage("/Game/Lobby", new { gameId = result.Value.GameId });
+            return RedirectToPage("/Games/Lobby", new { gameId = result.Value.GameId });
         }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace Chess.Web.Pages.Games
                 return Page();
             }
 
-            return RedirectToPage("/Game/Lobby", new { gameId = result.Value });
+            return RedirectToPage("/Games/Lobby", new { gameId = result.Value });
         }
     }
 }

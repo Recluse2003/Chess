@@ -39,7 +39,7 @@ connection.onreconnected(async (newConnectionId) => {
     try {
         document.querySelector("#game-end-message").textContent = "Restoring game state...";
 
-        await connection.invoke("RejoinGame", gameId);
+        await connection.invoke("JoinGame", gameId); 
     } catch (err) {
         console.error("Failed to automatically rejoin the game: ", err);
 

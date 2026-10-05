@@ -38,10 +38,10 @@ namespace Chess.Web.Hubs.Clients
         /// <summary>
         /// Notifies connected clients that the game ended by forfeit.
         /// </summary>
-        /// <param name="isWhiteWin">
+        /// <param name="isWhiteWinner">
         /// If true, white wins by default, as black player forfeited
         /// </param>
-        Task GameEndedByForfeit(bool isWhiteWin);
+        Task GameEndedByForfeit(bool isWhiteWinner);
 
         /// <summary>
         /// Notifies connected clients that the game has ended by mutual agreement.
