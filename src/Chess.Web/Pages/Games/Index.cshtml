@@ -14,11 +14,11 @@
 
         <div class="left-side">
             <div class="left-content">
-                <h2>Play Chess</h2>
+                <h1>Play Chess</h1>
                 <hr />
 
                 <div class="left-box">
-                    <h3>Join Game</h3>
+                    <h2>Join Game</h2>
                     <form method="post" asp-page-handler="Code">
                         <div class="join-private-game-group">
                             <input asp-for="Code" class="join-private-game-field" maxlength="5" autocomplete="off" placeholder="Code..." />
@@ -27,21 +27,24 @@
                         <span asp-validation-for="Code"></span>
                     </form>
                 
-                    <p>or</p>
+                    <div class="or-divider">
+                        <span>or</span>
+                    </div>
 
-                    <h3>Create game</h3>
+                    <h2>Create game</h2>
 
-                    <form method="post" asp-page-handler="Create">
+                    <form method="post" asp-page-handler="Create" class="create-game-form">
                         @Html.AntiForgeryToken()
 
                         <fieldset class="create-game-settings">
                             <div class="create-game-setting">
+                                <span class="setting-label">Game visibility</span>
+
                                 <input asp-for="CreateGameViewModel.IsPrivate"
                                        class="privacy-toggle"
                                        id="is-private" />
 
-                                <label for="is-private"
-                                       class="privacy-toggle-label">
+                                <label for="is-private" class="privacy-toggle-label">
                                     <div>Public</div>
                                     <div>Private</div>
                                 </label>
@@ -60,7 +63,7 @@
 
         <div class="right-side">
             <div class="right-content">
-                <h2>Public Games</h2>
+                <h1>Public Games</h1>
                 <hr />
 
                 <div class="public-games-container">
