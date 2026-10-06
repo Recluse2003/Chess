@@ -3,27 +3,60 @@
     background: #284B63;
 }
 
-.centered-container {
-    width: 100%;
-    max-width: 1000px;
-    display: flex;
-    min-height: 100vh; 
-    margin: 0; 
-}
-
 h1 {
     color: white;
 }
 
 hr {
-
+    height: 2px;
+    background-color: white;
+    border: none;
+    opacity: 1;
+    border-radius: 0 0 60% 0;
+    margin: 0 0 0.5rem;
+    width: 40%;
 }
 
 .games-container {
     display: grid;
-    grid-template-columns: auto auto auto;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
 }
 
 .game-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 0.5rem;
+    padding: 1rem;
+
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.rejoin-button,
+.view-button {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background-color: #007bff;
+    font-weight: bold;
+    color: white;
+    border: 1px solid #007bff;
+    border-radius: 0.5rem;
+    text-align: center;
+    text-decoration: none;
+}
+
+@media (max-width: 900px) {
+    .games-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 500px) {
+    .games-container {
+        grid-template-columns: 1fr;
+    }
 }

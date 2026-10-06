@@ -25,7 +25,7 @@ main > .container {
 .hero-split {
     flex: 1;
     display: grid;
-    grid-template-columns: 2fr 3fr;
+    grid-template-columns: 2fr 4fr;
     min-height: 0;
     width: 100%;
 }
@@ -251,16 +251,20 @@ main > .container {
 }
 
 .public-game-card {
+    display: flex;
+    flex-direction: column;
     border: 1px solid black;
     border-radius: 0.5rem;
-
+    padding: 1rem;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
 .join-public-game-button {
     padding: 0.25rem 0.5rem;
     background-color: #007bff;
     font-weight: bold;
-    border: 1px solid;
+    color: white;
+    border: 1px solid #007bff;
     border-radius: 0.5rem;
 }
 
@@ -291,26 +295,32 @@ main > .container {
 
     .hero-split {
         grid-template-columns: 1fr;
-        gap: 2rem;
         padding-top: 1rem;
     }
 
     .left-side {
+        
         background: #284B63;
         border-radius: 1rem;
         padding-bottom: 1rem;
+        margin: 0;
         justify-content: center;
     }
 
-    .left-content h2 {
+    .left-content h1,
+    .right-content h1 {
         text-align: center;
     }
 
-    .left-content hr {
+    .left-content hr,
+    .right-content hr {
         margin: 0 auto 0.5rem;
+        border-radius: 60% 0 60% 0;
     }
 
     .left-box {
         margin: 0 auto;
     }
+
+
 }

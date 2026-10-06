@@ -12,6 +12,8 @@
 <section class="container">
     <h1>My Games</h1>
 
+    <hr />
+
     <div class="games-container">
         @foreach (var game in Model.PaginatedGames!.Items)
         {
@@ -31,7 +33,7 @@
                     <form method="post" asp-page-handler="Review">
                         <input type="hidden" name="gameId" value="@game.Id" />
 
-                        <button type="submit">View</button>
+                        <button type="submit" class="view-button">View</button>
                     </form>
                 }
             </div>
