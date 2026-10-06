@@ -1,32 +1,51 @@
 ﻿@page "{gameId:guid}"
 @model LobbyModel
 
-<div id="lobby" data-game-id="@Model.Lobby.GameId">
-    <h1>Game Lobby</h1>
+@section Styles {
+    <link rel="stylesheet" href="~/css/lobby.css" asp-append-version="true" />
+}
 
-    <p>Join code: @Model.Lobby.JoinCode</p>
+<section class="lobby">
+    <div id="lobby" class="lobby-container" data-game-id="@Model.Lobby.GameId">
+        <h1>Game Lobby</h1>
 
-    <p>
-        <strong>White Player:</strong>
-        @Model.Lobby.WhitePlayerUsername
-    </p>
+        <div class="join-code">
+            <span>Join Code</span>
+            <strong>@Model.Lobby.JoinCode</strong>
+        </div>
 
-    <p>
-        <strong>Black Player:</strong>
-        <span id="blackPlayer">
-            @(Model.Lobby.BlackPlayerUsername ?? "Waiting for opponent...")
-        </span>
-    </p>
+        <div class="players">
+            <div class="player">
+                <span class="player-colour white-piece"></span>
 
-    @if (Model.Lobby.IsWhitePlayer) {
-        <button type="button" id="startButton" disabled>
-            Start Game
-        </button>
-    } 
-    else {
-        <p>Waiting for host to start the game...</p>
-    }
-</div>
+                <div>
+                    <span class="player-label">White</span>
+                    <strong>@Model.Lobby.WhitePlayerUsername</strong>
+                </div>
+            </div>
+
+            <div class="player">
+                <span class="player-colour black-piece"></span>
+
+                <div>
+                    <span class="player-label">Black</span>
+                    <strong id="blackPlayer">
+                        @(Model.Lobby.BlackPlayerUsername ?? "Waiting for opponent...")
+                    </strong>
+                </div>
+            </div>
+        </div>
+
+        @if (Model.Lobby.IsWhitePlayer) {
+            <button type="button" id="startButton" disabled>
+                Start Game
+            </button>
+        } 
+        else {
+            <p>Waiting for host to start the game...</p>
+        }
+    </div>
+</section>
 
 <script src="~/lib/microsoft/signalr/dist/browser/signalr.js" asp-append-version="true"></script>
 <script src="~/js/lobby.js" asp-append-version="true"></script>

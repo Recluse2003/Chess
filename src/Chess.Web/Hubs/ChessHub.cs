@@ -76,37 +76,6 @@ namespace Chess.Web.Hubs
         }
 
         /// <summary>
-        /// Attempts to rejoin a <see cref="ChessGame"/> a player has disconnected from. 
-        /// </summary>
-        /// <param name="gameId">The id of the <see cref="ChessGame"/> the player is attempting to rejoin.</param>
-        /// <exception cref="HubException">
-        /// Thrown when the connected user is not authenticated or the player was unable to verified to a part of the game
-        /// they attempted to rejoin, or if attempting to retrieve the current game state failed. 
-        /// </exception>
-        public async Task RejoinGame(Guid gameId)
-        {
-            string? userId = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (userId == null)
-                throw new HubException("You must be logged in.");
-
-            Result<ViewGameDto> result = await _mediator.Send(new ViewGameQuery(gameId, userId));
-
-            if (!result.IsSuccess)
-                throw new HubException(result.Error!.Description);
-
-            if (result.Value.Status != GameStatus.Paused)
-                throw new HubException("This match has already been completed or forfeited.");
-
-            await _mediator.Send(new ResumeGameCommand(gameId, userId));
-
-            await Groups.AddToGroupAsync(Context.ConnectionId, $"{gameId}");
-            await Clients.Client(Context.ConnectionId).GameRejoined(result.Value);
-
-            await Clients.OthersInGroup($"{gameId}").OpponentReconnected();
-        }
-
-        /// <summary>
         /// Attempts to make a chess move on behalf of the authenticated user.
         /// </summary>
         /// <param name="request">The move request containing the game and board positions involved.</param>
