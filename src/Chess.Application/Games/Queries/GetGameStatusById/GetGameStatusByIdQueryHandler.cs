@@ -25,8 +25,9 @@ namespace Chess.Application.Games.Queries.GetGameById
         /// <param name="command">The details needed to pause the game.</param>
         /// <param name="cancellationToken">Triggers if the HTTP or network request is aborted early.</param>
         /// <returns>
-        /// A successful get game status request will provide a <see cref="Result"/> stating so, along with the game status. 
-        /// A failure will provide a <see cref="Result"/> containing an <see cref="Error"/> stating the reason why.
+        /// A successful get game status request will provide a <see cref="Result"/> stating so, along with the current game 
+        /// status of the specified <see cref="ChessGame"/>. A failure will provide a <see cref="Result"/> containing an 
+        /// <see cref="Error"/> stating the reason why.
         /// </returns>
         public async Task<Result<GameStatus>> Handle(GetGameStatusByIdQuery command, CancellationToken cancellationToken)
         {

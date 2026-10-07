@@ -157,6 +157,15 @@ namespace Chess.Infrastructure.Persistence.Repositories
             }
         }
 
+        /// <summary>
+        /// Deletes games that were created before the specified cutoff time and have not progressed beyond the waiting 
+        /// for opponent or not started state.
+        /// </summary>
+        /// <param name="cutoffTime">The time before which waiting or not started games should be deleted.</param>
+        /// <param name="cancellationToken">A token used to cancel the asynchronous database operation early, if required.</param>
+        /// <returns>
+        /// A task representing the asynchronous delete operation.
+        /// </returns>
         public async Task DeleteUnstartedGamesOlderThanAsync(DateTime cutoffTime, CancellationToken cancellationToken)
         {
             await _context.ChessGames
@@ -166,13 +175,22 @@ namespace Chess.Infrastructure.Persistence.Repositories
                 .ExecuteDeleteAsync(cancellationToken);
         }
 
+        /// <summary>
+        /// Retrieves the ID of the most recently created active or paused game associated with the specified user. Sets 
+        /// games older than the most recent to abandoned, under the assumption that the player is attempting to play two games
+        /// at once, which isn't allowed
+        /// </summary>
+        /// <param name="userId">The id of the user whose active or paused game should be retrieved.</param>
+        /// <returns>
+        /// The id of the user's most recently updated active or paused game, or <see langword="null"/> if no such game exists.
+        /// </returns>
         public async Task<Guid?> GetActiveGameByUserIdAsync(string userId)
         {
             Guid? newestGameId = await _context.ChessGames
                 .Where(g =>
                     (g.WhitePlayerId == userId || g.BlackPlayerId == userId) &&
                     (g.Status == GameStatus.Active || g.Status == GameStatus.Paused))
-                .OrderByDescending(g => g.CreatedAt)
+                .OrderByDescending(g => g.UpdatedAt)
                 .Select(g => (Guid?)g.Id)
                 .FirstOrDefaultAsync();
             /*
@@ -195,6 +213,18 @@ namespace Chess.Infrastructure.Persistence.Repositories
             return newestGameId;
         }
 
+        /// <summary>
+        /// Retrieves a random selection of public <see cref="ChessGame"/>s that are waiting for an opponent, excluding games 
+        /// created by the specified user.
+        /// </summary>
+        /// <param name="userId">The id of the current user looking for public games. Id is used to exclude games that were 
+        /// created by them.</param>
+        /// <param name="count">The maximum number of public games to retrieve.</param>
+        /// <param name="cancellationToken">A token used to end the asynchronous database operation early, if required.</param>
+        /// <returns>
+        /// A list of public games waiting for an opponent, with each result containing the game's join code and the 
+        /// username of the player who created the game.
+        /// </returns>
         public async Task<List<PublicGameDto>> GetRandomPublicGamesAsync(string userId, int count, CancellationToken cancellationToken)
         {
             return await _context.ChessGames
@@ -214,6 +244,17 @@ namespace Chess.Infrastructure.Persistence.Repositories
                 .ToListAsync(cancellationToken);
         }
 
+        /// <summary>
+        /// Retrieves a paginated list of <see cref="ChessGame"/>s associated with the specified user,
+        /// excluding games that are still waiting for an opponent or have not started.
+        /// </summary>
+        /// <param name="userId">The id of the user whose games are retrieved for.</param>
+        /// <param name="pageNumber">The page number to retrieve. Values less than 1 are treated as page 1.</param>
+        /// <param name="pageSize">The number of games to retrieve per page. Values less than 1 default to 10.</param>
+        /// <returns>
+        /// A <see cref="PagedList{T}"/> containing the user's games for the requested page, ordered from newest to 
+        /// oldest by creation date.
+        /// </returns>
         public async Task<PagedList<GameDto>> GetGamesByUserIdAsync(string userId, int pageNumber, int pageSize)
         {
             pageNumber = pageNumber < 1 ? 1 : pageNumber;
@@ -248,6 +289,14 @@ namespace Chess.Infrastructure.Persistence.Repositories
             return new PagedList<GameDto>(games, pageNumber, pageSize, totalCount);
         }
 
+        /// <summary>
+        /// Ends games by forfeit if a player stays disconnected over a specified deadline without reconnecting.
+        /// </summary>
+        /// <param name="cancellationToken">Triggers if a request ends early.</param>
+        /// <returns>
+        /// A list of <see cref="ExpiredGameDto"/>, which each contains the id of a <see cref="ChessGame"/> that was ended
+        /// by forfeit, and which colour won. 
+        /// </returns>
         public async Task<List<ExpiredGameDto>> ForfeitExpiredGamesAsync(CancellationToken cancellationToken)
         {
             List<ChessGameEntity> expiredGames = await _context.ChessGames
@@ -256,8 +305,6 @@ namespace Chess.Infrastructure.Persistence.Repositories
                     g.ReconnectDeadline != null && 
                     g.ReconnectDeadline <= DateTime.UtcNow)
                 .ToListAsync(cancellationToken);
-
-            Console.WriteLine($"Expired games: {expiredGames.Count}");
 
             List<ExpiredGameDto> expiredGameResults = [];
 

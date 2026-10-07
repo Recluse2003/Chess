@@ -22,7 +22,7 @@ namespace Chess.Application.Games.Commands.EndGame
         /// Processes the incoming <see cref="EndGameCommand"/> request. Ensures the <see cref="ChessGame"/> exists, 
         /// and that the requester is a player of the game.
         /// </summary>
-        /// <param name="request">The details needed to end the game.</param>
+        /// <param name="request">Contains the details needed to end the game.</param>
         /// <param name="cancellationToken">Triggers if the HTTP or network request is aborted early.</param>
         /// <returns>
         /// A successful end game request will provide a <see cref="Result"/> stating so. 
