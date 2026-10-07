@@ -1,15 +1,59 @@
-﻿/* Chess Board */
+﻿body {
+    background-color: #284B63;
+}
+
+.chess-game-container {
+    box-sizing: border-box;
+    padding: 1rem;
+    transition: background-color 0.4s ease, color 0.4s ease;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
+    border: 2px solid;
+    border-radius: 0.5rem;
+
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+}
+
+.white-turn {
+    background-color: white;
+    color: black;
+}
+
+.black-turn {
+    background-color: black;
+    color: white;
+}
+
+.player-name {
+    font-size: 1.25rem;
+    font-weight: bold;
+    transition: color 0.4s ease;
+}
+
+.opponent-name {
+    margin-bottom: 0.1rem;
+}
+
+.current-player-name {
+    margin-top: 0.1rem;
+}
+
+/* Chess Board */
 
 .chess-board {
     display: grid;
     grid-template-columns: repeat(8, 1fr);
     width: min(90vw, 640px);
+    background-color: black;
+    color: black;
     aspect-ratio: 1;
-    margin: 2rem auto;
+    margin: 1rem auto;
     border: 2px solid;
-    border-radius: 2px;
+    border-radius: 0.5rem;
     overflow: hidden;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
 }
 
 .chess-square {
@@ -27,7 +71,6 @@
 .dark-square {
     background-color: #b58863;
 }
-
 
 /* Chess Pieces */
 

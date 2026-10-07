@@ -258,9 +258,13 @@ async function makeMove(fromFile, fromRank, toFile, toRank, promotionPiece) {
 }
 
 connection.on("MoveMade", function (result) {
-    applyBoardChanges(result.boardChanges);
+    const gameContainer = document.querySelector(".chess-game-container");
 
-    document.getElementById("currentTurn").textContent = result.isWhiteTurn ? "White" : "Black";
+    gameContainer.classList.toggle("white-turn", result.isWhiteTurn);
+
+    gameContainer.classList.toggle("black-turn", !result.isWhiteTurn);
+
+    applyBoardChanges(result.boardChanges);
 
     checkGameState(result.status, result.endReason);
 });

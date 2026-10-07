@@ -21,24 +21,15 @@
             <strong>Status: </strong>
             @Model.GameDetails.Status
         </p>
-
-        <p>
-            <strong>Turn: </strong>
-            <span id="currentTurn">@(Model.GameDetails.IsWhiteTurn ? "White" : "Black")</span>
-        </p>
-
-        <p>
-            <strong>White: </strong>
-            @Model.GameDetails.WhitePlayerUsername
-        </p>
-
-        <p>
-            <strong>Black: </strong>
-            @(Model.GameDetails.BlackPlayerUsername ?? "Waiting for opponent")
-        </p>
     </header>
 
-    <section>
+    <section class="chess-game-container @(Model.GameDetails.IsWhiteTurn ? "white-turn" : "black-turn")">
+        <div class="player-name opponent-name">
+            @(Model.GameDetails.IsWhitePlayer
+                ? Model.GameDetails.BlackPlayerUsername ?? "Waiting for opponent"
+                : Model.GameDetails.WhitePlayerUsername)
+        </div>
+
         <div class="chess-board"
              data-game-id="@Model.GameDetails.GameId"
              data-status="@Model.GameDetails.Status"
@@ -93,6 +84,12 @@
                     }
                 }
             }
+        </div>
+
+        <div class="player-name current-player-name">
+            @(Model.GameDetails.IsWhitePlayer
+                ? Model.GameDetails.WhitePlayerUsername
+                : Model.GameDetails.BlackPlayerUsername ?? "Waiting for opponent")
         </div>
     </section>
 
