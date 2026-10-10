@@ -72,7 +72,6 @@ namespace Chess.Domain.ValueObjects
             clonedSquares[move.To.File, move.To.Rank] = piece;
 
             changes.Add(new BoardChange(move.From.File, move.From.Rank, null));
-            
 
             Position? enPassantTarget = null;
 

@@ -61,6 +61,9 @@ namespace Chess.Infrastructure.Persistence
                 entity.Property(move => move.FenAfterMove)
                     .IsRequired();
 
+                entity.Property(move => move.Notation)
+                    .IsRequired();
+
                 entity.HasIndex(move => new
                 {
                     move.GameId,

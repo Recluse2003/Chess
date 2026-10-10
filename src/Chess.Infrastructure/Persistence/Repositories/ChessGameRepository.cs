@@ -150,6 +150,7 @@ namespace Chess.Infrastructure.Persistence.Repositories
                     To = move.To.ToChessNotation(),
                     PromotionPiece = move.PromotionPiece,
                     FenAfterMove = move.FenAfterMove!,
+                    Notation = move.Notation!,
                     CreatedAt = DateTime.UtcNow
                 };
 

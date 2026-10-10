@@ -10,14 +10,16 @@
         public Position To { get; }
         public char? PromotionPiece { get; }
         public string? FenAfterMove { get; }
+        public string? Notation { get; }
 
-        public Move(Guid id, Position from, Position to, char? promotionPiece = null, string? fenAfterMove = null)
+        public Move(Guid id, Position from, Position to, char? promotionPiece = null, string? fenAfterMove = null, string? notation = null)
         {
             Id = id;
             From = from;
             To = to;
             PromotionPiece = promotionPiece;
             FenAfterMove = fenAfterMove;
+            Notation = notation;
         }
     }
 }

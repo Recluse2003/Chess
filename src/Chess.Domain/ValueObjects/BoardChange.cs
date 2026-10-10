@@ -7,7 +7,6 @@ namespace Chess.Domain.ValueObjects
     /// </summary>
     /// <param name="File">The file of the square.</param>
     /// <param name="Rank">The rank of the square.</param>
-    /// <param name="Piece">The piece the square changed to after the move. Can also represent an empty
-    /// square.</param>
+    /// <param name="Piece">The piece the square changed to after the move. Can also represent an empty square.</param>
     public record BoardChange(int File, int Rank, char? Piece);
 }

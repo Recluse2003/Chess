@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Chess.Application.Common.Results
+﻿namespace Chess.Application.Common.Results
 {
     public record Result
     {

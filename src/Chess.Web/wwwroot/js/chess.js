@@ -273,9 +273,7 @@ function applyBoardChanges(boardChanges) {
 
     boardChanges.forEach(boardChange => {
 
-        const square = document.querySelector(
-            `[data-file="${boardChange.file}"][data-rank="${boardChange.rank}"]`
-        );
+        const square = document.querySelector(`[data-file="${boardChange.file}"][data-rank="${boardChange.rank}"]`);
 
         if (!square) {
             return;

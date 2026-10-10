@@ -23,18 +23,21 @@
                 <span>Status: @game.Status</span>
                 @if (game.Status == GameStatus.Active || game.Status == GameStatus.Paused)
                 {
-                    <a href="/Chess/@game.Id" class="rejoin-button">
+                    <a asp-page="/Chess/Index"
+                       asp-route-gameId="@game.Id"
+                       class="rejoin-button">
                         Rejoin
                     </a>
                 }
                 else
                 {
                     <span>End Reason: @game.EndReason</span>
-                    <form method="post" asp-page-handler="Review">
-                        <input type="hidden" name="gameId" value="@game.Id" />
 
-                        <button type="submit" class="view-button">View</button>
-                    </form>
+                    <a asp-page="/Chess/Review"
+                       asp-route-gameId="@game.Id"
+                       class="view-button">
+                        View
+                    </a>
                 }
             </div>
         }

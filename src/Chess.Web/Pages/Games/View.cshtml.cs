@@ -1,7 +1,5 @@
 using Chess.Application.Common.Results;
-using Chess.Application.Games.Queries.GetGameForReview;
 using Chess.Application.Games.Queries.GetGamesByUserId;
-using Chess.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -53,22 +51,6 @@ namespace Chess.Web.Pages.Games
             }
 
             return Page();
-        }
-
-        public async Task<IActionResult> OnPostReviewAsync(Guid gameId)
-        {
-            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (userId is null)
-                return Unauthorized();
-
-            GetGameForReviewQuery query = new (gameId, userId);
-            Result<ChessGame> result = await _mediator.Send(query);
-
-            if (!result.IsSuccess)
-                return NotFound();
-
-            return RedirectToPage("/Chess/Review", new { gameId });
         }
     }
 }

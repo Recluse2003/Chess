@@ -21,7 +21,8 @@ namespace Chess.Infrastructure.Persistence.Mappers
                     Position.FromChessNotation(move.From),
                     Position.FromChessNotation(move.To),
                     move.PromotionPiece,
-                    move.FenAfterMove))
+                    move.FenAfterMove,
+                    move.Notation))
                 .ToList(); 
         }
     }

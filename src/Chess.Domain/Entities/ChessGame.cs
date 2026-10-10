@@ -87,6 +87,12 @@ namespace Chess.Domain.Entities
             Status = GameStatus.Active;
         }
 
+        /// <summary>
+        /// Pauses the game when a player disconnects and starts the player's reconnection grace period.
+        /// </summary>
+        /// <param name="playerId">The id of the player who disconnected.</param>
+        /// <exception cref="GameNotActiveException">Thrown when the game is not currently active.</exception>
+        /// <exception cref="NotPlayerException">Thrown when the specified player is not a participant in the game.</exception>
         public void Pause(string playerId)
         {
             if (Status != GameStatus.Active)
@@ -100,6 +106,12 @@ namespace Chess.Domain.Entities
             ReconnectDeadline = DateTime.UtcNow.AddSeconds(60);
         }
 
+        /// <summary>
+        /// Resumes a paused game when a participating player reconnects within the specified reconnection period.
+        /// </summary>
+        /// <param name="playerId">The id of the player attempting to reconnect.</param>
+        /// <exception cref="GameNotPausedException">Thrown when the game is not currently paused.</exception>
+        /// <exception cref="NotPlayerException">Thrown when the specified player is not a participant in the game.</exception>
         public void Resume(string playerId)
         {
             if (Status != GameStatus.Paused)
@@ -114,25 +126,35 @@ namespace Chess.Domain.Entities
         }
 
         /// <summary>
-        /// Performs a change to the chess game's board using the specified move.
+        /// Records a legal move and updates the game's board.
         /// </summary>
-        /// <param name="move">The move to be executed in the chess game.</param>
-        /// <returns>A read-only list of all changes done to the chess game's board.</returns>
-        /// <exception cref="GameNotActiveException">Thrown if an execution is attempted on a non-active match.</exception>
-        /// <exception cref="InvalidTurnException">Thrown if the piece color alignment violates the current sequence clock.</exception>
-        public IReadOnlyList<BoardChange> MakeMove(Move move)
+        /// <param name="move">The move being recorded.</param>
+        /// <param name="moveResult">The result of applying the move to the board.</param>
+        /// <param name="notation">The standard algebraic notation for the move.</param>
+        /// <returns>A read-only list of changes made to the board.</returns>
+        /// <exception cref="GameNotActiveException">
+        /// Thrown if the game is not active.
+        /// </exception>
+        /// <exception cref="InvalidTurnException">
+        /// Thrown if the moving piece does not belong to the side whose turn it is.
+        /// </exception>
+        public IReadOnlyList<BoardChange> MakeMove(Move move, BoardMoveResult moveResult, string notation)
         {
             if (Status != GameStatus.Active)
                 throw new GameNotActiveException();
 
-            // Get the piece moving to check turn validity
             char piece = Board.GetPiece(move.From);
+
             if (char.IsUpper(piece) != Board.IsWhiteTurn)
                 throw new InvalidTurnException();
 
-            BoardMoveResult moveResult = Board.ApplyMove(move);
-
-            Move completedMove = new Move(move.Id, move.From, move.To, move.PromotionPiece, FenConverterService.ToFen(moveResult.Board));
+            Move completedMove = new Move(
+                move.Id,
+                move.From,
+                move.To,
+                move.PromotionPiece,
+                FenConverterService.ToFen(moveResult.Board),
+                notation);
 
             Board = moveResult.Board;
             MoveHistory.Add(completedMove);

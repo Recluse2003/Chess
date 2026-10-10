@@ -14,6 +14,7 @@ namespace Chess.Infrastructure.Persistence.Models
         public string To { get; set; } = null!;
         public char? PromotionPiece { get; set; }
         public string FenAfterMove { get; set; } = null!;
+        public string Notation { get; set; } = null!;
         public DateTime CreatedAt { get; set; }
         public ChessGameEntity Game { get; set; } = null!;
     }

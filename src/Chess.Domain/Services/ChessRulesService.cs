@@ -571,7 +571,7 @@ namespace Chess.Domain.Services
         /// <returns>
         /// <c>true</c> if the current player's king is attacked by an opposing piece, otherwise <c>false</c>.
         /// </returns>
-        private bool IsKingInCheck(Board board)
+        public bool IsKingInCheck(Board board)
         {
             Position? kingPosition = FindKing(board, board.IsWhiteTurn);
 
@@ -581,7 +581,6 @@ namespace Chess.Domain.Services
             return IsSquareAttacked(board, kingPosition.Value, !board.IsWhiteTurn);
         }
 
-
         /// <summary>
         /// Determines whether the current player has at least one legal move.
         /// </summary>
@@ -589,7 +588,7 @@ namespace Chess.Domain.Services
         /// <returns>
         /// <c>true</c> if the current player has at least one legal move, otherwise <c>false</c>.
         /// </returns>
-        private bool HasAnyLegalMove(Board board)
+        public bool HasAnyLegalMove(Board board)
         {
             for (int rank = 0; rank < 8; rank++)
             {

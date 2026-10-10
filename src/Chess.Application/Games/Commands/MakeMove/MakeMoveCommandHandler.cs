@@ -17,11 +17,13 @@ public class MakeMoveCommandHandler : IRequestHandler<MakeMoveCommand, Result<Mo
 {
     private readonly IChessGameRepository _gameRepository;
     private readonly ChessRulesService _rules;
+    private readonly SanNotationService _sanNotationService;
 
-    public MakeMoveCommandHandler(IChessGameRepository gameRepository, ChessRulesService rules) 
+    public MakeMoveCommandHandler(IChessGameRepository gameRepository, ChessRulesService rules, SanNotationService sanNotationService) 
     {
         _gameRepository = gameRepository;
         _rules = rules;
+        _sanNotationService = sanNotationService;
     }
 
     /// <summary>
@@ -46,20 +48,22 @@ public class MakeMoveCommandHandler : IRequestHandler<MakeMoveCommand, Result<Mo
         if (!game.CanPlayerMove(command.PlayerId))
             return Error.Conflict("Games.NotYourTurn", "It is currently not your turn to move.");
 
-        Move move = new Move(
-            Guid.NewGuid(),
-            command.From,
-            command.To,
-            command.PromotionPiece
-        );
+        Move move = new Move(Guid.NewGuid(), command.From, command.To, command.PromotionPiece);
 
         if (!_rules.IsMoveLegal(game.Board, move))
             return Error.Validation("Games.IllegalMove", "The provided chess move is illegal.");
 
         try
         {
-            // Mutate the board and check if the game has ended (Checkmate, Stalemate, e.g.)
-            IReadOnlyList<BoardChange> boardChanges = game.MakeMove(move);
+            // Apply the move once.
+            BoardMoveResult moveResult = game.Board.ApplyMove(move);
+
+            // Generate SAN using the original and resulting positions.
+            string notation = _sanNotationService.Generate(game.Board, move, moveResult.Board);
+
+            // Record the move and update the game's board.
+            IReadOnlyList<BoardChange> boardChanges = game.MakeMove(move, moveResult, notation);
+
             game.CheckGameState(_rules);
 
             await _gameRepository.UpdateAsync(game);

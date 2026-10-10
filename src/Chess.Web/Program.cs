@@ -67,6 +67,8 @@ builder.Services.AddRateLimiter(options =>
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateGameCommand).Assembly));
 
 builder.Services.AddScoped<ChessRulesService>();
+builder.Services.AddScoped<SanNotationService>();
+
 builder.Services.AddScoped<IChessGameRepository, ChessGameRepository>();
 builder.Services.AddScoped<IGameCodeRepository, GameCodeRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
