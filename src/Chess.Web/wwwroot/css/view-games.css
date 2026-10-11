@@ -50,6 +50,71 @@ hr {
     text-decoration: none;
 }
 
+.pagination-container {
+    background-color: #284B63;
+    width: 100%;
+    margin-top: 35px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.pagination {
+    display: flex;
+    list-style: none;
+    align-items: center;
+    padding: 0;
+    gap: 5px;
+}
+
+.page-item {
+    display: inline-block;
+    border: 1px solid black;
+}
+
+.page-item form {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 8px;
+    color: white; 
+}
+
+.page-item.disabled .page-link {
+    color: #ccc;
+    pointer-events: none;
+    background-color: #fafafa;
+}
+
+.page-item.active .page-link {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.page-link {
+    padding: 8px 16px;
+    text-decoration: none;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    color: #333;
+}
+
+.page-counter-input {
+    width: 60px;
+    height: 42px;
+    padding: 5px;
+    display: inline-block;
+    border: 1px solid black;
+    border-radius: 4px;
+}
+
+footer.footer {
+    position: static !important;
+    width: 100%;
+    background-color: #153243;
+}
+
 @media (max-width: 900px) {
     .games-container {
         grid-template-columns: repeat(2, 1fr);

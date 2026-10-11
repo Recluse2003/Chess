@@ -20,12 +20,12 @@ namespace Chess.Web.Pages.Games
         public int PageNumber { get; set; } = 1; // Default to page 1
 
         [BindProperty(SupportsGet = true)]
-        public int PageSize { get; set; } = 10; // Default to 10 items per page
+        public int PageSize { get; set; } = 20; // Default to 20 items per page
 
         public PagedList<GameDto>? PaginatedGames { get; private set; }
         public string? ErrorMessage { get; private set; }
 
-        public async Task<IActionResult> OnGetAsync()
+        public async Task<IActionResult> OnGetAsync(int? pageNumber)
         {
             string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -35,7 +35,7 @@ namespace Chess.Web.Pages.Games
             if (PageNumber < 1) 
                 PageNumber = 1;
 
-            if (PageSize < 1) 
+            if (PageSize < 10) 
                 PageSize = 10;
 
             var query = new GetGamesByUserIdQuery(userId, PageNumber, PageSize);

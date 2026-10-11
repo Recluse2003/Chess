@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Chess.Web.styles.css" asp-append-version="true" />
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm box-shadow">
             <div class="container">
@@ -33,11 +33,11 @@
         </nav>
     </header>
 
-        <main role="main" class="pb-3">
+        <main role="main" class="pb-3 flex-grow-1">
             @RenderBody()
         </main>
 
-    <footer class="footer text-muted">
+    <footer class="footer text-muted mt-auto">
         <div class="container text-light">
             &copy; 2026 - Chess.Web - <a asp-area="" asp-page="/Privacy">Privacy</a>
         </div>

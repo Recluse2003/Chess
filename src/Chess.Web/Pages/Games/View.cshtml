@@ -2,7 +2,7 @@
 @using global::Chess.Domain.Enums
 @model ViewModel
 @{
-    ViewData["Title"] = "View Games";
+    ViewData["Title"] = "Your Chess Games";
 }
 
 @section Styles {
@@ -10,37 +10,94 @@
 }
 
 <section class="container">
-    <h1>My Games</h1>
+    <h1>Game History</h1>
 
     <hr />
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger">@Model.ErrorMessage</div>
+    }
+    else if (Model.PaginatedGames == null || !Model.PaginatedGames.Items.Any())
+    {
+        <p>No games played yet!</p>
+    }
+    else
+    {
+        <div class="games-container">
+            @foreach (var game in Model.PaginatedGames!.Items)
+            {
+                <div class="game-card">
+                    <span>Vs @game.OpponentUsername</span>
+                    <span>As: @(game.WasWhitePlayer ? "White" : "Black") Player</span>
+                    <span>Status: @game.Status</span>
+                    @if (game.Status == GameStatus.Active || game.Status == GameStatus.Paused)
+                    {
+                        <a asp-page="/Chess/Index"
+                        asp-route-gameId="@game.Id"
+                        class="rejoin-button">
+                            Rejoin
+                        </a>
+                    }
+                    else
+                    {
+                        <span>End Reason: @game.EndReason</span>
 
-    <div class="games-container">
-        @foreach (var game in Model.PaginatedGames!.Items)
-        {
-            <div class="game-card">
-                <span>Vs @game.OpponentUsername</span>
-                <span>As: @(game.WasWhitePlayer ? "White" : "Black") Player</span>
-                <span>Status: @game.Status</span>
-                @if (game.Status == GameStatus.Active || game.Status == GameStatus.Paused)
-                {
-                    <a asp-page="/Chess/Index"
-                       asp-route-gameId="@game.Id"
-                       class="rejoin-button">
-                        Rejoin
-                    </a>
-                }
-                else
-                {
-                    <span>End Reason: @game.EndReason</span>
+                        <a asp-page="/Chess/Review"
+                        asp-route-gameId="@game.Id"
+                        class="view-button">
+                            View
+                        </a>
+                    }
+                </div>
+            }
+        </div>
+        
+        <nav class="pagination-container">
+            <ul class="pagination"> 
+                <li class="page-item @(Model.PaginatedGames.HasPreviousPage ? "" : "disabled")">
+                    <a class="page-link"
+                       asp-page=""
+                       asp-route-pageNumber="1"
+                       asp-route-pageSize="@Model.PageSize">|&lt;</a>
+                </li>
+                
+                <li class="page-item @(Model.PaginatedGames.HasPreviousPage ? "" : "disabled")">
+                    <a class="page-link"
+                       asp-page=""
+                       asp-route-pageNumber="@(Model.PageNumber - 1)"
+                       asp-route-pageSize="@Model.PageSize">« Prev</a>
+                </li>
 
-                    <a asp-page="/Chess/Review"
-                       asp-route-gameId="@game.Id"
-                       class="view-button">
-                        View
-                    </a>
-                }
-            </div>
-        }
-    </div>
+                <li class="page-item">
+                    <form method="get" asp-page="">
+                        <input type="number" 
+                               name="pageNumber" 
+                               value="@Model.PageNumber"
+                               min="1"
+                               max="@Model.PaginatedGames.TotalPages" 
+                               class="page-counter-input" />
 
+                        <input type="hidden" name="pageSize" value="@Model.PageSize" />
+
+                        <span>/ @Model.PaginatedGames.TotalPages</span>
+                    </form>
+                </li>
+
+                <li class="page-item @(Model.PaginatedGames.HasNextPage ? "" : "disabled")">
+                    <a class="page-link"
+                       asp-page=""
+                       asp-route-pageNumber="@(Model.PageNumber + 1)"
+                       asp-route-pageSize="@Model.PageSize">Next »</a>
+                </li>
+
+                <li class="page-item @(Model.PaginatedGames.HasNextPage ? "" : "disabled")">
+                    <a class="page-link"
+                       asp-page=""
+                       asp-route-pageNumber="@(Model.PaginatedGames.TotalPages)"
+                       asp-route-pageSize="@Model.PageSize">&gt;|</a>
+                </li>
+
+            </ul>
+        </nav>
+    }
 </section>

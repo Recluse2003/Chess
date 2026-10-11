@@ -89,7 +89,8 @@ namespace Chess.Domain.Services
                         return false;
                     }
 
-                    // The candidate must be able to legally reach the destination.
+                    // The candidate must be able to legally reach the destination. This is used to ensure the move doesn't
+                    // the player to go into check. 
                     return _rules.GetLegalMoves(board, position).Contains(move.To);
                 })
                 .ToList();
@@ -101,8 +102,7 @@ namespace Chess.Domain.Services
 
             bool sharesRank = alternatives.Any(position => position.Rank == move.From.Rank);
 
-            // If no alternative shares the moving piece's file,
-            // the file letter is sufficient.
+            // If no alternative shares the moving piece's file, the file letter is sufficient.
             if (!sharesFile)
                 return ((char)('a' + move.From.File)).ToString();
 
