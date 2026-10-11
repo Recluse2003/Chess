@@ -12,10 +12,14 @@
         Task PlayerJoined(string? blackPlayerUsername);
 
         /// <summary>
-        /// Notifies connected clients that a player has left the lobby.
+        /// Notifies connected clients that opponent player has left the lobby.
         /// </summary>
-        /// <param name="wasWhitePlayer">Indicates whether the player who left was the white player.</param>
-        Task PlayerLeft(bool wasWhitePlayer);
+        Task PlayerLeft();
+
+        /// <summary>
+        /// Notifies connected clients that the host has closed the lobby.
+        /// </summary>
+        Task LobbyClosed();
 
         /// <summary>
         /// Notifies connected clients that the game has started.

@@ -43,6 +43,10 @@ namespace Chess.Web.Hubs.Clients
         /// </param>
         Task GameEndedByForfeit(bool isWhiteWinner);
 
+        Task DrawOffered();
+
+        Task DrawOfferDeclined();
+
         /// <summary>
         /// Notifies connected clients that the game has ended by mutual agreement.
         /// </summary>

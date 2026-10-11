@@ -1,5 +1,7 @@
 ﻿using Chess.Application.Common.Results;
+using Chess.Application.Games.Commands.LeaveLobby;
 using Chess.Application.Games.Commands.StartGame;
+using Chess.Application.Games.Queries.GetActiveLobbyByUserId;
 using Chess.Application.Games.Queries.GetGameLobby;
 using Chess.Domain.Entities;
 using Chess.Web.Hubs.Clients;
@@ -44,10 +46,10 @@ namespace Chess.Web.Hubs
             if (!result.IsSuccess)
                 throw new HubException(result.Error!.Description);
 
-            await Groups.AddToGroupAsync(Context.ConnectionId, $"game-{gameId}");
+            await Groups.AddToGroupAsync(Context.ConnectionId, $"{gameId}");
 
             if (!result.Value.IsWhitePlayer)
-                await Clients.OthersInGroup($"game-{gameId}").PlayerJoined(result.Value.BlackPlayerUsername);
+                await Clients.OthersInGroup($"{gameId}").PlayerJoined(result.Value.BlackPlayerUsername);
         }
 
         /// <summary>
@@ -72,7 +74,78 @@ namespace Chess.Web.Hubs
             if (!result.IsSuccess)
                 throw new HubException(result.Error!.Description);
 
-            await Clients.Group($"game-{gameId}").GameStarted();
+            await Clients.Group($"{gameId}").GameStarted();
+        }
+
+        public async Task LeaveLobby(Guid gameId)
+        {
+            string? userId = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId == null)
+                throw new HubException("You must be logged in.");
+
+            LeaveLobbyCommand command = new(gameId, userId);
+
+            Result<bool> result = await _mediator.Send(command);
+
+            if (!result.IsSuccess)
+                throw new HubException(result.Error!.Description);
+
+            if (result.Value)
+            {
+                await Clients.OthersInGroup($"{gameId}").LobbyClosed();
+
+                await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"{gameId}");
+            }
+            else
+            {
+                await Clients.OthersInGroup($"{gameId}").PlayerLeft();
+
+                await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"{gameId}");
+            }
+        }
+
+        /// <summary>
+        /// Handles a player disconnecting from a lobby.
+        /// </summary>
+        public override async Task OnDisconnectedAsync(Exception? exception)
+        {
+            string? userId = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId == null)
+            {
+                await base.OnDisconnectedAsync(exception);
+                return;
+            }
+
+            Result<Guid> activeLobbyResult =
+                await _mediator.Send(new GetActiveLobbyByUserIdQuery(userId));
+
+            if (!activeLobbyResult.IsSuccess)
+            {
+                await base.OnDisconnectedAsync(exception);
+                return;
+            }
+
+            Guid gameId = activeLobbyResult.Value;
+
+            Result<bool> leaveResult = await _mediator.Send(new LeaveLobbyCommand(gameId, userId));
+
+            if (leaveResult.IsSuccess)
+            {
+                if (leaveResult.Value)
+                {
+                    // Host disconnected, so the the lobby is deleted.
+                    await Clients.OthersInGroup($"{gameId}").LobbyClosed();
+                }
+                else
+                {
+                    // Opponent disconnected, so the lobby notify the remaining player.
+                    await Clients.OthersInGroup($"{gameId}").PlayerLeft();
+                }
+            }
+
+            await base.OnDisconnectedAsync(exception);
         }
     }
 }

@@ -16,9 +16,12 @@ namespace Chess.Application.Interfaces
 
         Task UpdateAsync(ChessGame game);
 
+        Task DeleteAsync(Guid gameId);
+
         Task DeleteUnstartedGamesOlderThanAsync(DateTime cutoffTime, CancellationToken cancellationToken);
 
         Task<Guid?> GetActiveGameByUserIdAsync(string userId);
+        Task<Guid?> GetActiveLobbyByUserIdAsync(string userId);
 
         Task<List<PublicGameDto>> GetRandomPublicGamesAsync(string userId, int count, CancellationToken cancellationToken);
 

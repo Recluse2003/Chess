@@ -108,7 +108,8 @@ main {
     background: black;
 }
 
-#startButton {
+#startButton,
+#leaveButton {
     width: 100%;
     padding: 1rem;
 
@@ -124,7 +125,8 @@ main {
     cursor: pointer;
 }
 
-#startButton:hover:not(:disabled) {
+#startButton:hover:not(:disabled)
+#leaveButton {
     filter: brightness(1.1);
 }
 

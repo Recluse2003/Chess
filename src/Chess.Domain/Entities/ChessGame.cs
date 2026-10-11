@@ -65,6 +65,24 @@ namespace Chess.Domain.Entities
             Status = GameStatus.NotStarted;
         }
 
+        public void Leave(string playerId)
+        {
+            if (Status != GameStatus.NotStarted && Status != GameStatus.WaitingForOpponent) 
+                throw GameStateTransitionException.MatchAlreadyStarted();
+
+            if (BlackPlayerId == null)
+                throw GameStateTransitionException.OpponentMissing();
+
+            if (WhitePlayerId == playerId) 
+                throw GameStateTransitionException.CantRemoveHost();
+
+            if (BlackPlayerId != playerId)
+                throw new NotPlayerException();
+
+            BlackPlayerId = null;
+            Status = GameStatus.WaitingForOpponent;
+        }
+
         /// <summary>
         /// Changes the state of a <see cref="ChessGame"/> to <see cref="GameStatus.Active"/>, representing the 
         /// start and play of the game.

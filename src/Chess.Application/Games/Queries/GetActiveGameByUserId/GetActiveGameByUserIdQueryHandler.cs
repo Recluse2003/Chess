@@ -11,11 +11,11 @@ namespace Chess.Application.Games.Queries.GetActiveGameByUserId
     /// </summary>
     public class GetActiveGameByUserIdQueryHandler : IRequestHandler<GetActiveGameByUserIdQuery, Result<Guid>>
     {
-        private readonly IChessGameRepository _chessGameRepository;
+        private readonly IChessGameRepository _gameRepository;
 
-        public GetActiveGameByUserIdQueryHandler(IChessGameRepository chessGameRepository)
+        public GetActiveGameByUserIdQueryHandler(IChessGameRepository gameRepository)
         {
-            _chessGameRepository = chessGameRepository;
+            _gameRepository = gameRepository;
         }
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace Chess.Application.Games.Queries.GetActiveGameByUserId
         /// </returns>
         public async Task<Result<Guid>> Handle(GetActiveGameByUserIdQuery query, CancellationToken cancellationToken)
         {
-            Guid? chessGameId = await _chessGameRepository.GetActiveGameByUserIdAsync(query.UserId);
+            Guid? chessGameId = await _gameRepository.GetActiveGameByUserIdAsync(query.UserId);
 
             if (chessGameId == null)
                 return Error.NotFound("Games.ActiveGameNotFound", "The provided user Id is not linked to any active chess game");

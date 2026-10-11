@@ -18,5 +18,8 @@
 
         public static GameStateTransitionException NotTheHost()
             => new("Only the host player is authorized to start the match.");
+
+        public static GameStateTransitionException CantRemoveHost()
+            => new("Host can not leave lobby.");
     }
 }

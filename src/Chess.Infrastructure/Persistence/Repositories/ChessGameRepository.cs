@@ -158,6 +158,17 @@ namespace Chess.Infrastructure.Persistence.Repositories
             }
         }
 
+        public async Task DeleteAsync(Guid gameId)
+        {
+            ChessGameEntity? game = await _context.ChessGames
+                .FirstOrDefaultAsync(g => g.Id == gameId);
+
+            if (game == null)
+                return;
+
+            _context.ChessGames.Remove(game);
+        }
+
         /// <summary>
         /// Deletes games that were created before the specified cutoff time and have not progressed beyond the waiting 
         /// for opponent or not started state.
@@ -212,6 +223,44 @@ namespace Chess.Infrastructure.Persistence.Repositories
             } 
             */
             return newestGameId;
+        }
+
+        /// <summary>
+        /// Retrieves the ID of the most recently created chess game in a lobby associated with the specified user. Sets 
+        /// games older than the most recent to abandoned, under the assumption that the player is attempting to join two games
+        /// at once, which isn't allowed.
+        /// </summary>
+        /// <param name="userId">The id of the user whose active or paused game should be retrieved.</param>
+        /// <returns>
+        /// The id of the user's most recently joined game still in the lobby, or <see langword="null"/> if no such game exists.
+        /// </returns>
+        public async Task<Guid?> GetActiveLobbyByUserIdAsync(string userId)
+        {
+            Guid? newestLobbyId = await _context.ChessGames
+                .Where(g =>
+                    (g.WhitePlayerId == userId || g.BlackPlayerId == userId) &&
+                    (g.Status == GameStatus.WaitingForOpponent || g.Status == GameStatus.NotStarted))
+                .OrderByDescending(g => g.UpdatedAt)
+                .Select(g => (Guid?)g.Id)
+                .FirstOrDefaultAsync();
+            /*
+            List<ChessGameEntity> duplicateGames = await _context.ChessGames
+                .Where(g => (g.WhitePlayerId == userId || g.BlackPlayerId == userId)
+                            && (g.Status == GameStatus.WaitingForOpponent || g.Status == GameStatus.NotStarted)
+                            && g.Id != newestGameId)
+                .ToListAsync();
+
+            if (duplicateGames.Any())
+            {
+                foreach (ChessGameEntity duplicateGame in duplicateGames)
+                {
+                    duplicateGame.Status = GameStatus.Abandoned;
+                }
+
+                await _context.SaveChangesAsync();
+            } 
+            */
+            return newestLobbyId;
         }
 
         /// <summary>
