@@ -1,6 +1,8 @@
 ﻿using Chess.Application.Common.Results;
 using Chess.Application.Interfaces;
 using Chess.Domain.Entities;
+using Chess.Domain.Enums;
+using Chess.Domain.Exceptions;
 using MediatR;
 
 namespace Chess.Application.Games.Commands.EndGame
@@ -9,7 +11,7 @@ namespace Chess.Application.Games.Commands.EndGame
     /// Handles the execution of a player's <see cref="EndGameCommand"/> request.
     /// Validates game exists, and the requester is an actual player of the game.
     /// </summary>
-    public class EndGameCommandHandler : IRequestHandler<EndGameCommand, Result>
+    public class EndGameCommandHandler : IRequestHandler<EndGameCommand, Result<GameStatus>>
     {
         private readonly IChessGameRepository _gameRepository;
 
@@ -28,7 +30,7 @@ namespace Chess.Application.Games.Commands.EndGame
         /// A successful end game request will provide a <see cref="Result"/> stating so. 
         /// A failure will provide a <see cref="Result"/> containing an <see cref="Error"/> stating the reason why.
         /// </returns>
-        public async Task<Result> Handle(EndGameCommand request, CancellationToken cancellationToken)
+        public async Task<Result<GameStatus>> Handle(EndGameCommand request, CancellationToken cancellationToken)
         {
             ChessGame? chessGame = await _gameRepository.GetByIdAsync(request.GameId);
 
@@ -41,12 +43,27 @@ namespace Chess.Application.Games.Commands.EndGame
             if (!isPlayer)
                 return Error.Unauthorized("Games.NotPlayer", "You are not a player in this game.");
 
-            chessGame.EndGame(request.Reason, request.UserId);
+            try
+            {
+                chessGame.EndGame(request.Reason, request.UserId);
 
-            await _gameRepository.UpdateAsync(chessGame);
-            await _gameRepository.SaveChangesAsync();
+                await _gameRepository.UpdateAsync(chessGame);
+                await _gameRepository.SaveChangesAsync();
 
-            return Result.Success();
+                return chessGame.Status;
+            }
+            catch (NotPlayerException ex)
+            {
+                return Error.Unauthorized("Games.NotPlayer", ex.Message);
+            }
+            catch (GameNotActiveException ex)
+            {
+                return Error.Conflict("Games.NotActive", ex.Message);
+            }
+            catch (GameStateTransitionException ex)
+            {
+                return Error.Conflict("Games.EndGameFailed", ex.Message);
+            }
         }
     }
 }

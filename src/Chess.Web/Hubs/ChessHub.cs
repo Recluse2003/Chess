@@ -1,6 +1,7 @@
 ﻿using Chess.Application.Common.Results;
 using Chess.Application.Games.Commands.EndGame;
 using Chess.Application.Games.Commands.MakeMove;
+using Chess.Application.Games.Commands.OfferDraw;
 using Chess.Application.Games.Commands.PauseGame;
 using Chess.Application.Games.Commands.ResumeGame;
 using Chess.Application.Games.Queries.GetActiveGameByUserId;
@@ -102,6 +103,59 @@ namespace Chess.Web.Hubs
                 throw new HubException(result.Error!.Description);
 
             await Clients.Group($"{request.GameId}").MoveMade(result.Value);
+        }
+
+        public async Task ForfeitGame(Guid gameId)
+        {
+            string? userId = Context.UserIdentifier;
+
+            if (userId == null)
+                throw new HubException("You must be logged in to offer a draw.");
+
+            Result<GameStatus> result = await _mediator.Send(new EndGameCommand(gameId, userId, GameEndReason.Forfeit));
+
+            if (!result.IsSuccess)
+                throw new HubException(result.Error!.Description);
+
+            bool isWhiteWinner = result.Value == GameStatus.WhiteWin;
+
+            await Clients.Group($"{gameId}").GameEndedByForfeit(isWhiteWinner);
+        }
+
+        public async Task OfferDraw(Guid gameId)
+        {
+            string? userId = Context.UserIdentifier;
+
+            if (userId == null)
+                throw new HubException("You must be logged in to offer a draw.");
+
+            Result result = await _mediator.Send(new OfferDrawCommand(gameId, userId));
+
+            if (!result.IsSuccess)
+                throw new HubException(result.Error!.Description);
+
+            await Clients.OthersInGroup($"{gameId}").DrawOffered();
+        }
+
+        public async Task ResponseToDrawOffer(Guid gameId, bool isAccepted)
+        {
+            string? userId = Context.UserIdentifier;
+
+            if (userId == null)
+                throw new HubException("You must be logged in to offer a draw.");
+
+            if (!isAccepted)
+            {
+                await Clients.Group($"{gameId}").DrawOfferDeclined();
+                return;
+            }
+
+            var result = await _mediator.Send(new EndGameCommand(gameId, userId, GameEndReason.Agreement));
+
+            if (!result.IsSuccess)
+                throw new HubException(result.Error!.Description);
+
+            await Clients.Group($"{gameId}").GameEndedByMutualAgreement();
         }
 
         /// <summary>

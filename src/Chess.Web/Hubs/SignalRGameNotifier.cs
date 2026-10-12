@@ -15,7 +15,7 @@ namespace Chess.Web.Hubs
 
         public async Task GameEndedByForfeit(Guid gameId, bool isWhiteWinner)
         {
-            await _hubContext.Clients.Group(gameId.ToString()).GameEndedByForfeit(isWhiteWinner);
+            await _hubContext.Clients.Group(gameId.ToString()).GameEndedByTimeout(isWhiteWinner);
         }
     }
 }

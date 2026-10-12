@@ -12,6 +12,7 @@
         InsufficientMaterial,
         Agreement,
         Resignation,
-        Disconnect
+        Disconnect,
+        Forfeit
     }
 }

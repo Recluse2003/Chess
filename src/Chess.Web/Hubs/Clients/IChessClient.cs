@@ -36,20 +36,34 @@ namespace Chess.Web.Hubs.Clients
         Task GameRejoined(ViewGameDto chessGame);
 
         /// <summary>
-        /// Notifies connected clients that the game ended by forfeit.
+        /// Notifies connected clients that the game ended due to timeout.
         /// </summary>
         /// <param name="isWhiteWinner">
-        /// If true, white wins by default, as black player forfeited
+        /// If true, white wins by default, as black player timedout. 
+        /// </param>
+        Task GameEndedByTimeout(bool isWhiteWinner);
+
+        /// <summary>
+        /// Notifies connected clients that the game ended due to forfeit.
+        /// </summary>
+        /// <param name="isWhiteWinner">
+        /// If true, white wins as black forfeited, else black won because white forfeited. 
         /// </param>
         Task GameEndedByForfeit(bool isWhiteWinner);
 
+        /// <summary>
+        /// Notifies connected clients that a draw offer was sent, and is waiting for a response. 
+        /// </summary>
         Task DrawOffered();
 
+        /// <summary>
+        /// Notifies connected clients that the draw offer was declined.
+        /// </summary>
         Task DrawOfferDeclined();
 
         /// <summary>
-        /// Notifies connected clients that the game has ended by mutual agreement.
+        /// Notifies connected clients that the draw offer was accepted, and the game has ended by mutual agreement.
         /// </summary>
-        Task GameEndedByAgreement();
+        Task GameEndedByMutualAgreement();
     }
 }

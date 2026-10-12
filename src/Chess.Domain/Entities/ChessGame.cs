@@ -19,6 +19,7 @@ namespace Chess.Domain.Entities
         public bool IsPrivate { get; private set; }
         public GameStatus Status { get; private set; } = GameStatus.Active;
         public GameEndReason? EndReason { get; private set; }
+        public string? DrawOfferedByPlayerId { get; private set; }
         public string? DisconnectedPlayerId { get; private set; }
         public DateTime? ReconnectDeadline { get; private set; }
         public List<Move> MoveHistory { get; private set; } = new();
@@ -176,6 +177,7 @@ namespace Chess.Domain.Entities
 
             Board = moveResult.Board;
             MoveHistory.Add(completedMove);
+            DrawOfferedByPlayerId = null;
 
             return moveResult.BoardChanges;
         }
@@ -228,27 +230,56 @@ namespace Chess.Domain.Entities
             }
         }
 
+        public void OfferDraw(string playerId)
+        {
+            if (Status != GameStatus.Active)
+                throw new GameNotActiveException();
+
+            if (DrawOfferedByPlayerId != null)
+                throw new GameStateTransitionException("A draw offer is already pending.");
+
+            if (playerId != WhitePlayerId && playerId != BlackPlayerId)
+                throw new NotPlayerException();
+
+            DrawOfferedByPlayerId = playerId;
+        }
+
         /// <summary>
         /// Used to end the game outside a reason caused by a board state. This includes agreement and disconnect. 
         /// </summary>
         /// <param name="reason">Reason for the game ending.</param>
-        /// <param name="triggerByUserId">Id of the user ending the game.</param>
-        public void EndGame(GameEndReason reason, string triggerByUserId)
+        /// <param name="triggeredByUserId">Id of the user ending the game.</param>
+        public void EndGame(GameEndReason reason, string triggeredByUserId)
         {
+            if (Status != GameStatus.Active && Status != GameStatus.Paused)
+                throw new GameNotActiveException();
+
+            if (WhitePlayerId != triggeredByUserId && BlackPlayerId != triggeredByUserId)
+                throw new NotPlayerException();
+
+            if (reason == GameEndReason.Agreement)
+            {
+                if (DrawOfferedByPlayerId == null)
+                    throw new GameStateTransitionException("There is no pending draw offer.");
+
+                if (DrawOfferedByPlayerId == triggeredByUserId)
+                    throw new GameStateTransitionException("You cannot accept your own draw offer.");
+
+                DrawOfferedByPlayerId = null;
+                Status = GameStatus.Draw;
+                EndReason = GameEndReason.Agreement;
+                return;
+            }
+
             EndReason = reason;
 
             switch (reason)
             {
                 case GameEndReason.Disconnect:
-                    if (WhitePlayerId == triggerByUserId)
-                        Status = GameStatus.BlackWin;
-                    else
-                        Status = GameStatus.WhiteWin;
-
-                    break;
-
-                case GameEndReason.Agreement:
-                    Status = GameStatus.Draw;
+                case GameEndReason.Forfeit:
+                    Status = WhitePlayerId == triggeredByUserId
+                        ? GameStatus.BlackWin
+                        : GameStatus.WhiteWin;
                     break;
             }
         }
@@ -294,6 +325,7 @@ namespace Chess.Domain.Entities
             bool isPrivate,
             GameStatus status,
             GameEndReason? endReason,
+            string? drawOfferedByPlayerId,
             string? disconnectedPlayerId,
             DateTime? reconnectDeadline,
             IEnumerable<Move> moveHistory)
@@ -308,6 +340,7 @@ namespace Chess.Domain.Entities
             game.InitialFen = initialFen;
             game.Status = status;
             game.EndReason = endReason;
+            game.DrawOfferedByPlayerId = drawOfferedByPlayerId;
             game.DisconnectedPlayerId = disconnectedPlayerId;
             game.ReconnectDeadline = reconnectDeadline;
             game.MoveHistory.AddRange(moveHistory);

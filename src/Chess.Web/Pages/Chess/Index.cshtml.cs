@@ -122,6 +122,7 @@ namespace Chess.Web.Pages.Chess
             return new JsonResult(result.Value);
         }
 
+
         public string GetPieceSymbol(char piece)
         {
             return piece switch

@@ -2,50 +2,160 @@
 
 console.log("CHESS.JS LOADED");
 
+const board = document.querySelector(".chess-board");
+const gameId = board.dataset.gameId;
+const squares = document.querySelectorAll(".chess-square");
+
 const connection = new signalR.HubConnectionBuilder()
     .withUrl("/chessHub")
     .withAutomaticReconnect([0, 5000, 15000, 30000]) // Try reconnecting instantly, then 5s, 15s, 30s
     .build();
 
-async function startConnection() {
-    try {
-        await connection.start();
-        console.log("Connected to ChessHub");
+let gameActive = true;
+let selectedSquare = null;
+let drawOfferPending = false;
+let drawOfferSent = false;
 
-        await connection.invoke("JoinGame", gameId);
-        console.log("Joined game:", gameId);
-    }
-    catch (err) {
-        console.error(err);
-    }
+const offerDrawButton = document.querySelector("#offer-draw-btn");
+const forfeitButton = document.querySelector("#forfeit-btn");
+const drawOfferPanel = document.querySelector("#draw-offer-panel");
+const acceptDrawButton = document.querySelector("#accept-draw-btn");
+const declineDrawButton = document.querySelector("#decline-draw-btn");
+const actionMessage = document.querySelector("#game-action-message");
+
+const iAmWhite = board.dataset.isWhitePlayer.toLowerCase() === "true";
+
+function setActionMessage(message) {
+    actionMessage.textContent = message;
 }
 
-startConnection();
+function resetDrawOffer() {
+    drawOfferPending = false;
+    drawOfferSent = false;
 
-connection.onreconnecting((error) => {
+    drawOfferPanel.hidden = true;
+    offerDrawButton.disabled = !gameActive;
+    acceptDrawButton.disabled = false;
+    declineDrawButton.disabled = false;
+}
+
+function disableGameActions() {
+    offerDrawButton.disabled = true;
+    forfeitButton.disabled = true;
+    acceptDrawButton.disabled = true;
+    declineDrawButton.disabled = true;
+
+    drawOfferPanel.hidden = true;
+}
+
+function showGameEnd(titleText, messageText) {
     gameActive = false;
+    selectedSquare = null;
+    removeLegalMoves();
+    disableGameActions();
 
+    const modal = document.querySelector("#game-end-modal");
+
+    document.querySelector("#game-end-title").textContent = titleText;
+    document.querySelector("#game-end-message").textContent = messageText;
+
+    modal.classList.remove("hidden");
+}
+
+function showGameMessage(titleText, messageText) {
+    const modal = document.querySelector("#game-end-modal");
+
+    document.querySelector("#game-end-title").textContent = titleText;
+    document.querySelector("#game-end-message").textContent = messageText;
+
+    modal.classList.remove("hidden");
+}
+
+function hideGameMessage() {
+    document.querySelector("#game-end-modal").classList.add("hidden");
+}
+
+function checkGameState(status, endReason) {
+    console.log("Game state:", status, endReason);
+
+    if (status === "Active") {
+        return;
+    }
+
+    const messages = {
+        Checkmate: "Checkmate.",
+        Stalemate: "Stalemate.",
+        ThreefoldRepetition: "Draw by threefold repetition.",
+        FiftyMoveRule: "Draw by the fifty-move rule.",
+        InsufficientMaterial: "Draw by insufficient material.",
+        Agreement: "Both players agreed to a draw.",
+        Forfeit: "The game ended by forfeit.",
+        Disconnect: "The game ended because of a disconnection."
+    };
+
+    let title;
+
+    switch (status) {
+        case "WhiteWin":
+            title = "White wins!";
+            break;
+        case "BlackWin":
+            title = "Black wins!";
+            break;
+        case "Draw":
+            title = "Game drawn";
+            break;
+        default:
+            title = "Game over";
+            break;
+    }
+
+    showGameEnd(title, messages[endReason] ?? "");
+}
+
+document.querySelector("#closeBtn").addEventListener("click", () => {
+    document.querySelector("#game-end-modal").classList.add("hidden");
+});
+
+
+
+connection.on("MoveMade", function (result) {
+    const gameContainer = document.querySelector(".chess-game-container");
+
+    gameContainer.classList.toggle("white-turn", result.isWhiteTurn);
+    gameContainer.classList.toggle("black-turn", !result.isWhiteTurn);
+
+    applyBoardChanges(result.boardChanges);
+
+    if (drawOfferSent || drawOfferPending) {
+        resetDrawOffer();
+        setActionMessage("The draw offer expired after a move.");
+    }
+
+    checkGameState(result.status, result.endReason);
+});
+
+connection.on("GameEndedByTimeout", (isWhiteWinner) => {
+    const iWon = iAmWhite
+
+    showGameEnd(
+        iWon ? "Victory!" : "Match Forfeited",
+        iWon ? "Your opponent failed to reconnect. You win by default!"
+            : "You were disconnected for too long and lost by default."
+    );
+});
+
+connection.on("OpponentDisconnected", () => {
+    gameActive = false;
     selectedSquare = null;
     removeLegalMoves();
 
-    const modal = document.querySelector("#game-end-modal");
-    document.querySelector("#game-end-title").textContent = "Connection Lost...";
-    document.querySelector("#game-end-message").textContent = "Attempting to reconnect and restore your match...";
-
-    modal.classList.remove("hidden");
+    showGameMessage("Your opponent has disconnected...", "Waiting for them to reconnect (60s)...");
 });
 
-connection.onreconnected(async (newConnectionId) => {
-    try {
-        document.querySelector("#game-end-message").textContent = "Restoring game state...";
-
-        await connection.invoke("JoinGame", gameId); 
-    } catch (err) {
-        console.error("Failed to automatically rejoin the game: ", err);
-
-        document.querySelector("#game-end-title").textContent = "Rejoin Failed";
-        document.querySelector("#game-end-message").textContent = "Could not synchronize with the match.";
-    }
+connection.on("OpponentReconnected", () => {
+    gameActive = true;
+    hideGameMessage();
 });
 
 connection.on("GameRejoined", (viewGameDto) => {
@@ -82,79 +192,46 @@ connection.on("GameRejoined", (viewGameDto) => {
     document.querySelector("#game-end-modal").classList.add("hidden");
 });
 
-connection.onclose((error) => {
-    console.assert(connection.state === signalR.HubConnectionState.Disconnected);
+// The opponent has offered a draw
+connection.on("DrawOffered", () => {
+    if (!gameActive) return;
 
-    gameActive = false;
+    drawOfferPending = true;
+    drawOfferPanel.hidden = false;
+    offerDrawButton.disabled = true;
 
-    const modal = document.querySelector("#game-end-modal");
-
-    document.querySelector("#game-end-title").textContent = "You disconnected from the server";
-    document.querySelector("#game-end-message").textContent = "The match has been forfeited.";
-
-    modal.classList.remove("hidden");
+    setActionMessage("Your opponent has offered a draw.");
 });
 
-connection.on("OpponentDisconnected", () => {
-    gameActive = false;
+// A draw offer was declined
+connection.on("DrawOfferDeclined", () => {
+    if (!gameActive) return;
 
-    selectedSquare = null;
-    removeLegalMoves();
-
-    const modal = document.querySelector("#game-end-modal");
-
-    document.querySelector("#game-end-title").textContent = "Your opponent has disconnected...";
-    document.querySelector("#game-end-message").textContent = "Waiting for them to reconnect (60s)...";
-
-    modal.classList.remove("hidden");
+    resetDrawOffer();
+    setActionMessage("The draw offer was declined.");
 });
 
-connection.on("OpponentReconnected", () => {
-    gameActive = true;
-    document.querySelector("#game-end-modal").classList.add("hidden");
-});
-
+// A player resigned
 connection.on("GameEndedByForfeit", (isWhiteWinner) => {
-    gameActive = false;
+    const iWon = iAmWhite === isWhiteWinner;
 
-    const iAmWhite = board.dataset.isWhitePlayer === "True"; 
-
-    const modal = document.querySelector("#game-end-modal");
-    const title = document.querySelector("#game-end-title");
-    const message = document.querySelector("#game-end-message");
-
-    const iWon = (isWhiteWinner && iAmWhite) || (!isWhiteWinner && !iAmWhite);
-
-    if (iWon) {
-        title.textContent = "Victory!";
-        message.textContent = "Your opponent failed to reconnect. You win by default!";
-    } else {
-        title.textContent = "Match Forfeited";
-        message.textContent = "You were disconnected for too long and lost by default.";
-    }
-
-    modal.classList.remove("hidden");
+    showGameEnd(
+        iWon ? "Victory!" : "Game over",
+        isWhiteWinner
+            ? "White wins by forfeit."
+            : "Black wins by forfeit."
+    );
 });
 
-const board = document.querySelector(".chess-board");
+// Both players agreed to a draw
+connection.on("GameEndedByMutualAgreement", () => {
+    showGameEnd(
+        "Game drawn",
+        "Both players agreed to a draw."
+    );
+});
 
-if (!board) {
-    throw new Error("Chess board was not found!");
-}
 
-const gameId = board.dataset.gameId;
-const squares = document.querySelectorAll(".chess-square");
-
-console.log("Game ID:", gameId);
-console.log("Squares:", squares.length);
-
-let gameActive = true;
-
-let selectedSquare = null;
-
-document.querySelector("#closeBtn").addEventListener("click", () => {
-        document.querySelector("#game-end-modal").classList.add("hidden");
-    });
 
 squares.forEach(square => {
 
@@ -237,7 +314,6 @@ function promotePawn() {
     });
 }
 
-
 async function makeMove(fromFile, fromRank, toFile, toRank, promotionPiece) {
     try {
         await connection.invoke("MakeMove", {
@@ -256,109 +332,6 @@ async function makeMove(fromFile, fromRank, toFile, toRank, promotionPiece) {
         return false;
     }
 }
-
-connection.on("MoveMade", function (result) {
-    const gameContainer = document.querySelector(".chess-game-container");
-
-    gameContainer.classList.toggle("white-turn", result.isWhiteTurn);
-
-    gameContainer.classList.toggle("black-turn", !result.isWhiteTurn);
-
-    applyBoardChanges(result.boardChanges);
-
-    checkGameState(result.status, result.endReason);
-});
-
-function applyBoardChanges(boardChanges) {
-
-    boardChanges.forEach(boardChange => {
-
-        const square = document.querySelector(`[data-file="${boardChange.file}"][data-rank="${boardChange.rank}"]`);
-
-        if (!square) {
-            return;
-        }
-
-        const existingPiece = square.querySelector('.chess-piece');
-
-        if (existingPiece) {
-            existingPiece.remove()
-        }
-
-        if (boardChange.piece !== null) {
-            const piece = document.createElement('span');
-
-            piece.classList.add('chess-piece');
-            piece.dataset.piece = boardChange.piece;
-            piece.textContent = getPieceSymbol(boardChange.piece);
-
-            square.appendChild(piece);
-        }
-    });
-}
-
-function getPieceSymbol(piece) {
-    const pieces = {
-        'K': '♔', 'Q': '♕', 'R': '♖', 'B': '♗', 'N': '♘', 'P': '♙',
-        'k': '♚', 'q': '♛', 'r': '♜', 'b': '♝', 'n': '♞', 'p': '♟'
-    };
-
-    return pieces[piece] || '';
-}
-
-function checkGameState(status, endReason) {
-
-    console.log("Game state:", status, endReason);
-
-    if (status === "Active") {
-        return;
-    }
-
-    gameActive = false;
-
-    const modal = document.querySelector("#game-end-modal");
-    const title = document.querySelector("#game-end-title");
-    const message = document.querySelector("#game-end-message");
-
-    if (status === "WhiteWin") {
-        title.textContent = "White wins!";
-    }
-    else if (status === "BlackWin") {
-        title.textContent = "Black wins!";
-    }
-    else if (status === "Draw") {
-        title.textContent = "Draw";
-    }
-
-    switch (endReason) {
-        case "Checkmate":
-            message.textContent = "Checkmate.";
-            break;
-
-        case "Stalemate":
-            message.textContent = "Stalemate.";
-            break;
-
-        case "ThreefoldRepetition":
-            message.textContent = "Draw by threefold repetition.";
-            break;
-
-        case "FiftyMoveRule":
-            message.textContent = "Draw by the fifty-move rule.";
-            break;
-
-        case "InsufficientMaterial":
-            message.textContent = "Draw by insufficient material.";
-            break;
-
-        default:
-            message.textContent = "";
-            break;
-    }
-
-    modal.classList.remove("hidden");
-}
-
 
 async function getLegalMoves(file, rank) {
 
@@ -400,3 +373,164 @@ function removeLegalMoves() {
 
     selectedSquare = null;
 }
+
+
+
+function applyBoardChanges(boardChanges) {
+
+    boardChanges.forEach(boardChange => {
+
+        const square = document.querySelector(`[data-file="${boardChange.file}"][data-rank="${boardChange.rank}"]`);
+
+        if (!square) {
+            return;
+        }
+
+        const existingPiece = square.querySelector('.chess-piece');
+
+        if (existingPiece) {
+            existingPiece.remove()
+        }
+
+        if (boardChange.piece !== null) {
+            const piece = document.createElement('span');
+
+            piece.classList.add('chess-piece');
+            piece.dataset.piece = boardChange.piece;
+            piece.textContent = getPieceSymbol(boardChange.piece);
+
+            square.appendChild(piece);
+        }
+    });
+}
+
+function getPieceSymbol(piece) {
+    const pieces = {
+        'K': '♔', 'Q': '♕', 'R': '♖', 'B': '♗', 'N': '♘', 'P': '♙',
+        'k': '♚', 'q': '♛', 'r': '♜', 'b': '♝', 'n': '♞', 'p': '♟'
+    };
+
+    return pieces[piece] || '';
+}
+
+
+
+// Offer a draw
+offerDrawButton.addEventListener("click", async () => {
+    if (!gameActive || drawOfferSent || drawOfferPending) return;
+
+    offerDrawButton.disabled = true;
+
+    try {
+        await connection.invoke("OfferDraw", gameId);
+
+        drawOfferSent = true;
+        setActionMessage("Draw offer sent. Waiting for your opponent.");
+    } catch (error) {
+        console.error("Failed to offer draw:", error);
+        setActionMessage(error.message || "Could not offer a draw.");
+        offerDrawButton.disabled = false;
+    }
+});
+
+// Resign the game
+forfeitButton.addEventListener("click", async () => {
+    if (!gameActive) return;
+
+    if (!confirm("Are you sure you want to resign this game?")) {
+        return;
+    }
+
+    forfeitButton.disabled = true;
+
+    try {
+        await connection.invoke("ForfeitGame", gameId);
+    } catch (error) {
+        console.error("Failed to resign:", error);
+        setActionMessage(error.message || "Could not resign.");
+        forfeitButton.disabled = false;
+    }
+});
+
+// Accept a draw offer
+acceptDrawButton.addEventListener("click", async () => {
+    if (!gameActive || !drawOfferPending) return;
+
+    acceptDrawButton.disabled = true;
+    declineDrawButton.disabled = true;
+
+    try {
+        await connection.invoke("ResponseToDrawOffer", gameId, true);
+    } catch (error) {
+        console.error("Failed to accept draw:", error);
+        setActionMessage(error.message || "Could not accept the draw.");
+        acceptDrawButton.disabled = false;
+        declineDrawButton.disabled = false;
+    }
+});
+
+// Decline a draw offer
+declineDrawButton.addEventListener("click", async () => {
+    if (!gameActive || !drawOfferPending) return;
+
+    acceptDrawButton.disabled = true;
+    declineDrawButton.disabled = true;
+
+    try {
+        await connection.invoke("ResponseToDrawOffer", gameId, false);
+    } catch (error) {
+        console.error("Failed to decline draw:", error);
+        setActionMessage(error.message || "Could not decline the draw.");
+        acceptDrawButton.disabled = false;
+        declineDrawButton.disabled = false;
+    }
+});
+
+
+
+async function startConnection() {
+    try {
+        await connection.start();
+        console.log("Connected to ChessHub");
+
+        await connection.invoke("JoinGame", gameId);
+        console.log("Joined game:", gameId);
+    }
+    catch (err) {
+        console.error(err);
+    }
+}
+
+connection.onreconnecting(() => {
+    gameActive = false;
+    selectedSquare = null;
+    removeLegalMoves();
+
+    showGameMessage("Connection Lost...", "Attempting to reconnect and restore your match...");
+});
+
+connection.onreconnected(async (newConnectionId) => {
+    try {
+        showGameMessage("Connection Lost...", "Restoring game state...");
+
+        await connection.invoke("JoinGame", gameId);
+    } catch (err) {
+        console.error("Failed to automatically rejoin the game: ", err);
+        showGameEnd("Rejoin Failed", "Could not synchronize with the match.")
+    }
+});
+
+connection.onclose((error) => {
+    console.assert(connection.state === signalR.HubConnectionState.Disconnected);
+
+    gameActive = false;
+
+    const modal = document.querySelector("#game-end-modal");
+
+    document.querySelector("#game-end-title").textContent = "You disconnected from the server";
+    document.querySelector("#game-end-message").textContent = "The match has been forfeited.";
+
+    modal.classList.remove("hidden");
+});
+
+startConnection();

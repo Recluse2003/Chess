@@ -93,6 +93,30 @@
         </div>
     </section>
 
+    <div class="game-actions">
+        <button id="offer-draw-btn" type="button">
+            Offer Draw
+        </button>
+
+        <button id="forfeit-btn" type="button">
+            Resign
+        </button>
+
+        <div id="draw-offer-panel" hidden>
+            <p>Your opponent has offered a draw.</p>
+
+            <button id="accept-draw-btn" type="button">
+                Accept Draw
+            </button>
+
+            <button id="decline-draw-btn" type="button">
+                Decline Draw
+            </button>
+        </div>
+
+        <p id="game-action-message" role="status" aria-live="polite"></p>
+    </div>
+
 
     <dialog id="promotion-modal" class="promotion-modal-overlay hidden">
         <div class="promotion-options">

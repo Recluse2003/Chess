@@ -29,6 +29,7 @@ namespace Chess.Infrastructure.Persistence.Mappers
                 IsPrivate = game.IsPrivate,
                 Status = game.Status,
                 EndReason = game.EndReason,
+                DrawOfferedByPlayerId = game.DrawOfferedByPlayerId,
                 DisconnectedPlayerId = game.DisconnectedPlayerId,
                 ReconnectDeadline = game.ReconnectDeadline,
                 UpdatedAt = DateTime.UtcNow,
@@ -61,13 +62,14 @@ namespace Chess.Infrastructure.Persistence.Mappers
         {
             var game = ChessGame.Rehydrate(
                 entity.Id,
-                entity.WhitePlayerId,
+                entity.WhitePlayerId!,
                 entity.BlackPlayerId,
                 entity.InitialFen,
                 entity.Fen,
                 entity.IsPrivate,
                 entity.Status,
                 entity.EndReason,
+                entity.DrawOfferedByPlayerId,
                 entity.DisconnectedPlayerId, 
                 entity.ReconnectDeadline,
                 MoveMapper.ToDomainList(entity.Moves));

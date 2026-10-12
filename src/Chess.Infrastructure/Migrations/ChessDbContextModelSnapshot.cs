@@ -102,6 +102,9 @@ namespace Chess.Infrastructure.Migrations
                     b.Property<string>("DisconnectedPlayerId")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("DrawOfferedByPlayerId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("EndReason")
                         .HasColumnType("nvarchar(max)");
 

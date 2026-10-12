@@ -15,8 +15,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Games\Commands\DrawResponse\" />
-    <Folder Include="Games\Commands\OfferDraw\" />
     <Folder Include="Games\Services\" />
   </ItemGroup>
 

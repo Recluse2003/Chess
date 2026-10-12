@@ -128,6 +128,7 @@ namespace Chess.Infrastructure.Persistence.Repositories
             entity.Fen = FenConverterService.ToFen(game.Board);
             entity.Status = game.Status;
             entity.EndReason = game.EndReason;
+            entity.DrawOfferedByPlayerId = game.DrawOfferedByPlayerId;
             entity.DisconnectedPlayerId = game.DisconnectedPlayerId;
             entity.ReconnectDeadline = game.ReconnectDeadline;
             entity.UpdatedAt = DateTime.UtcNow;
