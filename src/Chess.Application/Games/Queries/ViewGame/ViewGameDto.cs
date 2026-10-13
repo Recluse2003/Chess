@@ -17,5 +17,6 @@ namespace Chess.Application.Games.Queries.ViewGame
         public bool IsWhiteTurn { get; init; }
         public GameStatus Status { get; init; }
         public IReadOnlyList<PieceDto> Pieces { get; init; } = [];
+        public IReadOnlyList<MoveDto> MoveHistory { get; init; } = [];
     }
 }

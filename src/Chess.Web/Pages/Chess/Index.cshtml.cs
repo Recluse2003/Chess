@@ -21,7 +21,7 @@ namespace Chess.Web.Pages.Chess
 
         public IndexModel(IMediator mediator) => _mediator = mediator;
 
-        public ViewGameDto? GameDetails { get; private set; }
+        public ViewGameDto GameDetails { get; private set; }
 
         /// <summary>
         /// Handles the initial GET request for the chess game page.

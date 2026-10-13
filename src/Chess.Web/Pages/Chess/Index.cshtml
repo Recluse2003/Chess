@@ -11,19 +11,8 @@
 
 @Html.AntiForgeryToken()
 
-<div class="container">
-    <header>
-        <h1>Chess Game</h1>
-
-        <p><strong>Game ID: </strong>@Model.GameDetails!.GameId</p>
-
-        <p>
-            <strong>Status: </strong>
-            @Model.GameDetails.Status
-        </p>
-    </header>
-
-    <section class="chess-game-container @(Model.GameDetails.IsWhiteTurn ? "white-turn" : "black-turn")">
+<section class="game-main">
+    <div class="chess-game-container @(Model.GameDetails.IsWhiteTurn ? "white-turn" : "black-turn")" >
         <div class="player-name opponent-name">
             @(Model.GameDetails.IsWhitePlayer
                 ? Model.GameDetails.BlackPlayerUsername ?? "Waiting for opponent"
@@ -91,7 +80,7 @@
                 ? Model.GameDetails.WhitePlayerUsername
                 : Model.GameDetails.BlackPlayerUsername ?? "Waiting for opponent")
         </div>
-    </section>
+    </div>
 
     <div class="game-actions">
         <button id="offer-draw-btn" type="button">
@@ -116,8 +105,35 @@
 
         <p id="game-action-message" role="status" aria-live="polite"></p>
     </div>
+</section>
 
+<aside class="move-history">
+    <h2>Move history</h2>
+    <div class="move-history-header">
+        <span>#</span>
+        <span>White</span>
+        <span>Black</span>
+    </div>
 
+    <div id="move-history-list" class="move-history-list">
+        @for (int i = 0; i < Model.GameDetails.MoveHistory.Count; i += 2)
+        {
+            <div class="move-history-row">
+                <span>@(i / 2 + 1).</span>
+
+                <span>@Model.GameDetails.MoveHistory[i].Notation</span>
+
+                <span>
+                    @if (i + 1 < Model.GameDetails.MoveHistory.Count)
+                    {
+                        @Model.GameDetails.MoveHistory[i + 1].Notation
+                    }
+                </span>
+            </div>
+        }
+    </div>
+</aside>
+   
     <dialog id="promotion-modal" class="promotion-modal-overlay hidden">
         <div class="promotion-options">
             <button data-piece="Q">♕</button>
@@ -136,7 +152,6 @@
             <p id="game-end-message"></p>
         </div>
     </dialog>
-</div>
 
 @section Scripts {
     <script src="~/lib/microsoft/signalr/dist/browser/signalr.js" asp-append-version="true"></script>

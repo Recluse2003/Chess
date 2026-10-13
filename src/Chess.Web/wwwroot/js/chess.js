@@ -23,6 +23,11 @@ const acceptDrawButton = document.querySelector("#accept-draw-btn");
 const declineDrawButton = document.querySelector("#decline-draw-btn");
 const actionMessage = document.querySelector("#game-action-message");
 
+const moveHistoryList = document.querySelector("#move-history-list");
+const noMovesMessage = document.querySelector("#no-moves-message");
+
+let moveHistory = [];
+
 const iAmWhite = board.dataset.isWhitePlayer.toLowerCase() === "true";
 
 function setActionMessage(message) {
@@ -126,6 +131,7 @@ connection.on("MoveMade", function (result) {
     gameContainer.classList.toggle("black-turn", !result.isWhiteTurn);
 
     applyBoardChanges(result.boardChanges);
+    addMoveToHistory(result.notation);
 
     if (drawOfferSent || drawOfferPending) {
         resetDrawOffer();
@@ -374,8 +380,6 @@ function removeLegalMoves() {
     selectedSquare = null;
 }
 
-
-
 function applyBoardChanges(boardChanges) {
 
     boardChanges.forEach(boardChange => {
@@ -413,6 +417,42 @@ function getPieceSymbol(piece) {
     return pieces[piece] || '';
 }
 
+function renderMoveHistory() {
+    moveHistoryList.replaceChildren();
+
+    if (moveHistory.length === 0) {
+        const message = document.createElement("p");
+        message.textContent = "No moves have been played yet.";
+        moveHistoryList.appendChild(message);
+        return;
+    }
+
+    for (let i = 0; i < moveHistory.length; i += 2) {
+        const row = document.createElement("div");
+        row.classList.add("move-history-row");
+
+        const moveNumber = document.createElement("span");
+        moveNumber.textContent = `${Math.floor(i / 2) + 1}.`;
+
+        const whiteMove = document.createElement("span");
+        whiteMove.textContent = moveHistory[i];
+
+        const blackMove = document.createElement("span");
+        blackMove.textContent = moveHistory[i + 1] ?? "";
+
+        row.append(moveNumber, whiteMove, blackMove);
+        moveHistoryList.appendChild(row);
+    }
+}
+
+function addMoveToHistory(notation) {
+    if (!notation) {
+        return;
+    }
+
+    moveHistory.push(notation);
+    renderMoveHistory();
+}
 
 
 // Offer a draw

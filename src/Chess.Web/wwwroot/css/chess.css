@@ -2,19 +2,166 @@
     background-color: #284B63;
 }
 
+main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 280px;
+    gap: 1.25rem;
+    align-items: stretch;
+
+    width: 100%;
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 1rem;
+    box-sizing: border-box;
+
+    min-height: calc(100vh - 80px);
+}
+
+.game-main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    min-width: 0;
+}
+
+.game-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    max-width: 600px;
+    box-sizing: border-box;
+    margin: 1rem auto 0;
+    padding: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0.75rem;
+    background-color: #1d3545;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+    .game-actions button {
+        padding: 0.7rem 1.25rem;
+        border: 1px solid transparent;
+        border-radius: 0.4rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+        .game-actions button:hover {
+            transform: translateY(-2px);
+        }
+
+        .game-actions button:focus-visible {
+            outline: 3px solid #f4d35e;
+            outline-offset: 3px;
+        }
+
+/* Offer Draw */
+#offer-draw-btn {
+    background-color: #f0f0f0;
+    color: #1b2838;
+    border-color: #d0d0d0;
+}
+
+    #offer-draw-btn:hover {
+        background-color: #dcdcdc;
+    }
+
+/* Resign */
+#forfeit-btn {
+    background-color: #b83232;
+    color: white;
+}
+
+    #forfeit-btn:hover {
+        background-color: #922525;
+    }
+
+/* Incoming draw offer */
+#draw-offer-panel {
+    flex-basis: 100%;
+    box-sizing: border-box;
+    margin-top: 0.25rem;
+    padding: 1rem;
+    border: 1px solid #d6b653;
+    border-radius: 0.5rem;
+    background-color: #fff4cc;
+    color: #352b12;
+    text-align: center;
+}
+
+    /* The hidden attribute must remain effective with the panel's layout */
+    #draw-offer-panel[hidden] {
+        display: none;
+    }
+
+    #draw-offer-panel p {
+        margin: 0 0 0.75rem;
+        font-weight: 600;
+    }
+
+#accept-draw-btn {
+    background-color: #287a4b;
+    color: white;
+}
+
+    #accept-draw-btn:hover {
+        background-color: #20623c;
+    }
+
+#decline-draw-btn {
+    background-color: #e5e5e5;
+    color: #292929;
+    border-color: #c5c5c5;
+}
+
+    #decline-draw-btn:hover {
+        background-color: #d2d2d2;
+    }
+
+/* Status and feedback messages */
+#game-action-message {
+    flex-basis: 100%;
+    margin: 0;
+    color: #e7edf2;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+/* Smaller screens */
+@media (max-width: 480px) {
+    .game-actions {
+        gap: 0.6rem;
+        padding: 0.75rem;
+    }
+
+        .game-actions button {
+            flex: 1 1 120px;
+            padding: 0.75rem 0.5rem;
+        }
+}
+
 .chess-game-container {
     box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    flex: 1;
     padding: 1rem;
-    transition: background-color 0.4s ease, color 0.4s ease;
+
+    border: none;
+    border-radius: 0.5rem;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
 
     display: flex;
     flex-direction: column;
     align-items: center;
-    
-    border: 2px solid;
-    border-radius: 0.5rem;
 
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+    transition: background-color 0.4s ease, color 0.4s ease;
 }
 
 .white-turn {
@@ -43,13 +190,22 @@
 
 /* Chess Board */
 
+.chess-game {
+    border: 2px solid black;
+    margin: 10px;
+}
+
 .chess-board {
     display: grid;
-    grid-template-columns: repeat(8, 1fr);
-    width: min(90vw, 640px);
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    aspect-ratio: 1;
+
+    width: min(100%, 78vh);
+    height: auto;
+    max-height: 100%;
+
     background-color: black;
     color: black;
-    aspect-ratio: 1;
     margin: 1rem auto;
     border: 2px solid;
     border-radius: 0.5rem;
@@ -127,8 +283,92 @@
 }
 
 
-/* Hidden */
+/* Move history panel */
+.move-history {
+    width: 100%;
+    max-width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    background: #262522;
+    color: #f0f0f0;
+    border-radius: 0.5rem;
+    box-sizing: border-box;
+}
 
+.move-history h2 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+/* Column headings and move rows */
+.move-history-header,
+.move-history-row {
+    display: grid;
+    grid-template-columns: 40px 1fr 1fr;
+    align-items: center;
+    gap: 8px;
+}
+
+.move-history-header {
+    padding: 8px 10px;
+    color: #b8b8b8;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    border-bottom: 1px solid #454440;
+}
+
+.move-history-list {
+    max-height: 320px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    scrollbar-width: thin;
+    scrollbar-color: #666 #262522;
+}
+
+.move-history-row {
+    padding: 10px;
+    border-radius: 0.5rem;
+    font-size: 0.95rem;
+}
+
+    .move-history-row:nth-child(even) {
+        background: #33322f;
+    }
+
+    .move-history-row span:first-child {
+        color: #a5a5a5;
+        font-size: 0.85rem;
+    }
+
+    .move-history-row span:not(:first-child) {
+        font-weight: 500;
+    }
+
+.move-history-list > p {
+    margin: 0;
+    padding: 12px 10px;
+    color: #aaa;
+    font-size: 0.9rem;
+}
+
+/* Responsive layout */
+@media (max-width: 768px) {
+    .move-history {
+        max-width: none;
+    }
+
+    .move-history-list {
+        max-height: 220px;
+    }
+}
+
+/* Hidden */
 .hidden {
     display: none !important;
 }
@@ -211,8 +451,36 @@
     opacity: 0.6;
 }
 
+footer.footer {
+    position: static !important;
+    width: 100%;
+    background-color: #153243;
+}
+
  
 /* Responsive */
+
+@media (max-width: 768px) {
+    .game-layout {
+        grid-template-columns: minmax(0, 1fr);
+        min-height: auto;
+        padding: 0.75rem;
+    }
+
+    .chess-game-container {
+        flex: initial;
+        padding: 0.5rem;
+    }
+
+    .chess-board {
+        width: min(100%, 70vh);
+        margin: 0.75rem auto;
+    }
+
+    .move-history {
+        max-width: none;
+    }
+}
 
 @media (max-width: 600px) {
 

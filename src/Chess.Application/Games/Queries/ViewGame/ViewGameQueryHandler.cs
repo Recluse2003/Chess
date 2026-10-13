@@ -54,7 +54,13 @@ namespace Chess.Application.Games.Queries.ViewGame
                 IsWhitePlayer = game.WhitePlayerId == query.PlayerId,
                 IsWhiteTurn = game.Board.IsWhiteTurn,
                 Status = game.Status,
-                Pieces = RetrievePieces(game)
+                Pieces = RetrievePieces(game),
+                MoveHistory = game.MoveHistory
+                    .Select(move => new MoveDto
+                    {
+                        Notation = move.Notation ?? string.Empty
+                    })
+                    .ToList()
             };
 
             return result;
