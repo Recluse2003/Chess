@@ -5,6 +5,13 @@ using Microsoft.Extensions.Hosting;
 
 namespace Chess.Infrastructure.BackgroundTasks
 {
+    /// <summary>
+    /// Background service that periodically removes abandoned chess games.
+    /// </summary>
+    /// <remarks>
+    /// A new dependency injection scope is created for each execution so that scoped services used by the command are
+    /// disposed of after processing. The worker continues running until the application begins shutting down.
+    /// </remarks>
     public class RemoveAbandonedGamesWorker : BackgroundService
     {
         private readonly IServiceScopeFactory _scopeFactory;
@@ -14,6 +21,12 @@ namespace Chess.Infrastructure.BackgroundTasks
             _scopeFactory = scopeFactory;
         }
 
+        /// <summary>
+        /// Runs the background loop that periodically removes abandoned games.
+        /// </summary>
+        /// <param name="stoppingToken">
+        /// Token signalled when the host requests that the background service stop.
+        /// </param>
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)

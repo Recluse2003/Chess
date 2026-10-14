@@ -76,7 +76,7 @@ namespace Chess.Web.Hubs
         }
 
         /// <summary>
-        /// Attempts to make a chess move on behalf of the authenticated user.
+        /// Attempts to make a chess move on behalf of a authenticated connected user.
         /// </summary>
         /// <param name="request">The move request containing the game and board positions involved.</param>
         /// <exception cref="HubException">
@@ -104,6 +104,12 @@ namespace Chess.Web.Hubs
             await Clients.Group($"{request.GameId}").MoveMade(result.Value);
         }
 
+        /// <summary>
+        /// Forfeits a specified <see cref="ChessGame"/> on behalf of a authenticated connected user and notifies
+        /// all clients in the game's group that the game has ended.
+        /// </summary>
+        /// <param name="gameId">The id of the game to be forfeited.</param>
+        /// <exception cref="HubException"></exception>
         public async Task ForfeitGame(Guid gameId)
         {
             string? userId = Context.UserIdentifier;
@@ -121,6 +127,11 @@ namespace Chess.Web.Hubs
             await Clients.Group($"{gameId}").GameEndedByForfeit(isWhiteWinner);
         }
 
+        /// <summary>
+        /// Submits a draw offer for a specified <see cref="ChessGame"/> and notifies the other clients in the game's group 
+        /// if the offer is successful.
+        /// </summary>
+        /// <param name="gameId">The id of the game in which to offer a draw.</param>
         public async Task OfferDraw(Guid gameId)
         {
             string? userId = Context.UserIdentifier;
@@ -136,6 +147,12 @@ namespace Chess.Web.Hubs
             await Clients.OthersInGroup($"{gameId}").DrawOffered();
         }
 
+        /// <summary>
+        /// Processes a response to a draw offer. If the offer is accepted, the <see cref="ChessGame"/> ends by mutual agreement. 
+        /// Otherwise, all clients in the game's group are notified that the offer was declined.
+        /// </summary>
+        /// <param name="gameId">Id of the <see cref="ChessGame"/> which has the draw offer being responded to.</param>
+        /// <param name="isAccepted">Indicates whether the offer was accepted or not.</param>
         public async Task ResponseToDrawOffer(Guid gameId, bool isAccepted)
         {
             string? userId = Context.UserIdentifier;

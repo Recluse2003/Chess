@@ -3,6 +3,10 @@ using Chess.Domain.Enums;
 
 namespace Chess.Application.Games.Queries.ReviewGame
 {
+    /// <summary>
+    /// Represents the data required to review a completed chess game, including player information, the final board state,
+    /// and move history.
+    /// </summary>
     public class ReviewGameDto
     {
         public Guid GameId { get; init; }

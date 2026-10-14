@@ -12,6 +12,13 @@ namespace Chess.Domain.Services
             _rules = rules;
         }
 
+        /// <summary>
+        /// Generates the san notation for a move. 
+        /// </summary>
+        /// <param name="boardBefore">State of the board before the move.</param>
+        /// <param name="move">The move that is occuring on the before board, to form the after board.</param>
+        /// <param name="boardAfter">State of the board after the move.</param>
+        /// <returns></returns>
         public string Generate(Board boardBefore, Move move, Board boardAfter)
         {
             char piece = boardBefore.GetPiece(move.From);

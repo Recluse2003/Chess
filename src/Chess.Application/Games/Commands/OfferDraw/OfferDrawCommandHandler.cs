@@ -6,6 +6,11 @@ using MediatR;
 
 namespace Chess.Application.Games.Commands.OfferDraw
 {
+    /// <summary>
+    /// Handles the execution of a player's <see cref="OfferDrawCommand"/> request.
+    /// Validates the <see cref="ChessGame"/> exists, that it is active, and that the requester is a player of the specified 
+    /// <see cref="ChessGame"/>.
+    /// </summary>
     public class OfferDrawCommandHandler : IRequestHandler<OfferDrawCommand, Result>
     {
         private readonly IChessGameRepository _gameRepository;
@@ -15,6 +20,16 @@ namespace Chess.Application.Games.Commands.OfferDraw
             _gameRepository = gameRepository;
         }
 
+        /// <summary>
+        /// Processes the incoming <see cref="OfferDrawCommand">, ensures the specified <see cref="ChessGame"/> exists, it is 
+        /// active, and that requester is a player of the <see cref="ChessGame"/>.
+        /// </summary>
+        /// <param name="command">The details of the draw offer.</param>
+        /// <param name="cancellationToken">Triggers if the HTTP or network request is aborted early.</param>
+        /// <returns>
+        /// A successful move execution will provide a <see cref="Result"/> A failure will provide a <see cref="Result"/> 
+        /// containing an <see cref="Error"/> stating the reason why.
+        /// </returns>
         public async Task<Result> Handle(OfferDrawCommand command, CancellationToken cancellationToken)
         {
             ChessGame? game = await _gameRepository.GetByIdAsync(command.GameId);

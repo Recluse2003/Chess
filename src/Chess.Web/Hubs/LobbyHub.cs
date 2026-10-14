@@ -77,6 +77,14 @@ namespace Chess.Web.Hubs
             await Clients.Group($"{gameId}").GameStarted();
         }
 
+        /// <summary>
+        /// Handles a player's request to leave a game lobby. Notifies the other players that the lobby has closed if the leaving 
+        /// player was the host, or that a non-host player has left, then removes the current connection from the lobby's SignalR
+        /// group. 
+        /// </summary>
+        /// <param name="gameId">The id of the game lobby to leave.</param>
+        /// <returns></returns>
+        /// <exception cref="HubException"></exception>
         public async Task LeaveLobby(Guid gameId)
         {
             string? userId = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);

@@ -7,6 +7,10 @@ using MediatR;
 
 namespace Chess.Application.Games.Queries.ReviewGame
 {
+    /// <summary>
+    /// Handles the execution of a player's <see cref="ReviewGameQuery"/> request. Validates the requester is allowed 
+    /// to do so, and that the <see cref="ChessGame"/> they are trying to view the state of exists.
+    /// </summary>
     public class ReviewGameQueryHandler : IRequestHandler<ReviewGameQuery, Result<ReviewGameDto>>
     {
         private readonly IChessGameRepository _gameRepository;
@@ -18,14 +22,24 @@ namespace Chess.Application.Games.Queries.ReviewGame
             _userRepository = userRepository;
         }
 
-        public async Task<Result<ReviewGameDto>> Handle(ReviewGameQuery request, CancellationToken cancellationToken)
+        /// <summary>
+        /// Processes the incoming <see cref="ReviewGameQuery">. It also checks that the <see cref="ChessGame"> exists, and 
+        /// the requester is allowed to view the game state.
+        /// </summary>
+        /// <param name="query">The details of the requested query.</param>
+        /// <param name="cancellationToken">Triggers if the HTTP or network request is aborted early.</param>
+        /// <returns>
+        /// A successful query will provide a <see cref="Result"/> containing the <see cref="ReviewGameDto"/>. A failure 
+        /// will provide a <see cref="Result"/> containing an <see cref="Error"/> stating the reason why.
+        /// </returns>
+        public async Task<Result<ReviewGameDto>> Handle(ReviewGameQuery query, CancellationToken cancellationToken)
         {
-            ChessGame? game = await _gameRepository.GetByIdAsync(request.GameId);
+            ChessGame? game = await _gameRepository.GetByIdAsync(query.GameId);
 
             if (game == null)
                 return Error.NotFound("Games.NotFound", "Game not found.");
 
-            bool isPlayer = game.WhitePlayerId == request.UserId || game.BlackPlayerId == request.UserId;
+            bool isPlayer = game.WhitePlayerId == query.UserId || game.BlackPlayerId == query.UserId;
 
             if (!isPlayer)
                 return Error.Unauthorized("Games.Unauthorized", "You are not a participant in this game.");
@@ -38,7 +52,7 @@ namespace Chess.Application.Games.Queries.ReviewGame
                 GameId = game.Id,
                 WhitePlayerUsername = whiteUsername!,
                 BlackPlayerUsername = blackUsername!,
-                IsWhitePlayer = game.WhitePlayerId == request.UserId,
+                IsWhitePlayer = game.WhitePlayerId == query.UserId,
                 IsWhiteTurn = game.Board.IsWhiteTurn,
 
                 Status = game.Status,

@@ -47,7 +47,7 @@ namespace Chess.Domain.Entities
         /// <summary>
         /// Enables a player to join a <see cref="ChessGame"/> in a <see cref="GameStatus.WaitingForOpponent"/> state.
         /// </summary>
-        /// <param name="playerId">The identifier of the player attempting to fill the Black pieces slot.</param>
+        /// <param name="playerId">The id of the player attempting to fill the Black player slot.</param>
         /// <exception cref="GameStateTransitionException">
         /// Thrown if the game lobby is not in a receptive state, or if the spot is already occupied.
         /// </exception>
@@ -66,6 +66,11 @@ namespace Chess.Domain.Entities
             Status = GameStatus.NotStarted;
         }
 
+        /// <summary>
+        /// Enables the non-host player to leave a <see cref="ChessGame"/> that is in a <see cref="GameStatus.NotStarted"/> state.
+        /// </summary>
+        /// <param name="playerId">Id of the player attempting to leave the <see cref="ChessGame"/>.</param>
+        /// <exception cref="NotPlayerException"></exception>
         public void Leave(string playerId)
         {
             if (Status != GameStatus.NotStarted && Status != GameStatus.WaitingForOpponent) 
@@ -230,6 +235,15 @@ namespace Chess.Domain.Entities
             }
         }
 
+        /// <summary>
+        /// Allows a player to offer a draw to another. This method is used to store that draw offer using the 
+        /// <see cref="ChessGame.DisconnectedPlayerId"/> attribute, to ensure that it is recorded in the database, and that 
+        /// a single player can not offer a draw, and accept it on behalf of the opponent. 
+        /// </summary>
+        /// <param name="playerId">Id of the player offering a draw.</param>
+        /// <exception cref="GameNotActiveException"></exception>
+        /// <exception cref="GameStateTransitionException"></exception>
+        /// <exception cref="NotPlayerException"></exception>
         public void OfferDraw(string playerId)
         {
             if (Status != GameStatus.Active)
@@ -287,8 +301,10 @@ namespace Chess.Domain.Entities
         /// <summary>
         /// Checks if the specified playerid is able to move a piece in the game, in its current turn.
         /// </summary>
-        /// <param name="playerId"></param>
-        /// <returns></returns>
+        /// <param name="playerId">Id of the player being checked.</param>
+        /// <returns>
+        /// True if they provided player id is connected to a player that can move. 
+        /// </returns>
         public bool CanPlayerMove(string playerId)
         {
             if (Status != GameStatus.Active)
