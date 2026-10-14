@@ -45,7 +45,13 @@ namespace Chess.Application.Games.Queries.ReviewGame
                 EndReason = game.EndReason,
 
                 NumberOfMoves = game.MoveHistory.Count,
-                Pieces = RetrievePieces(game)
+                Pieces = RetrievePieces(game),
+                MoveHistory = game.MoveHistory
+                    .Select(move => new MoveDto
+                    {
+                        Notation = move.Notation ?? string.Empty
+                    })
+                    .ToList()
             };
 
             return result;

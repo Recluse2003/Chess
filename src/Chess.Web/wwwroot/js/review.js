@@ -8,10 +8,13 @@ const lastMoveButton = document.getElementById("last-move");
 
 const moveNumberCounter = document.getElementById("move-number");
 
+const moveHistoryList = document.getElementById("move-history-list");
+
 const numberOfMoves = Number(board.dataset.numberOfMoves);
 let currentMoveNumber = numberOfMoves
 
 changeMoveButtonsAvailability();
+updateSelectedHistoryMove();
 
 firstMoveButton.addEventListener("click", () => {
     if (currentMoveNumber > 0) {
@@ -57,6 +60,38 @@ function changeMoveButtonsAvailability() {
     }
 }
 
+moveHistoryList.addEventListener("click", (event) => {
+    const moveButton = event.target.closest(".move-history-move");
+
+    if (!moveButton) {
+        return;
+    }
+
+    const targetMoveNumber = Number(moveButton.dataset.moveNumber);
+
+    if (targetMoveNumber !== currentMoveNumber) {
+        reviewMove(targetMoveNumber);
+    }
+});
+
+function updateSelectedHistoryMove() {
+    const moveButtons = moveHistoryList.querySelectorAll(".move-history-move");
+
+    moveButtons.forEach(button => {
+        const moveNumber = Number(button.dataset.moveNumber);
+        const isSelected = moveNumber === currentMoveNumber;
+
+        button.classList.toggle("selected-move", isSelected);
+
+        if (isSelected) {
+            button.setAttribute("aria-current", "step");
+        } else {
+            button.removeAttribute("aria-current");
+        }
+    });
+}
+
+
 async function reviewMove(targetMoveNumber) {
     try {
         const response = await fetch(`${window.location.pathname}?handler=ReviewMove`, {
@@ -88,6 +123,7 @@ async function reviewMove(targetMoveNumber) {
         moveNumberCounter.textContent = `${currentMoveNumber} / ${numberOfMoves}`;
 
         changeMoveButtonsAvailability();
+        updateSelectedHistoryMove();
     }
     catch (err) {
         console.error(err);

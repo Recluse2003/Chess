@@ -12,19 +12,8 @@
 
 @Html.AntiForgeryToken()
 
-<div class="container">
-    <header>
-        <h1>Chess Game</h1>
-
-        <p><strong>Game ID: </strong>@Model.GameDetails!.GameId</p>
-
-        <p>
-            <strong>Status: </strong>
-            @Model.GameDetails.Status
-        </p>
-    </header>
-
-    <section class="chess-game-container @(Model.GameDetails.IsWhiteTurn ? "white-turn" : "black-turn")">
+<section class="game-main">
+    <div class="chess-game-container @(Model.GameDetails.IsWhiteTurn ? "white-turn" : "black-turn")">
         <div class="player-name opponent-name">
             @(Model.GameDetails.IsWhitePlayer
                 ? Model.GameDetails.BlackPlayerUsername ?? "Waiting for opponent"
@@ -33,10 +22,10 @@
 
         <div class="chess-board"
              data-game-id="@Model.GameDetails.GameId"
+             data-number-of-moves="@Model.GameDetails.NumberOfMoves"
              data-status="@Model.GameDetails.Status"
              data-is-white-turn="@Model.GameDetails.IsWhiteTurn"
-             data-is-white-player="@Model.GameDetails.IsWhitePlayer"
-             data-number-of-moves="@Model.GameDetails.NumberOfMoves">
+             data-is-white-player="@Model.GameDetails.IsWhitePlayer">
 
             @if (Model.GameDetails.IsWhitePlayer)
             {
@@ -93,7 +82,9 @@
                 ? Model.GameDetails.WhitePlayerUsername
                 : Model.GameDetails.BlackPlayerUsername ?? "Waiting for opponent")
         </div>
+    </div>
 
+    <div class="game-actions">
         <div class="move-navigator">
             <button id="first-move">|&lt;</button>
             <button id="previous-move">&lt;</button>
@@ -101,7 +92,45 @@
             <button id="next-move">&gt;</button>
             <button id="last-move">&gt;|</button>
         </div>
-    </section>
+    </div>
+</section>
+
+<aside class="move-history">
+    <h2>Move history</h2>
+    <div class="move-history-header">
+        <span>#</span>
+        <span>White</span>
+        <span>Black</span>
+    </div>
+
+    <div id="move-history-list" class="move-history-list">
+        @for (int i = 0; i < Model.GameDetails.MoveHistory.Count; i += 2)
+        {
+            <div class="move-history-row">
+                <span>@(i / 2 + 1).</span>
+
+                <button type="button"
+                        class="move-history-move"
+                        data-move-number="@(i + 1)">
+                    @Model.GameDetails.MoveHistory[i].Notation
+                </button>
+
+                @if (i + 1 < Model.GameDetails.MoveHistory.Count)
+                {
+                    <button type="button"
+                            class="move-history-move"
+                            data-move-number="@(i + 2)">
+                        @Model.GameDetails.MoveHistory[i + 1].Notation
+                    </button>
+                }
+                else
+                {
+                    <span></span>
+                }
+            </div>
+        }
+    </div>
+</aside>
 
     <dialog id="game-end-modal" class="game-end-modal-overlay hidden">
         <div class="game-end-modal-box">
@@ -111,7 +140,6 @@
             <p id="game-end-message"></p>
         </div>
     </dialog>
-</div>
 
 @section Scripts {
     <script src="~/lib/microsoft/signalr/dist/browser/signalr.js" asp-append-version="true"></script>

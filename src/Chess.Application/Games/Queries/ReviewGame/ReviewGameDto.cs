@@ -16,6 +16,6 @@ namespace Chess.Application.Games.Queries.ReviewGame
 
         public int NumberOfMoves { get; init; }
         public IReadOnlyList<PieceDto> Pieces { get; init; } = [];
-
+        public IReadOnlyList<MoveDto> MoveHistory { get; init; } = [];
     }
 }

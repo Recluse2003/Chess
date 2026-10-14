@@ -5,7 +5,6 @@ using Chess.Application.Games.Commands.OfferDraw;
 using Chess.Application.Games.Commands.PauseGame;
 using Chess.Application.Games.Commands.ResumeGame;
 using Chess.Application.Games.Queries.GetActiveGameByUserId;
-using Chess.Application.Games.Queries.GetGameById;
 using Chess.Application.Games.Queries.VerifyGameMembership;
 using Chess.Application.Games.Queries.ViewGame;
 using Chess.Domain.Entities;
