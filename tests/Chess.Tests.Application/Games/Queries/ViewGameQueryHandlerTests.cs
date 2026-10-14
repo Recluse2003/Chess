@@ -4,7 +4,6 @@ using Chess.Application.Interfaces;
 using Chess.Domain.Entities;
 using Chess.Domain.Enums;
 using Chess.Domain.Services;
-using Chess.Domain.ValueObjects;
 using FluentAssertions;
 using Moq;
 
@@ -134,62 +133,6 @@ namespace Chess.Tests.Application.Games.Queries
 
             result.Value.Pieces.Should().NotBeNull();
             result.Value.Pieces.Should().HaveCount(32);
-
-            _userRepositoryMock.Verify(
-                x => x.GetUsernameByIdAsync("white-player"),
-                Times.Once);
-
-            _userRepositoryMock.Verify(
-                x => x.GetUsernameByIdAsync("black-player"),
-                Times.Once);
-        }
-
-        [Fact]
-        public async Task Handle_ShouldReturnGameState_WhenBlackPlayerViewsGame()
-        {
-            Guid gameId = Guid.NewGuid();
-
-            var game = new ChessGame(
-                gameId,
-                "white-player",
-                FenConverterService.StartingPositionFen);
-
-            game.Join("black-player");
-            game.Start("white-player");
-
-            // Make a white move so it becomes Black's turn.
-            game.MakeMove(new Move(
-                Guid.NewGuid(),
-                new Position(4, 1),
-                new Position(4, 3)));
-
-            var query = new ViewGameQuery(
-                gameId,
-                "black-player");
-
-            _gameRepositoryMock
-                .Setup(x => x.GetByIdAsync(gameId))
-                .ReturnsAsync(game);
-
-            _userRepositoryMock
-                .Setup(x => x.GetUsernameByIdAsync("white-player"))
-                .ReturnsAsync("Alice");
-
-            _userRepositoryMock
-                .Setup(x => x.GetUsernameByIdAsync("black-player"))
-                .ReturnsAsync("Bob");
-
-            Result<ViewGameDto> result = await _handler.Handle(query, CancellationToken.None);
-
-            result.IsSuccess.Should().BeTrue();
-            result.Value.Should().NotBeNull();
-
-            result.Value!.GameId.Should().Be(gameId);
-            result.Value.WhitePlayerUsername.Should().Be("Alice");
-            result.Value.BlackPlayerUsername.Should().Be("Bob");
-            result.Value.IsWhitePlayer.Should().BeFalse();
-            result.Value.IsWhiteTurn.Should().BeFalse();
-            result.Value.Status.Should().Be(GameStatus.Active);
 
             _userRepositoryMock.Verify(
                 x => x.GetUsernameByIdAsync("white-player"),

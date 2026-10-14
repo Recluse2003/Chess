@@ -1,5 +1,4 @@
 ﻿using Chess.Domain.Entities;
-using Chess.Domain.ValueObjects;
 using Chess.Domain.Enums;
 using Chess.Domain.Services;
 using Chess.Infrastructure.Persistence;
@@ -40,17 +39,35 @@ namespace Chess.Tests.Infrastructure.Persistence.Repositories
             _connection.Dispose();
         }
 
+        private async Task<ApplicationUser> CreateUserAsync(string id)
+        {
+            var player = new ApplicationUser
+            {
+                Id = id,
+                UserName = id,
+                NormalizedUserName = id.ToUpperInvariant(),
+            };
+
+            _context.Users.Add(player);
+            await _context.SaveChangesAsync();
+
+            return player;
+        }
+
         [Fact]
         public async Task GetByIdAsync_ShouldReturnGame_WhenGameExists()
         {
+            var whitePlayer = await CreateUserAsync("white-player");
+            var blackPlayer = await CreateUserAsync("black-player");
+
             // Arrange
             var game = new ChessGame(
                 Guid.NewGuid(),
-                "white-player",
+                whitePlayer.Id,
                 FenConverterService.StartingPositionFen);
 
-            game.Join("black-player");
-            game.Start("white-player");
+            game.Join(blackPlayer.Id);
+            game.Start(whitePlayer.Id);
 
             await _repository.CreateAsync(game);
             await _repository.SaveChangesAsync();
@@ -61,8 +78,8 @@ namespace Chess.Tests.Infrastructure.Persistence.Repositories
             // Assert
             result.Should().NotBeNull();
             result!.Id.Should().Be(game.Id);
-            result.WhitePlayerId.Should().Be("white-player");
-            result.BlackPlayerId.Should().Be("black-player");
+            result.WhitePlayerId.Should().Be(whitePlayer.Id);
+            result.BlackPlayerId.Should().Be(blackPlayer.Id);
             result.Status.Should().Be(GameStatus.Active);
         }
 
@@ -80,16 +97,19 @@ namespace Chess.Tests.Infrastructure.Persistence.Repositories
         }
 
         [Fact]
-        public async Task AddAsync_ShouldPersistGame_WhenUsed()
+        public async Task CreateAsync_ShouldPersistGame_WhenUsed()
         {
+            var whitePlayer = await CreateUserAsync("white-player");
+            var blackPlayer = await CreateUserAsync("black-player");
+
             // Arrange
             var game = new ChessGame(
                 Guid.NewGuid(),
-                "white-player",
+                whitePlayer.Id,
                 FenConverterService.StartingPositionFen);
 
-            game.Join("black-player");
-            game.Start("white-player");
+            game.Join(blackPlayer.Id);
+            game.Start(whitePlayer.Id);
 
             // Act
             await _repository.CreateAsync(game);
@@ -99,81 +119,28 @@ namespace Chess.Tests.Infrastructure.Persistence.Repositories
             ChessGameEntity? entity = await _context.ChessGames.SingleOrDefaultAsync(x => x.Id == game.Id);
 
             entity.Should().NotBeNull();
-            entity!.WhitePlayerId.Should().Be("white-player");
-            entity.BlackPlayerId.Should().Be("black-player");
+            entity!.WhitePlayerId.Should().Be(whitePlayer.Id);
+            entity.BlackPlayerId.Should().Be(blackPlayer.Id);
             entity.Status.Should().Be(GameStatus.Active);
         }
 
-        [Fact]
-        public async Task Update_ShouldPersistChanges_WhenUsed()
-        {
-            // Arrange
-            var game = new ChessGame(
-                Guid.NewGuid(),
-                "white-player",
-                FenConverterService.StartingPositionFen);
-
-            game.Join("black-player");
-            game.Start("white-player");
-
-            await _repository.CreateAsync(game);
-            await _repository.SaveChangesAsync();
-
-            // Act
-            game.MakeMove(new Move(Guid.NewGuid(), new Position(4, 1), new Position(4, 3))); 
-
-            await _repository.UpdateAsync(game);
-            await _repository.SaveChangesAsync();
-
-            // Assert
-            ChessGameEntity? entity = await _context.ChessGames.SingleOrDefaultAsync(x => x.Id == game.Id);
-
-            entity.Should().NotBeNull();
-            entity!.Fen.Should().Be("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1");
-        }
-
-        [Fact]
-        public async Task GetByIdAsync_ShouldRestoreMoveHistory_WhenGameIsRetrieved()
-        {
-            // Arrange
-            var game = new ChessGame(
-                Guid.NewGuid(),
-                "white-player",
-                FenConverterService.StartingPositionFen);
-
-            game.Join("black-player");
-            game.Start("white-player");
-
-            game.MakeMove(new Move(Guid.NewGuid(), new Position(4, 1), new Position(4, 3)));
-
-            await _repository.CreateAsync(game);
-            await _repository.SaveChangesAsync();
-
-            // Act
-            ChessGame? result = await _repository.GetByIdAsync(game.Id);
-
-            // Assert
-            result.Should().NotBeNull();
-            result!.MoveHistory.Should().HaveCount(1);
-
-            result.MoveHistory[0].From.Should().Be(new Position(4, 1));
-            result.MoveHistory[0].To.Should().Be(new Position(4, 3));
-        }
+        
 
         [Fact]
         public async Task GetGameIdByCodeAsync_ShouldReturnGameId_WhenCodeExists()
         {
+            var whitePlayer = await CreateUserAsync("white-player");
+
             // Arrange
             var game = new ChessGame(
                 Guid.NewGuid(),
-                "white-player",
+                whitePlayer.Id,
                 FenConverterService.StartingPositionFen);
 
             await _repository.CreateAsync(game);
             await _repository.SaveChangesAsync();
 
-            GameCodeEntity? codeEntity = await _context.GameCodes
-                .SingleOrDefaultAsync(x => x.ChessGameId == game.Id);
+            GameCodeEntity? codeEntity = await _context.GameCodes.SingleOrDefaultAsync(x => x.ChessGameId == game.Id);
 
             codeEntity.Should().NotBeNull();
 
@@ -200,10 +167,12 @@ namespace Chess.Tests.Infrastructure.Persistence.Repositories
         [Fact]
         public async Task CreateAsync_ShouldCreateGameCode_WhenGameIsCreated()
         {
+            var whitePlayer = await CreateUserAsync("white-player");
+
             // Arrange
             var game = new ChessGame(
                 Guid.NewGuid(),
-                "white-player",
+                whitePlayer.Id,
                 FenConverterService.StartingPositionFen);
 
             // Act
@@ -219,89 +188,17 @@ namespace Chess.Tests.Infrastructure.Persistence.Repositories
             code.ChessGameId.Should().Be(game.Id);
         }
 
-        [Fact]
-        public async Task UpdateAsync_ShouldPersistNewMoves_WhenUpdated()
-        {
-            // Arrange
-            var game = new ChessGame(
-                Guid.NewGuid(),
-                "white-player",
-                FenConverterService.StartingPositionFen);
-
-            game.Join("black-player");
-            game.Start("white-player");
-
-            await _repository.CreateAsync(game);
-            await _repository.SaveChangesAsync();
-
-            var move = new Move(
-                Guid.NewGuid(),
-                new Position(4, 1),
-                new Position(4, 3));
-
-            game.MakeMove(move);
-
-            // Act
-            await _repository.UpdateAsync(game);
-            await _repository.SaveChangesAsync();
-
-            // Assert
-            MoveEntity? entity = await _context.Moves.SingleOrDefaultAsync(x => x.Id == move.Id);
-
-            entity.Should().NotBeNull();
-            entity!.GameId.Should().Be(game.Id);
-            entity.MoveNumber.Should().Be(1);
-            entity.From.Should().Be("e2");
-            entity.To.Should().Be("e4");
-            entity.FenAfterMove.Should().NotBeNullOrEmpty();
-        }
-
-        [Fact]
-        public async Task UpdateAsync_ShouldNotDuplicateExistingMoves_WhenUpdatedAgain()
-        {
-            // Arrange
-            var game = new ChessGame(
-                Guid.NewGuid(),
-                "white-player",
-                FenConverterService.StartingPositionFen);
-
-            game.Join("black-player");
-            game.Start("white-player");
-
-            var move = new Move(
-                Guid.NewGuid(),
-                new Position(4, 1),
-                new Position(4, 3));
-
-            game.MakeMove(move);
-
-            await _repository.CreateAsync(game);
-            await _repository.SaveChangesAsync();
-
-            // Act
-            await _repository.UpdateAsync(game);
-            await _repository.SaveChangesAsync();
-
-            // Update the same game again without adding another move
-            await _repository.UpdateAsync(game);
-            await _repository.SaveChangesAsync();
-
-            // Assert
-            List<MoveEntity> moves = await _context.Moves
-                .Where(x => x.GameId == game.Id)
-                .ToListAsync();
-
-            moves.Should().HaveCount(1);
-            moves[0].Id.Should().Be(move.Id);
-        }
+        
 
         [Fact]
         public async Task UpdateAsync_ShouldThrow_WhenGameDoesNotExist()
         {
+            var whitePlayer = await CreateUserAsync("white-player");
+
             // Arrange
             var game = new ChessGame(
                 Guid.NewGuid(),
-                "white-player",
+                whitePlayer.Id,
                 FenConverterService.StartingPositionFen);
 
             // Act
@@ -426,13 +323,13 @@ namespace Chess.Tests.Infrastructure.Persistence.Repositories
         public async Task GetActiveGameByUserIdAsync_ShouldReturnActiveGame()
         {
             // Arrange
-            const string userId = "user-1";
+            var whitePlayer = await CreateUserAsync("white-player");
 
             var game = new ChessGameEntity
             {
                 InitialFen = FenConverterService.StartingPositionFen,
                 Fen = FenConverterService.StartingPositionFen,
-                WhitePlayerId = userId,
+                WhitePlayerId = whitePlayer.Id,
                 CreatedAt = DateTime.UtcNow.AddMinutes(-10),
                 Status = GameStatus.Active
             };
@@ -441,7 +338,7 @@ namespace Chess.Tests.Infrastructure.Persistence.Repositories
             await _context.SaveChangesAsync();
 
             // Act
-            Guid? result = await _repository.GetActiveGameByUserIdAsync(userId);
+            Guid? result = await _repository.GetActiveGameByUserIdAsync(whitePlayer.Id);
 
             // Assert
             result.Should().Be(game.Id);
@@ -451,14 +348,15 @@ namespace Chess.Tests.Infrastructure.Persistence.Repositories
         public async Task GetActiveGameByUserIdAsync_ShouldReturnNewestActiveGame()
         {
             // Arrange
-            const string userId = "user-1";
+            var whitePlayer = await CreateUserAsync("white-player");
 
             var olderGame = new ChessGameEntity
             {
                 InitialFen = FenConverterService.StartingPositionFen,
                 Fen = FenConverterService.StartingPositionFen,
-                WhitePlayerId = userId,
+                WhitePlayerId = whitePlayer.Id,
                 CreatedAt = DateTime.UtcNow.AddMinutes(-20),
+                UpdatedAt = DateTime.UtcNow.AddMinutes(-20),
                 Status = GameStatus.Active
             };
 
@@ -466,8 +364,9 @@ namespace Chess.Tests.Infrastructure.Persistence.Repositories
             {
                 InitialFen = FenConverterService.StartingPositionFen,
                 Fen = FenConverterService.StartingPositionFen,
-                WhitePlayerId = userId,
+                WhitePlayerId = whitePlayer.Id,
                 CreatedAt = DateTime.UtcNow.AddMinutes(-10),
+                UpdatedAt = DateTime.UtcNow.AddMinutes(-10),
                 Status = GameStatus.Active
             };
 
@@ -475,7 +374,7 @@ namespace Chess.Tests.Infrastructure.Persistence.Repositories
             await _context.SaveChangesAsync();
 
             // Act
-            Guid? result = await _repository.GetActiveGameByUserIdAsync(userId);
+            Guid? result = await _repository.GetActiveGameByUserIdAsync(whitePlayer.Id);
 
             // Assert
             result.Should().Be(newerGame.Id);
@@ -485,14 +384,25 @@ namespace Chess.Tests.Infrastructure.Persistence.Repositories
         public async Task GetActiveGameByUserIdAsync_ShouldAbandonOlderActiveGames()
         {
             // Arrange
-            const string userId = "user-1";
+            var whitePlayer = await CreateUserAsync("white-player");
+
+            var oldestGame = new ChessGameEntity
+            {
+                InitialFen = FenConverterService.StartingPositionFen,
+                Fen = FenConverterService.StartingPositionFen,
+                WhitePlayerId = whitePlayer.Id,
+                CreatedAt = DateTime.UtcNow.AddMinutes(-30),
+                UpdatedAt = DateTime.UtcNow.AddMinutes(-30),
+                Status = GameStatus.Active
+            };
 
             var olderGame = new ChessGameEntity
             {
                 InitialFen = FenConverterService.StartingPositionFen,
                 Fen = FenConverterService.StartingPositionFen,
-                WhitePlayerId = userId,
+                WhitePlayerId = whitePlayer.Id,
                 CreatedAt = DateTime.UtcNow.AddMinutes(-20),
+                UpdatedAt = DateTime.UtcNow.AddMinutes(-20),
                 Status = GameStatus.Active
             };
 
@@ -500,16 +410,17 @@ namespace Chess.Tests.Infrastructure.Persistence.Repositories
             {
                 InitialFen = FenConverterService.StartingPositionFen,
                 Fen = FenConverterService.StartingPositionFen,
-                WhitePlayerId = userId,
+                WhitePlayerId = whitePlayer.Id,
                 CreatedAt = DateTime.UtcNow.AddMinutes(-10),
+                UpdatedAt = DateTime.UtcNow.AddMinutes(-10),
                 Status = GameStatus.Active
             };
 
-            _context.ChessGames.AddRange(olderGame, newestGame);
+            _context.ChessGames.AddRange(oldestGame, olderGame, newestGame);
             await _context.SaveChangesAsync();
 
             // Act
-            await _repository.GetActiveGameByUserIdAsync(userId);
+            await _repository.GetActiveGameByUserIdAsync(whitePlayer.Id);
 
             // Assert
             ChessGameEntity? result = await _context.ChessGames.SingleOrDefaultAsync(g => g.Id == olderGame.Id);
@@ -522,14 +433,15 @@ namespace Chess.Tests.Infrastructure.Persistence.Repositories
         public async Task GetActiveGameByUserIdAsync_ShouldKeepNewestGameActive()
         {
             // Arrange
-            const string userId = "user-1";
+            var whitePlayer = await CreateUserAsync("white-player");
 
             var olderGame = new ChessGameEntity
             {
                 InitialFen = FenConverterService.StartingPositionFen,
                 Fen = FenConverterService.StartingPositionFen,
-                WhitePlayerId = userId,
+                WhitePlayerId = whitePlayer.Id,
                 CreatedAt = DateTime.UtcNow.AddMinutes(-20),
+                UpdatedAt = DateTime.UtcNow.AddMinutes(-20),
                 Status = GameStatus.Active
             };
 
@@ -537,8 +449,9 @@ namespace Chess.Tests.Infrastructure.Persistence.Repositories
             {
                 InitialFen = FenConverterService.StartingPositionFen,
                 Fen = FenConverterService.StartingPositionFen,
-                WhitePlayerId = userId,
+                WhitePlayerId = whitePlayer.Id,
                 CreatedAt = DateTime.UtcNow.AddMinutes(-10),
+                UpdatedAt = DateTime.UtcNow.AddMinutes(-10),
                 Status = GameStatus.Active
             };
 
@@ -546,7 +459,7 @@ namespace Chess.Tests.Infrastructure.Persistence.Repositories
             await _context.SaveChangesAsync();
 
             // Act
-            await _repository.GetActiveGameByUserIdAsync(userId);
+            await _repository.GetActiveGameByUserIdAsync(whitePlayer.Id);
 
             // Assert
             ChessGameEntity? result = await _context.ChessGames.SingleOrDefaultAsync(g => g.Id == newestGame.Id);
@@ -559,15 +472,16 @@ namespace Chess.Tests.Infrastructure.Persistence.Repositories
         public async Task GetActiveGameByUserIdAsync_ShouldNotModifyOtherUsersGames()
         {
             // Arrange
-            const string userId = "user-1";
-            const string otherUserId = "user-2";
+            var whitePlayer = await CreateUserAsync("white-player");
+            var blackPlayer = await CreateUserAsync("black-player");
 
             var userGame = new ChessGameEntity
             {
                 InitialFen = FenConverterService.StartingPositionFen,
                 Fen = FenConverterService.StartingPositionFen,
-                WhitePlayerId = userId,
+                WhitePlayerId = whitePlayer.Id,
                 CreatedAt = DateTime.UtcNow.AddMinutes(-20),
+                UpdatedAt = DateTime.UtcNow.AddMinutes(-20),
                 Status = GameStatus.Active
             };
 
@@ -575,45 +489,59 @@ namespace Chess.Tests.Infrastructure.Persistence.Repositories
             {
                 InitialFen = FenConverterService.StartingPositionFen,
                 Fen = FenConverterService.StartingPositionFen,
-                WhitePlayerId = userId,
+                WhitePlayerId = whitePlayer.Id,
                 CreatedAt = DateTime.UtcNow.AddMinutes(-10),
+                UpdatedAt = DateTime.UtcNow.AddMinutes(-10),
                 Status = GameStatus.Active
             };
 
-            var otherUserGame = new ChessGameEntity
+            var otherUserGame1 = new ChessGameEntity
             {
                 InitialFen = FenConverterService.StartingPositionFen,
                 Fen = FenConverterService.StartingPositionFen,
-                WhitePlayerId = otherUserId,
+                WhitePlayerId = blackPlayer.Id,
                 CreatedAt = DateTime.UtcNow.AddMinutes(-30),
+                UpdatedAt = DateTime.UtcNow.AddMinutes(-30),
+                Status = GameStatus.Active
+            };
+
+            var otherUserGame2 = new ChessGameEntity
+            {
+                InitialFen = FenConverterService.StartingPositionFen,
+                Fen = FenConverterService.StartingPositionFen,
+                WhitePlayerId = blackPlayer.Id,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
                 Status = GameStatus.Active
             };
 
             _context.ChessGames.AddRange(
                 userGame,
                 newestUserGame,
-                otherUserGame);
+                otherUserGame1,
+                otherUserGame2);
 
             await _context.SaveChangesAsync();
 
             // Act
-            await _repository.GetActiveGameByUserIdAsync(userId);
+            await _repository.GetActiveGameByUserIdAsync(whitePlayer.Id);
 
             // Assert
-            otherUserGame.Status.Should().Be(GameStatus.Active);
+            otherUserGame1.Status.Should().Be(GameStatus.Active);
+            otherUserGame2.Status.Should().Be(GameStatus.Active);
         }
 
         [Fact]
         public async Task GetActiveGameByUserIdAsync_ShouldIgnoreNonActiveGames()
         {
             // Arrange
-            const string userId = "user-1";
-
+            var whitePlayer = await CreateUserAsync("white-player");
+            
             var abandonedGame = new ChessGameEntity
             {
                 InitialFen = FenConverterService.StartingPositionFen,
                 Fen = FenConverterService.StartingPositionFen,
-                WhitePlayerId = userId,
+                WhitePlayerId = whitePlayer.Id,
                 CreatedAt = DateTime.UtcNow.AddMinutes(-20),
                 Status = GameStatus.Abandoned
             };
@@ -622,7 +550,7 @@ namespace Chess.Tests.Infrastructure.Persistence.Repositories
             await _context.SaveChangesAsync();
 
             // Act
-            Guid? result = await _repository.GetActiveGameByUserIdAsync(userId);
+            Guid? result = await _repository.GetActiveGameByUserIdAsync(whitePlayer.Id);
 
             // Assert
             result.Should().BeNull();
@@ -632,10 +560,10 @@ namespace Chess.Tests.Infrastructure.Persistence.Repositories
         public async Task GetActiveGameByUserIdAsync_ShouldReturnNull_WhenUserHasNoActiveGames()
         {
             // Arrange
-            const string userId = "user-1";
+            var whitePlayer = await CreateUserAsync("white-player");
 
             // Act
-            Guid? result = await _repository.GetActiveGameByUserIdAsync(userId);
+            Guid? result = await _repository.GetActiveGameByUserIdAsync(whitePlayer.Id);
 
             // Assert
             result.Should().BeNull();

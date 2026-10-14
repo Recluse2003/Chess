@@ -39,26 +39,38 @@ namespace Chess.Tests.Infrastructure.Persistence.Repositories
 
         private async Task<Guid> CreateGameWithCodeAsync(string code)
         {
+            var player = new ApplicationUser
+            {
+                Id = "white-player",
+                UserName = "white-player",
+                NormalizedUserName = "WHITE-PLAYER"
+            };
+
+            _context.Users.Add(player);
+            await _context.SaveChangesAsync();
+
             Guid gameId = Guid.NewGuid();
 
             var game = new ChessGameEntity
             {
                 Id = gameId,
-                WhitePlayerId = "white-player",
+                WhitePlayerId = player.Id,
                 InitialFen = FenConverterService.StartingPositionFen,
                 Fen = FenConverterService.StartingPositionFen,
+                IsPrivate = false,
                 Status = GameStatus.WaitingForOpponent
             };
+
+            _context.ChessGames.Add(game);
+            await _context.SaveChangesAsync();
 
             var gameCode = new GameCodeEntity
             {
                 Code = code,
-                ChessGameId = gameId
+                ChessGameId = game.Id
             };
 
-            _context.ChessGames.Add(game);
             _context.GameCodes.Add(gameCode);
-
             await _context.SaveChangesAsync();
 
             return gameId;

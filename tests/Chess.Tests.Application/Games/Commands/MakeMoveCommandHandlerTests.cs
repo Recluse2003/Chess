@@ -14,16 +14,19 @@ namespace Chess.Tests.Application.Games.Commands
     {
         private readonly Mock<IChessGameRepository> _gameRepositoryMock;
         private readonly ChessRulesService _rules;
+        private readonly SanNotationService _sanNotationService;
         private readonly MakeMoveCommandHandler _handler;
 
         public MakeMoveCommandHandlerTests()
         {
             _gameRepositoryMock = new Mock<IChessGameRepository>();
             _rules = new ChessRulesService();
+            _sanNotationService = new SanNotationService(_rules);
 
             _handler = new MakeMoveCommandHandler(
                 _gameRepositoryMock.Object,
-                _rules);
+                _rules,
+                _sanNotationService);
         }
 
         [Fact]
