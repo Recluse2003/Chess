@@ -46,7 +46,7 @@ namespace Chess.Application.Games.Commands.LeaveLobby
             // Host leaving closes the entire lobby.
             if (game.WhitePlayerId == command.UserId)
             {
-                await _gameRepository.DeleteAsync(game.Id);
+                await _gameRepository.DeleteByGameIdAsync(game.Id);
                 await _gameRepository.SaveChangesAsync();
 
                 return true;

@@ -1,13 +1,15 @@
-﻿using Chess.Domain.Entities;
+﻿using Chess.Application.Games.Queries.GetRandomPublicGames;
+using Chess.Application.Interfaces;
+using Chess.Domain.Entities;
 using Chess.Domain.Enums;
 using Chess.Domain.Services;
 using Chess.Infrastructure.Persistence;
 using Chess.Infrastructure.Persistence.Models;
 using Chess.Infrastructure.Persistence.Repositories;
 using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Data.Sqlite;
-using Chess.Application.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using System.ComponentModel;
 
 namespace Chess.Tests.Infrastructure.Persistence.Repositories
 {
@@ -52,6 +54,27 @@ namespace Chess.Tests.Infrastructure.Persistence.Repositories
             await _context.SaveChangesAsync();
 
             return player;
+        }
+
+        private async Task<ChessGameEntity> CreateGameEntityAsync(string playerId, GameStatus status, DateTime updatedAt, string? opponentId = null)
+        {
+            var game = new ChessGameEntity
+            {
+                Id = Guid.NewGuid(),
+                WhitePlayerId = playerId,
+                BlackPlayerId = opponentId,
+                InitialFen = FenConverterService.StartingPositionFen,
+                Fen = FenConverterService.StartingPositionFen,
+                Status = status,
+                CreatedAt = updatedAt,
+                UpdatedAt = updatedAt,
+                IsPrivate = false
+            };
+
+            _context.ChessGames.Add(game);
+            await _context.SaveChangesAsync();
+
+            return game;
         }
 
         [Fact]
@@ -208,6 +231,49 @@ namespace Chess.Tests.Infrastructure.Persistence.Repositories
             await act.Should()
                 .ThrowAsync<InvalidOperationException>()
                 .WithMessage("Game not found.");
+        }
+
+        [Fact]
+        public async Task DeleteByGameIdAsync_ShouldDeleteGame_WhenGameExists()
+        {
+            // Arrange
+            var whitePlayer = await CreateUserAsync("white-player");
+            var blackPlayer = await CreateUserAsync("black-player");
+
+            var game = new ChessGame(
+                Guid.NewGuid(),
+                whitePlayer.Id,
+                FenConverterService.StartingPositionFen);
+
+            game.Join(blackPlayer.Id);
+            game.Start(whitePlayer.Id);
+
+            await _repository.CreateAsync(game);
+            await _repository.SaveChangesAsync();
+
+            // Act
+            await _repository.DeleteByGameIdAsync(game.Id);
+            await _repository.SaveChangesAsync();
+
+            // Assert
+            var result = await _context.ChessGames
+                .AsNoTracking()
+                .FirstOrDefaultAsync(g => g.Id == game.Id);
+
+            result.Should().BeNull();
+        }
+
+        [Fact]
+        public async Task DeleteByGameIdAsync_ShouldNotThrow_WhenGameDoesNotExist()
+        {
+            // Arrange
+            Guid gameId = Guid.NewGuid();
+
+            // Act
+            var act = async () => await _repository.DeleteByGameIdAsync(gameId);
+
+            // Assert
+            await act.Should().NotThrowAsync();
         }
 
         [Fact]
@@ -568,5 +634,243 @@ namespace Chess.Tests.Infrastructure.Persistence.Repositories
             // Assert
             result.Should().BeNull();
         }
+
+        [Fact]
+        public async Task GetActiveLobbyByUserIdAsync_ShouldReturnNewestLobby_AndAbandonOlderLobbies()
+        {
+            // Arrange
+            var player = await CreateUserAsync("player");
+
+            var olderLobby = await CreateGameEntityAsync(
+                player.Id,
+                GameStatus.WaitingForOpponent,
+                DateTime.UtcNow.AddMinutes(-10));
+
+            var newerLobby = await CreateGameEntityAsync(
+                player.Id,
+                GameStatus.NotStarted,
+                DateTime.UtcNow);
+
+            // Act
+            Guid? result = await _repository.GetActiveLobbyByUserIdAsync(player.Id);
+
+            // Assert
+            result.Should().Be(newerLobby.Id);
+
+            var olderResult = await _context.ChessGames
+                .AsNoTracking()
+                .SingleAsync(g => g.Id == olderLobby.Id);
+
+            var newerResult = await _context.ChessGames
+                .AsNoTracking()
+                .SingleAsync(g => g.Id == newerLobby.Id);
+
+            olderResult.Status.Should().Be(GameStatus.Abandoned);
+            newerResult.Status.Should().Be(GameStatus.NotStarted);
+        }
+
+        [Fact]
+        public async Task GetActiveLobbyByUserIdAsync_ShouldReturnNull_WhenPlayerHasNoActiveLobby()
+        {
+            // Arrange
+            var player = await CreateUserAsync("player");
+
+            await CreateGameEntityAsync(
+                player.Id,
+                GameStatus.WhiteWin,
+                DateTime.UtcNow);
+
+            // Act
+            Guid? result = await _repository.GetActiveLobbyByUserIdAsync(player.Id);
+
+            // Assert
+            result.Should().BeNull();
+        }
+
+        [Fact]
+        public async Task GetActiveLobbyByUserIdAsync_ShouldNotAbandonAnotherPlayersLobby()
+        {
+            // Arrange
+            var player = await CreateUserAsync("player");
+            var otherPlayer = await CreateUserAsync("other-player");
+
+            var otherLobby = await CreateGameEntityAsync(
+                otherPlayer.Id,
+                GameStatus.WaitingForOpponent,
+                DateTime.UtcNow);
+
+            // Act
+            Guid? result = await _repository.GetActiveLobbyByUserIdAsync(player.Id);
+
+            // Assert
+            result.Should().BeNull();
+
+            var persistedGame = await _context.ChessGames
+                .AsNoTracking()
+                .SingleAsync(g => g.Id == otherLobby.Id);
+
+            persistedGame.Status.Should().Be(GameStatus.WaitingForOpponent);
+        }
+
+        [Fact]
+        public async Task GetGamesByUserIdAsync_ShouldReturnOnlyCompletedGamesForPlayer()
+        {
+            // Arrange
+            var player = await CreateUserAsync("player");
+            var opponent = await CreateUserAsync("opponent");
+            var unrelatedPlayer = await CreateUserAsync("unrelated");
+
+            var completedGame = await CreateGameEntityAsync(
+                player.Id,
+                GameStatus.WhiteWin,
+                DateTime.UtcNow,
+                opponent.Id);
+
+            await CreateGameEntityAsync(
+                player.Id,
+                GameStatus.WaitingForOpponent,
+                DateTime.UtcNow.AddMinutes(-1));
+
+            await CreateGameEntityAsync(
+                unrelatedPlayer.Id,
+                GameStatus.BlackWin,
+                DateTime.UtcNow.AddMinutes(-2));
+
+            // Act
+            var result = await _repository.GetGamesByUserIdAsync(
+                player.Id,
+                pageNumber: 1,
+                pageSize: 10);
+
+            // Assert
+            result.TotalCount.Should().Be(1);
+            result.Items.Should().ContainSingle();
+
+            var game = result.Items.First();
+            game.Id.Should().Be(completedGame.Id);
+            game.OpponentUsername.Should().Be(opponent.UserName);
+            game.WasWhitePlayer.Should().BeTrue();
+            game.Status.Should().Be(GameStatus.WhiteWin);
+        }
+
+        [Fact]
+        public async Task GetGamesByUserIdAsync_ShouldReturnWhiteOpponent_WhenPlayerIsBlack()
+        {
+            // Arrange
+            var whitePlayer = await CreateUserAsync("white-player");
+            var blackPlayer = await CreateUserAsync("black-player");
+
+            var game = await CreateGameEntityAsync(
+                whitePlayer.Id,
+                GameStatus.BlackWin,
+                DateTime.UtcNow,
+                blackPlayer.Id);
+
+            // Act
+            var result = await _repository.GetGamesByUserIdAsync(
+                blackPlayer.Id,
+                pageNumber: 1,
+                pageSize: 10);
+
+            // Assert
+            result.TotalCount.Should().Be(1);
+            result.Items.Should().ContainSingle();
+
+            result.Items.First().Id.Should().Be(game.Id);
+            result.Items.First().OpponentUsername.Should().Be(whitePlayer.UserName);
+            result.Items.First().WasWhitePlayer.Should().BeFalse();
+        }
+
+        [Fact]
+        public async Task ForfeitExpiredGamesAsync_ShouldAwardBlackWin_WhenWhitePlayerDisconnected()
+        {
+            // Arrange
+            var whitePlayer = await CreateUserAsync("white-player");
+            var blackPlayer = await CreateUserAsync("black-player");
+
+            var game = await CreateGameEntityAsync(
+                whitePlayer.Id,
+                GameStatus.Paused,
+                DateTime.UtcNow,
+                blackPlayer.Id);
+
+            game.DisconnectedPlayerId = whitePlayer.Id;
+            game.ReconnectDeadline = DateTime.UtcNow.AddMinutes(-5);
+
+            await _context.SaveChangesAsync();
+
+            // Act
+            var result = await _repository.ForfeitExpiredGamesAsync(CancellationToken.None);
+
+            // Assert
+            result.Should().ContainSingle();
+            result[0].GameId.Should().Be(game.Id);
+            result[0].IsWhiteWinner.Should().BeFalse();
+
+            game.Status.Should().Be(GameStatus.BlackWin);
+            game.EndReason.Should().Be(GameEndReason.Disconnect);
+            game.DisconnectedPlayerId.Should().BeNull();
+            game.ReconnectDeadline.Should().BeNull();
+        }
+
+        [Fact]
+        public async Task ForfeitExpiredGamesAsync_ShouldAwardWhiteWin_WhenBlackPlayerDisconnected()
+        {
+            // Arrange
+            var whitePlayer = await CreateUserAsync("white-player");
+            var blackPlayer = await CreateUserAsync("black-player");
+
+            var game = await CreateGameEntityAsync(
+                whitePlayer.Id,
+                GameStatus.Paused,
+                DateTime.UtcNow,
+                blackPlayer.Id);
+
+            game.DisconnectedPlayerId = blackPlayer.Id;
+            game.ReconnectDeadline = DateTime.UtcNow.AddMinutes(-5);
+
+            await _context.SaveChangesAsync();
+
+            // Act
+            var result = await _repository.ForfeitExpiredGamesAsync(CancellationToken.None);
+
+            // Assert
+            result.Should().ContainSingle();
+            result[0].GameId.Should().Be(game.Id);
+            result[0].IsWhiteWinner.Should().BeTrue();
+
+            game.Status.Should().Be(GameStatus.WhiteWin);
+            game.EndReason.Should().Be(GameEndReason.Disconnect);
+            game.DisconnectedPlayerId.Should().BeNull();
+            game.ReconnectDeadline.Should().BeNull();
+        }
+
+        [Fact]
+        public async Task ForfeitExpiredGamesAsync_ShouldIgnoreGame_WhenReconnectDeadlineIsInFuture()
+        {
+            // Arrange
+            var whitePlayer = await CreateUserAsync("white-player");
+            var blackPlayer = await CreateUserAsync("black-player");
+
+            var game = await CreateGameEntityAsync(
+                whitePlayer.Id,
+                GameStatus.Paused,
+                DateTime.UtcNow,
+                blackPlayer.Id);
+
+            game.DisconnectedPlayerId = whitePlayer.Id;
+            game.ReconnectDeadline = DateTime.UtcNow.AddMinutes(5);
+
+            await _context.SaveChangesAsync();
+
+            // Act
+            var result = await _repository.ForfeitExpiredGamesAsync(CancellationToken.None);
+
+            // Assert
+            result.Should().BeEmpty();
+            game.Status.Should().Be(GameStatus.Paused);
+        }
+
+
     }
 }

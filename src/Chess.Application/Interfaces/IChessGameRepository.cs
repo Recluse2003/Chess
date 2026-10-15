@@ -61,7 +61,7 @@ namespace Chess.Application.Interfaces
         /// Deletes the persisted state of an existing <see cref="ChessGame"/> through its id.
         /// </summary>
         /// <param name="gameId">Id of the <see cref="ChessGame"/> containing the updated state.</param>
-        Task DeleteAsync(Guid gameId);
+        Task DeleteByGameIdAsync(Guid gameId);
 
         /// <summary>
         /// Deletes games that were created before the specified cutoff time and have not progressed beyond the waiting 

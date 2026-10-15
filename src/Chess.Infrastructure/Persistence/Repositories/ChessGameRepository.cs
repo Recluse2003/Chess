@@ -132,7 +132,7 @@ namespace Chess.Infrastructure.Persistence.Repositories
         }
 
         /// <inheritdoc />
-        public async Task DeleteAsync(Guid gameId)
+        public async Task DeleteByGameIdAsync(Guid gameId)
         {
             ChessGameEntity? game = await _context.ChessGames
                 .FirstOrDefaultAsync(g => g.Id == gameId);
